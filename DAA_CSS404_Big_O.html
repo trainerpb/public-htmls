@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enterprise Algorithm Study Guide</title>
+
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+            },
+            svg: { fontCache: 'global' }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        /* Core CSS Variables */
+        :root {
+            --bg-color: #f1f5f9;
+            --card-bg: #ffffff;
+            --text-main: #334155;
+            --text-muted: #64748b;
+            --heading-color: #0f172a;
+            --border: #e2e8f0;
+            --highlight-bg: #eff6ff;
+            --table-header: #f8fafc;
+            --sidebar-bg-top: #111827;
+            --sidebar-bg-bottom: #1f2937;
+            --sidebar-hover: #374151;
+            --sidebar-text: #e5e7eb;
+            --sidebar-muted: #9ca3af;
+            --accent: #6366f1;
+            --accent-hover: #4f46e5;
+            --success: #10b981;
+            --warning: #f59e0b;
+        }
+
+        body.dark-mode {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-main: #cbd5e1;
+            --text-muted: #94a3b8;
+            --heading-color: #f8fafc;
+            --border: #334155;
+            --highlight-bg: #0f172a;
+            --table-header: #0f172a;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            display: flex;
+            height: 100vh;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        /* Sidebar & Navigation */
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(to bottom, var(--sidebar-bg-top), var(--sidebar-bg-bottom));
+            color: var(--sidebar-text);
+            display: flex;
+            flex-direction: column;
+            box-shadow: 4px 0 20px rgba(0, 0, 0, 0.15);
+            z-index: 10;
+            transition: transform 0.4s ease, width 0.4s ease;
+        }
+
+        .sidebar-header {
+            padding: 24px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .sidebar-header h2 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        .search-container {
+            padding: 20px;
+        }
+
+        .search-container input {
+            width: 100%;
+            padding: 12px 15px;
+            border-radius: 8px;
+            border: 1px solid transparent;
+            background-color: rgba(255, 255, 255, 0.08);
+            color: #ffffff;
+            outline: none;
+        }
+
+        .search-container input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+        }
+
+        .nav-links {
+            list-style: none;
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 0 10px;
+        }
+
+        .nav-links a {
+            display: block;
+            padding: 10px 16px;
+            color: var(--sidebar-muted);
+            text-decoration: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            margin-bottom: 2px;
+            transition: all 0.2s ease;
+            font-size: 0.95rem;
+        }
+
+        .nav-links a:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+            color: var(--sidebar-text);
+        }
+
+        .nav-links a.active {
+            background-color: var(--accent);
+            color: #ffffff;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+
+        .theme-toggle-container {
+            padding: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .action-btn {
+            width: 100%;
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--sidebar-text);
+            padding: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: background 0.3s ease;
+        }
+
+        .action-btn:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        /* Main Content wrapper */
+        .main-wrapper {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .top-controls {
+            display: flex;
+            justify-content: flex-end;
+            padding: 20px 40px 0 40px;
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 100%;
+            pointer-events: none;
+        }
+
+        .top-controls button {
+            pointer-events: auto;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            transition: all 0.2s ease;
+        }
+
+        .top-controls button:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .main-content {
+            flex-grow: 1;
+            padding: 80px 60px 100px 60px;
+            overflow-y: auto;
+            scroll-behavior: smooth;
+        }
+
+        .content-section {
+            display: none;
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            padding: 50px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03);
+            animation: fadeIn 0.4s ease-in-out;
+            border: 1px solid var(--border);
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateX(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* Typography & Elements */
+        h1 {
+            color: var(--heading-color);
+            margin-bottom: 24px;
+            font-size: 2.2rem;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 12px;
+        }
+
+        h2 {
+            color: var(--accent);
+            margin: 30px 0 15px 0;
+            font-size: 1.5rem;
+        }
+
+        h3 {
+            margin: 20px 0 10px 0;
+            color: var(--heading-color);
+        }
+
+        p {
+            line-height: 1.7;
+            margin-bottom: 16px;
+        }
+
+        ul {
+            margin-bottom: 20px;
+            padding-left: 20px;
+        }
+
+        li {
+            margin-bottom: 10px;
+            line-height: 1.6;
+        }
+
+        .highlight-box {
+            background-color: var(--highlight-bg);
+            border-left: 4px solid var(--accent);
+            padding: 18px 24px;
+            margin: 25px 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .warning-box {
+            background-color: #fffbeb;
+            border-left: 4px solid var(--warning);
+            padding: 18px 24px;
+            margin: 25px 0;
+            border-radius: 0 8px 8px 0;
+            color: #92400e;
+        }
+
+        body.dark-mode .warning-box {
+            background-color: rgba(245, 158, 11, 0.1);
+            color: #fcd34d;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 0.95rem;
+        }
+
+        th,
+        td {
+            padding: 12px 15px;
+            border: 1px solid var(--border);
+            text-align: left;
+        }
+
+        th {
+            background-color: var(--table-header);
+            color: var(--heading-color);
+            font-weight: 600;
+        }
+
+        /* Presentation Mode */
+        body.presentation-mode .sidebar {
+            width: 0;
+            transform: translateX(-100%);
+            overflow: hidden;
+        }
+
+        body.presentation-mode .content-section {
+            max-width: 1400px;
+            font-size: 1.2rem;
+        }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            padding: 20px 60px;
+            background: var(--card-bg);
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-arrow-btn {
+            background: var(--accent);
+            color: #ffffff;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-arrow-btn:hover:not(:disabled) {
+            background: var(--accent-hover);
+        }
+
+        .nav-arrow-btn:disabled {
+            background: var(--sidebar-muted);
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Interactive Components */
+        .interactive-card {
+            background: var(--bg-color);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 30px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .reveal-btn {
+            background-color: var(--accent);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: 0.2s;
+        }
+
+        .reveal-btn:hover {
+            background-color: var(--accent-hover);
+        }
+
+        .answer-box {
+            display: none;
+            margin-top: 25px;
+            padding-top: 25px;
+            border-top: 2px dashed var(--border);
+            text-align: left;
+            animation: fadeIn 0.4s;
+        }
+
+        .answer-box.active {
+            display: block;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 400px;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .cta-container {
+            text-align: center;
+            margin: 40px 0;
+        }
+
+        .cta-btn {
+            background-color: var(--success);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+        }
+
+        .cta-btn:hover {
+            background-color: #059669;
+            transform: translateY(-2px);
+        }
+
+        .property-row {
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            margin-bottom: 15px;
+            overflow: hidden;
+        }
+
+        .property-header {
+            background: var(--table-header);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .property-header h3 {
+            margin: 0;
+            color: var(--heading-color);
+            font-size: 1.1rem;
+        }
+
+        .prop-btn {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .property-content {
+            display: none;
+            padding: 20px;
+            background: var(--card-bg);
+            border-top: 1px solid var(--border);
+        }
+
+        .property-content.active {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+
+        pre {
+            background: #0f172a;
+            color: #e2e8f0;
+            padding: 15px;
+            border-radius: 6px;
+            overflow-x: auto;
+            font-family: monospace;
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav class="sidebar">
+        <div class="sidebar-header">
+            <h2>&#9881; Architect Guide</h2>
+        </div>
+        <div class="search-container">
+            <input type="text" id="searchInput" placeholder="&#128269; Search topics..." onkeyup="searchContent()">
+        </div>
+        <ul class="nav-links" id="sidebarNavLinks">
+            <li><a class="nav-btn active" onclick="jumpToSection(0)">1. Concepts & Scenarios</a></li>
+            <li><a class="nav-btn" onclick="jumpToSection(1)">2. DS & Recursion</a></li>
+            <li><a class="nav-btn" onclick="jumpToSection(2)">3. Triangle Inequality</a></li>
+            <li><a class="nav-btn" onclick="jumpToSection(3)">4. Constants: Theory vs Real</a></li>
+            <li><a class="nav-btn" onclick="jumpToSection(4)">5. Big O Growth Graphs</a></li>
+            <li><a class="nav-btn" onclick="jumpToSection(5)">6. Big O Practice Lab</a></li>
+            <li><a class="nav-btn" onclick="jumpToSection(6)">7. Interactive Properties</a></li>
+        </ul>
+        <div class="theme-toggle-container">
+            <button class="action-btn" onclick="toggleTheme()" id="themeBtn"><span id="themeIcon">🌙</span> Dark
+                Mode</button>
+        </div>
+    </nav>
+
+    <div class="main-wrapper">
+        <div class="top-controls">
+            <button onclick="togglePresentation()" id="presToggleBtn">&#128250; Enter Presentation</button>
+        </div>
+
+        <main class="main-content" id="mainArea">
+
+            <section id="sec0" class="content-section active">
+                <h1>Algorithms & Time-Space Tradeoffs</h1>
+                <p>An algorithm is a step-by-step, unambiguous sequence of instructions designed to solve a specific
+                    problem. In an enterprise environment, poor algorithmic choices don't just slow down an app—they
+                    cost money in cloud compute fees and lead to systemic outages.</p>
+
+                <h2>Real-Life Scenario: The E-commerce Bottleneck</h2>
+                <p>Imagine an online retailer processing a daily inventory file of 1 million items. An engineer writes a
+                    naive duplicate-checking algorithm that compares every item to every other item $O(n^2)$.</p>
+                <ul>
+                    <li><strong>The Cost:</strong> 1 million items = 1 trillion comparisons. The server takes 11 days to
+                        process one file.</li>
+                    <li><strong>The Fix:</strong> Applying a Hash Set $O(n)$ drops the processing time to 0.4 seconds.
+                    </li>
+                </ul>
+
+                <h2>The Time-Space Trade-off</h2>
+                <div class="highlight-box">
+                    Often, you can significantly reduce the execution <strong>time</strong> of an algorithm by using
+                    more memory <strong>space</strong>.
+                </div>
+            </section>
+
+            <section id="sec1" class="content-section">
+                <h1>Data Structures & The Cost of Recursion</h1>
+                <h2>ArrayList vs. LinkedList in Enterprise</h2>
+                <ul>
+                    <li><strong>ArrayList (Dynamic Array):</strong> Uses contiguous memory. CPUs can accurately
+                        pre-fetch data. <strong>Use Case:</strong> Read-heavy dashboards where you need instant $O(1)$
+                        random access.</li>
+                    <li><strong>LinkedList:</strong> Nodes scattered in memory. <strong>Use Case:</strong> Real-time
+                        event log processors where data is constantly appended/removed from the edges in $O(1)$ time.
+                    </li>
+                </ul>
+
+                <h2>Naive Recursion Flaws</h2>
+                <p>The Fibonacci sequence: $F(n) = F(n-1) + F(n-2)$. If executed natively without optimization, the tree
+                    branches exponentially, taking $O(2^n)$ time.</p>
+
+                <h2>Memoization (Caching)</h2>
+                <p>By creating a cache array to store values, we prune the recursion tree. The time complexity drops
+                    instantly to $O(n)$, utilizing the Time-Space tradeoff.</p>
+            </section>
+
+            <section id="sec2" class="content-section">
+                <h1>The Triangle Inequality in Big O</h1>
+                <p>When analyzing polynomial algorithms, you will frequently encounter negative terms (e.g., $n^2 -
+                    5n$). Finding an upper bound mathematically can be tricky with subtraction. We solve this using the
+                    <strong>Triangle Inequality Theorem</strong>.
+                </p>
+
+                <div class="highlight-box">
+                    <strong>Theorem:</strong> $$|a + b| \le |a| + |b|$$
+                </div>
+
+                <h2>How we use it to drop negative terms</h2>
+                <p>To prove $f(n) = O(g(n))$, we must show $|f(n)| \le c \cdot |g(n)|$.</p>
+                <p>Take $f(n) = n^2 - 5n + 6$. We apply the inequality:</p>
+                $$|n^2 - 5n + 6| \le |n^2| + |-5n| + |6|$$
+                $$= n^2 + 5n + 6$$
+                <p>By converting the subtraction to an addition of absolute values, we create a strict mathematical
+                    upper bound. Now we can easily bound it to the highest degree:</p>
+                $$n^2 + 5n + 6 \le n^2 + 5n^2 + 6n^2 = 12n^2$$
+                <p>Therefore, it is $O(n^2)$.</p>
+            </section>
+
+            <section id="sec3" class="content-section">
+                <h1>General Polynomial Rule & Constants</h1>
+                <h2>The Generic Coefficient Rule</h2>
+                <p>Because of the Triangle Inequality, we can mathematically prove a universal shortcut. For ANY
+                    polynomial of degree $k$:</p>
+                $$f(n) = a_k n^k + a_{k-1} n^{k-1} + \dots + a_1 n + a_0$$
+                <p>We can always find the constant $c$ by simply summing the absolute values of its coefficients:</p>
+                <div class="highlight-box">
+                    $$c = |a_k| + |a_{k-1}| + \dots + |a_1| + |a_0|$$
+                </div>
+                <p>This strictly guarantees that $f(n) = O(n^k)$.</p>
+
+                <h2>Theory vs. Real World: Does $c=7$ or $c=10$ matter?</h2>
+                <p>If $f(n) = 5n^2 - 2n$. We can prove it is $\le 5n^2$ (dropping the negative) so $c=5$. Or we can use
+                    the absolute sum rule $\le 7n^2$, making $c=7$.</p>
+
+                <div class="warning-box">
+                    <strong>Mathematical Theory:</strong> $c=5$, $c=7$, and $c=10$ are identically correct. Big O
+                    notation only cares about the shape of the curve ($n^2$) as it stretches toward infinity. All
+                    constants are ignored.
+                </div>
+
+                <p><strong>Enterprise Reality:</strong> In real software, $N$ is never infinity. If an algorithm takes
+                    $7n^2$ operations versus $10n^2$ operations, the $10n^2$ algorithm requires <strong>42% more CPU
+                        cycles</strong>. On a massive dataset processed via AWS Lambda, that difference directly
+                    translates to thousands of dollars in monthly cloud computing bills. Constants don't matter on the
+                    chalkboard, but they dictate profitability in production.</p>
+            </section>
+
+            <section id="sec4" class="content-section">
+                <h1>Visualizing Big O Growth Curves</h1>
+                <p>Below is a dynamic chart representing exactly how different time complexities scale as the data input
+                    ($N$) grows. Notice how quickly Exponential and Factorial curves explode off the chart compared to
+                    Logarithmic and Linear curves.</p>
+
+                <div class="chart-container">
+                    <canvas id="bigOChart"></canvas>
+                </div>
+
+                <div class="cta-container">
+                    <button class="cta-btn" onclick="jumpToSection(5)">I understand the curves. Proceed to Practice Lab
+                        &#8594;</button>
+                </div>
+            </section>
+
+            <section id="sec5" class="content-section">
+                <h1>Interactive Big O Practice Lab</h1>
+                <p>Let's mathematically prove the asymptotic bounds for 20 different polynomial functions. Try to
+                    calculate the exact constants ($c$) in your head before revealing the answer!</p>
+
+                <div class="interactive-card" id="practiceCardUI">
+                    <h3 id="pracCount">Example 1 of 20</h3>
+                    <h2 id="pracEquation">$$f(n) = 3n + 5$$</h2>
+                    <p><strong>Target:</strong> Find constants to prove this is <span id="pracTarget"
+                            style="font-weight: bold; color: var(--accent);">O(n)</span>.</p>
+
+                    <button class="reveal-btn" id="revealBtn" onclick="revealPractice()">Reveal Answer</button>
+
+                    <div class="answer-box" id="pracAnswerBox">
+                        <h3>Derivation (Assuming $n \ge 1$):</h3>
+                        <div id="pracDerivation" style="font-size: 1.2rem; margin: 15px 0;">$$3n + 5 \le 3n + 5n = 8n$$
+                        </div>
+                        <p><strong>Constants:</strong> <span id="pracConstants"
+                                style="color: var(--accent); font-weight: bold; font-size: 1.1rem;">c = 8, n_0 =
+                                1</span></p>
+                    </div>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; margin-top: 15px;">
+                    <button class="action-btn" style="width: auto; padding: 10px 25px;"
+                        onclick="navPractice(-1)">&#8592; Previous</button>
+                    <button class="action-btn"
+                        style="width: auto; padding: 10px 25px; background: var(--sidebar-bg-top);"
+                        onclick="navPractice(1)">Next Problem &#8594;</button>
+                </div>
+
+                <div class="cta-container">
+                    <button class="cta-btn" onclick="showAllPracticeTable()">Show All 20 Solutions (Cheat
+                        Sheet)</button>
+                </div>
+
+                <div id="allPracticeTableContainer" style="display: none; animation: fadeIn 0.5s;">
+                    <table id="allPracticeTable">
+                        <thead>
+                            <tr>
+                                <th>Function</th>
+                                <th>Target</th>
+                                <th>Derivation</th>
+                                <th>Constants</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section id="sec6" class="content-section">
+                <h1>Properties of Big O Notation</h1>
+                <p>These mathematical rules allow engineers to look at a massive, complex enterprise function and
+                    simplify it down to a clean, single-term expression.</p>
+
+                <div id="propertiesContainer">
+                    <div class="property-row">
+                        <div class="property-header">
+                            <div>
+                                <h3>1. Constant Multiplication (Scale Invariance)</h3>
+                                <small>$$O(c \cdot f(n)) = O(f(n))$$</small>
+                            </div>
+                            <button class="prop-btn" onclick="toggleProp('prop1')">Real-Life Scenario</button>
+                        </div>
+                        <div class="property-content" id="prop1">
+                            <p><strong>Plain English:</strong> We drop all constant multipliers. As input grows to
+                                infinity, constants don't change the curve's category.</p>
+                            <p><strong>Enterprise Use Case:</strong> An API endpoint loops through $N$ users, and for
+                                each user, executes exactly 5 database updates.</p>
+                            <pre>
+for(let user of users) {
+   updateName(); updateEmail(); updateLastLogin(); 
+   updateStatus(); updateLogs();
+}
+</pre>
+                            <div class="highlight-box"><strong>Calculation:</strong> Time is $O(5n)$. We drop the 5.
+                                Final Complexity = <strong>$O(n)$</strong>.</div>
+                        </div>
+                    </div>
+
+                    <div class="property-row">
+                        <div class="property-header">
+                            <div>
+                                <h3>2. Sum Rule (Addition Rule)</h3>
+                                <small>$$O(f(n)) + O(g(n)) = O(\max(f(n), g(n)))$$</small>
+                            </div>
+                            <button class="prop-btn" onclick="toggleProp('prop2')">Real-Life Scenario</button>
+                        </div>
+                        <div class="property-content" id="prop2">
+                            <p><strong>Plain English:</strong> When executing sequential blocks of code, the largest
+                                (dominant) complexity absorbs the smaller ones.</p>
+                            <p><strong>Enterprise Use Case:</strong> Generating a report. First, you search an array
+                                sequentially for a specific ID ($O(n)$). Then, you sort the array ($O(n \log n)$).</p>
+                            <pre>
+let item = findItem(array, targetID); // O(n)
+array.sort(); // O(n log n)
+</pre>
+                            <div class="highlight-box"><strong>Calculation:</strong> Total is $O(n) + O(n \log n)$.
+                                Because $n \log n$ dominates $n$, Final Complexity = <strong>$O(n \log n)$</strong>.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="property-row">
+                        <div class="property-header">
+                            <div>
+                                <h3>3. Product Rule (Multiplication Rule)</h3>
+                                <small>$$O(f(n)) \cdot O(g(n)) = O(f(n) \cdot g(n))$$</small>
+                            </div>
+                            <button class="prop-btn" onclick="toggleProp('prop3')">Real-Life Scenario</button>
+                        </div>
+                        <div class="property-content" id="prop3">
+                            <p><strong>Plain English:</strong> When complexities are nested inside each other, you
+                                multiply their bounds together.</p>
+                            <p><strong>Enterprise Use Case:</strong> Checking for duplicates across two arrays of data.
+                                For every item in Array A ($N$), you loop entirely through Array B ($N$).</p>
+                            <pre>
+for(let a of arrayA) {         // O(n)
+   for(let b of arrayB) {      // O(n) nested
+       if(a === b) flag();
+   }
+}
+</pre>
+                            <div class="highlight-box"><strong>Calculation:</strong> $O(n) \cdot O(n)$. Final Complexity
+                                = <strong>$O(n^2)$</strong>.</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <div class="bottom-nav">
+            <button class="nav-arrow-btn" id="prevBtn" onclick="navigate(-1)">&#8592; Previous</button>
+            <span class="progress-indicator" id="progressText" style="font-weight: 600; color: var(--text-muted);">Slide
+                1 of 7</span>
+            <button class="nav-arrow-btn" id="nextBtn" onclick="navigate(1)">Next &#8594;</button>
+        </div>
+    </div>
+
+    <script>
+        // --- Core Navigation ---
+        const totalSections = 7;
+        let currentIndex = 0;
+        let chartInstance = null;
+
+        function jumpToSection(index) {
+            if (index < 0 || index >= totalSections) return;
+            currentIndex = index;
+            document.querySelectorAll('.content-section').forEach(sec => sec.classList.remove('active'));
+            document.getElementById(`sec${currentIndex}`).classList.add('active');
+
+            const navLinks = document.querySelectorAll('.nav-btn');
+            navLinks.forEach(link => link.classList.remove('active'));
+            navLinks[currentIndex].classList.add('active');
+
+            document.getElementById('mainArea').scrollTop = 0;
+            updateBottomNavUI();
+
+            // Draw chart if we navigate to slide 4
+            if (currentIndex === 4) renderChart();
+
+            if (window.MathJax) MathJax.typesetPromise();
+        }
+
+        function navigate(direction) { jumpToSection(currentIndex + direction); }
+
+        function updateBottomNavUI() {
+            document.getElementById('prevBtn').disabled = (currentIndex === 0);
+            document.getElementById('nextBtn').disabled = (currentIndex === totalSections - 1);
+            document.getElementById('progressText').innerText = `Slide ${currentIndex + 1} of ${totalSections}`;
+        }
+
+        // --- Theme & Presentation ---
+        function toggleTheme() {
+            document.body.classList.toggle('dark-mode');
+            document.getElementById('themeBtn').innerHTML = document.body.classList.contains('dark-mode')
+                ? '<span id="themeIcon">☀️</span> Light Mode' : '<span id="themeIcon">🌙</span> Dark Mode';
+            if (currentIndex === 4) renderChart(); // Redraw chart for dark mode colors
+        }
+
+        function togglePresentation() {
+            const body = document.body;
+            if (!body.classList.contains('presentation-mode')) {
+                body.classList.add('presentation-mode');
+                document.getElementById('presToggleBtn').innerHTML = '&#10006; Exit Presentation';
+                if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen();
+            } else {
+                body.classList.remove('presentation-mode');
+                document.getElementById('presToggleBtn').innerHTML = '&#128250; Enter Presentation';
+                if (document.exitFullscreen && document.fullscreenElement) document.exitFullscreen();
+            }
+            if (currentIndex === 4) setTimeout(renderChart, 300); // Redraw chart sizes
+        }
+
+        // --- Chart.js Rendering ---
+        function renderChart() {
+            const ctx = document.getElementById('bigOChart').getContext('2d');
+            const isDark = document.body.classList.contains('dark-mode');
+            const gridColor = isDark ? '#334155' : '#e2e8f0';
+            const textColor = isDark ? '#cbd5e1' : '#334155';
+
+            if (chartInstance) chartInstance.destroy();
+
+            const labels = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+            const dataO1 = labels.map(() => 5);
+            const dataLogN = labels.map(n => 5 * Math.log2(n));
+            const dataN = labels.map(n => n * 2);
+            const dataNLogN = labels.map(n => n * Math.log2(n));
+            const dataN2 = labels.map(n => Math.pow(n, 2));
+            const data2N = labels.map(n => Math.pow(2, n));
+
+            // Factorial helper
+            function factorial(n) { return n <= 1 ? 1 : n * factorial(n - 1); }
+            const dataFact = labels.map(n => factorial(n));
+
+            chartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        { label: 'O(1) Constant', data: dataO1, borderColor: '#10b981', fill: false, tension: 0.4 },
+                        { label: 'O(log n) Logarithmic', data: dataLogN, borderColor: '#3b82f6', fill: false, tension: 0.4 },
+                        { label: 'O(n) Linear', data: dataN, borderColor: '#f59e0b', fill: false, tension: 0.4 },
+                        { label: 'O(n log n) Linearithmic', data: dataNLogN, borderColor: '#f97316', fill: false, tension: 0.4 },
+                        { label: 'O(n²) Quadratic', data: dataN2, borderColor: '#ef4444', fill: false, tension: 0.4 },
+                        { label: 'O(2ⁿ) Exponential', data: data2N, borderColor: '#8b5cf6', fill: false, tension: 0.4 },
+                        { label: 'O(n!) Factorial', data: dataFact, borderColor: '#ec4899', fill: false, tension: 0.4 }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { max: 100, grid: { color: gridColor }, ticks: { color: textColor } },
+                        x: { title: { display: true, text: 'Elements (n)', color: textColor }, grid: { color: gridColor }, ticks: { color: textColor } }
+                    },
+                    plugins: {
+                        legend: { labels: { color: textColor, font: { size: 13 } } }
+                    }
+                }
+            });
+        }
+
+        // --- Interactive Practice Lab (20 Examples Looped) ---
+        const practiceData = [
+            { f: "3n + 5", t: "O(n)", d: "3n + 5 \\le 3n + 5n = 8n", c: "c=8" },
+            { f: "10n - 2", t: "O(n)", d: "10n - 2 \\le 10n", c: "c=10" },
+            { f: "4n^2 + 2n + 1", t: "O(n^2)", d: "4n^2 + 2n + 1 \\le 4n^2 + 2n^2 + 1n^2 = 7n^2", c: "c=7" },
+            { f: "7n^2 + 100n", t: "O(n^2)", d: "7n^2 + 100n \\le 7n^2 + 100n^2 = 107n^2", c: "c=107" },
+            { f: "n^2 - 5n + 6", t: "O(n^2)", d: "|n^2| + |-5n| + |6| \\le n^2 + 5n^2 + 6n^2 = 12n^2", c: "c=12" },
+            { f: "2n^3 + 5n^2 + 8n + 4", t: "O(n^3)", d: "2n^3 + 5n^2 + 8n + 4 \\le 19n^3", c: "c=19" },
+            { f: "n^3 - n^2", t: "O(n^3)", d: "n^3 - n^2 \\le n^3", c: "c=1" },
+            { f: "0.5n^2 + 3n", t: "O(n^2)", d: "0.5n^2 + 3n \\le 3.5n^2", c: "c=3.5" },
+            { f: "5n^4 + 3n^3 + 2n^2 + n", t: "O(n^4)", d: "5n^4 + 3n^3 + 2n^2 + n \\le 11n^4", c: "c=11" },
+            { f: "8n^5 + 200n^3 + 1000", t: "O(n^5)", d: "8n^5 + 200n^3 + 1000 \\le 1208n^5", c: "c=1208" },
+            { f: "15n + 45", t: "O(n)", d: "15n + 45 \\le 60n", c: "c=60" },
+            { f: "3n^2 + 4n + 2", t: "O(n^2)", d: "3n^2 + 4n + 2 \\le 9n^2", c: "c=9" },
+            { f: "n^3 + 10n^2 + 5n", t: "O(n^3)", d: "n^3 + 10n^2 + 5n \\le 16n^3", c: "c=16" },
+            { f: "2n^4 + n^2 + 1", t: "O(n^4)", d: "2n^4 + n^2 + 1 \\le 4n^4", c: "c=4" },
+            { f: "6n^5 + 15n^3", t: "O(n^5)", d: "6n^5 + 15n^3 \\le 21n^5", c: "c=21" },
+            { f: "0.5n^2 + 0.25n", t: "O(n^2)", d: "0.5n^2 + 0.25n \\le 0.75n^2", c: "c=0.75" },
+            { f: "5n^3 - 2n^2 + n", t: "O(n^3)", d: "5n^3 - 2n^2 + n \\le 5n^3 + n \\le 6n^3", c: "c=6" },
+            { f: "n^2 + 10000", t: "O(n^2)", d: "n^2 + 10000 \\le 10001n^2", c: "c=10001" },
+            { f: "500n + 2", t: "O(n)", d: "500n + 2 \\le 502n", c: "c=502" },
+            { f: "n^6 + n^5 + \\dots + 1", t: "O(n^6)", d: "1n^6 \\times 7 \\text{ terms} = 7n^6", c: "c=7" }
+        ];
+
+        let pracIndex = 0;
+
+        function loadPractice(index) {
+            const data = practiceData[index];
+            document.getElementById('pracCount').innerText = `Example ${index + 1} of 20`;
+            document.getElementById('pracEquation').innerHTML = `$$f(n) = ${data.f}$$`;
+            document.getElementById('pracTarget').innerText = data.t;
+
+            document.getElementById('pracAnswerBox').classList.remove('active');
+            document.getElementById('revealBtn').style.display = "inline-block";
+
+            document.getElementById('pracDerivation').innerHTML = `$$${data.d}$$`;
+            document.getElementById('pracConstants').innerText = `${data.c}, n_0 = 1`;
+
+            if (window.MathJax) MathJax.typesetPromise();
+        }
+
+        function revealPractice() {
+            document.getElementById('revealBtn').style.display = "none";
+            document.getElementById('pracAnswerBox').classList.add('active');
+        }
+
+        // Loop the practice index using modulo arithmetic
+        function navPractice(dir) {
+            pracIndex = (pracIndex + dir + practiceData.length) % practiceData.length;
+            loadPractice(pracIndex);
+        }
+
+        function showAllPracticeTable() {
+            const tableBody = document.querySelector("#allPracticeTable tbody");
+            tableBody.innerHTML = "";
+            practiceData.forEach(d => {
+                const tr = document.createElement("tr");
+                tr.innerHTML = `<td>\\(f(n) = ${d.f}\\)</td><td>${d.t}</td><td>\\(${d.d}\\)</td><td>${d.c}</td>`;
+                tableBody.appendChild(tr);
+            });
+            document.getElementById('allPracticeTableContainer').style.display = "block";
+            if (window.MathJax) MathJax.typesetPromise();
+            document.getElementById('allPracticeTableContainer').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // --- Interactive Properties (Section 7) ---
+        function toggleProp(id) {
+            const content = document.getElementById(id);
+            if (content.classList.contains('active')) {
+                content.classList.remove('active');
+            } else {
+                document.querySelectorAll('.property-content').forEach(el => el.classList.remove('active'));
+                content.classList.add('active');
+            }
+        }
+
+        // Initialize UI
+        updateBottomNavUI();
+        loadPractice(0);
+    </script>
+</body>
+
+</html>
