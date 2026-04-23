@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Algorithmic Strategies Lab Pro</title>
+    
+    <script>
+        MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] }, svg: { fontCache: 'global' } };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <style>
+        :root {
+            --bg-main: #0f172a; --bg-card: #1e293b; --text-main: #f8fafc; --text-muted: #94a3b8;
+            --border: #334155; --accent: #3b82f6; --success: #10b981; --warning: #f59e0b; --danger: #ef4444;
+            --highlight: rgba(59, 130, 246, 0.2); --tab-bg: #0f172a;
+        }
+
+        body.light-mode {
+            --bg-main: #f8fafc; --bg-card: #ffffff; --text-main: #0f172a; --text-muted: #64748b;
+            --border: #e2e8f0; --highlight: #eff6ff; --tab-bg: #f1f5f9;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Roboto, sans-serif; }
+        body { display: flex; height: 100vh; background: var(--bg-main); color: var(--text-main); overflow: hidden; transition: 0.3s; }
+
+        .sidebar { width: 300px; background: var(--bg-card); border-right: 1px solid var(--border); display: flex; flex-direction: column; z-index: 10; }
+        .sidebar-header { padding: 25px 20px; font-size: 1.2rem; font-weight: bold; border-bottom: 1px solid var(--border); color: var(--accent); display: flex; align-items: center; gap: 10px; }
+        .nav-links { list-style: none; padding: 15px 10px; flex-grow: 1; overflow-y: auto; }
+        .nav-links a { display: block; padding: 12px 16px; color: var(--text-muted); cursor: pointer; border-radius: 6px; margin-bottom: 5px; font-weight: 500; transition: 0.2s; }
+        .nav-links a.active, .nav-links a:hover { background: var(--accent); color: #fff; }
+
+        .main-wrapper { flex-grow: 1; display: flex; flex-direction: column; position: relative; }
+        .top-controls { position: absolute; top: 20px; right: 40px; z-index: 20; display: flex; gap: 15px; }
+        .btn { background: var(--bg-card); border: 1px solid var(--border); color: var(--text-main); padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+        .btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+        .btn:hover { filter: brightness(1.1); transform: translateY(-1px); }
+
+        .main-content { padding: 60px; overflow-y: auto; flex-grow: 1; scroll-behavior: smooth; }
+        .content-section { display: none; max-width: 1200px; margin: 0 auto; animation: fadeIn 0.4s; }
+        .content-section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        h1 { font-size: 2.2rem; border-bottom: 2px solid var(--border); padding-bottom: 10px; margin-bottom: 20px; display: flex; align-items: center; gap: 15px; }
+        p { line-height: 1.7; margin-bottom: 15px; font-size: 1.05rem; }
+        .hero-svg { width: 40px; height: 40px; fill: var(--accent); }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-top: 20px; }
+
+        .uc-tabs { display: flex; background: var(--tab-bg); padding: 5px; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 25px; gap: 5px; flex-wrap: wrap; }
+        .uc-tab { flex-grow: 1; text-align: center; background: transparent; border: none; color: var(--text-muted); padding: 12px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 1rem; transition: 0.2s; }
+        .uc-tab.active { background: var(--bg-card); color: var(--accent); box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .uc-tab:hover:not(.active) { color: var(--text-main); background: rgba(255,255,255,0.05); }
+        
+        .uc-content { display: none; animation: fadeIn 0.3s; }
+        .uc-content.active { display: block; }
+
+        .detail-box { background: var(--highlight); border-left: 4px solid var(--accent); padding: 20px; border-radius: 0 8px 8px 0; margin-bottom: 20px; }
+        .complexity-tag { display: inline-block; background: var(--bg-card); border: 1px solid var(--border); padding: 6px 12px; border-radius: 6px; font-weight: bold; margin-right: 15px; font-family: monospace; color: var(--accent); }
+
+        .code-window { background: #0f172a; border-radius: 8px; border: 1px solid #334155; overflow: hidden; height: 100%; display: flex; flex-direction: column; }
+        .code-header { background: #1e293b; padding: 10px 15px; border-bottom: 1px solid #334155; color: #94a3b8; font-family: monospace; font-size: 0.9rem; }
+        pre { color: #e2e8f0; padding: 15px; overflow-x: auto; font-family: monospace; font-size: 0.95rem; margin: 0; flex-grow: 1; }
+
+        .debugger-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.1); height: 100%; display: flex; flex-direction: column; }
+        .debug-header { background: rgba(0,0,0,0.2); padding: 15px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+        .debug-controls { display: flex; gap: 10px; }
+        .debug-body { padding: 25px; flex-grow: 1; display: flex; flex-direction: column; }
+        .log-window { background: #000; color: #10b981; font-family: monospace; padding: 15px; border-radius: 6px; height: 120px; overflow-y: auto; margin-top: auto; border: 1px solid #333; font-size: 0.9rem; }
+        
+        .static-vis { text-align: center; padding: 20px; background: var(--bg-main); border-radius: 8px; border: 1px solid var(--border); margin-bottom: 20px; display: flex; align-items: center; justify-content: center; min-height: 200px; flex-direction: column; gap: 15px; color: var(--text-muted); box-shadow: inset 0 2px 10px rgba(0,0,0,0.05); }
+
+        .array-container { display: flex; gap: 10px; margin: 15px 0; flex-wrap: wrap; }
+        .array-box { width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; background: var(--bg-main); border: 2px solid var(--border); border-radius: 8px; font-weight: bold; font-size: 1.1rem; transition: 0.3s; position: relative;}
+        .array-box.active { border-color: var(--warning); background: rgba(245, 158, 11, 0.2); transform: scale(1.1); z-index: 5;}
+        .array-box.success { border-color: var(--success); background: rgba(16, 185, 129, 0.2); color: var(--success); }
+        .array-box.fail { border-color: var(--danger); background: rgba(239, 68, 68, 0.2); color: var(--danger); }
+        
+        .dp-table { display: flex; flex-direction: column; gap: 5px; overflow-x: auto; padding-bottom: 10px; }
+        .dp-row { display: flex; gap: 5px; }
+        .dp-cell { min-width: 45px; height: 45px; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-weight: bold; background: var(--bg-main); transition: 0.3s;}
+        .dp-cell.header { background: var(--highlight); color: var(--accent); border-color: var(--accent); }
+        .dp-cell.active { border-color: var(--warning); box-shadow: 0 0 10px var(--warning); z-index: 2; }
+        .dp-cell.target { border-color: var(--success); background: rgba(16, 185, 129, 0.2); }
+        .status-pill { padding: 5px 12px; border-radius: 20px; font-size: 0.9rem; font-weight: bold; background: var(--highlight); color: var(--accent); display: inline-block; }
+
+        /* Custom Visuals */
+        .mock-gantt { width: 100%; height: 100px; position: relative; border-left: 2px solid var(--border); border-bottom: 2px solid var(--border); }
+        .mock-bar { height: 20px; background: var(--accent); position: absolute; border-radius: 4px; color: #fff; font-size: 0.7rem; display: flex; align-items: center; padding-left: 5px; }
+        .mock-knapsack { width: 120px; height: 150px; border: 4px solid var(--text-muted); border-top: none; border-radius: 0 0 20px 20px; position: relative; display: flex; flex-direction: column; justify-content: flex-end; padding: 5px; gap: 2px;}
+        .mock-item { background: var(--warning); width: 100%; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-weight: bold; color: #000; }
+        
+        /* String Matcher specific */
+        .sm-container { position: relative; height: 120px; padding-top: 10px;}
+        .sm-text-row { display: flex; gap: 5px; position: absolute; top: 0; left: 0;}
+        .sm-pat-row { display: flex; gap: 5px; position: absolute; top: 55px; left: 0; transition: transform 0.4s ease; }
+    </style>
+</head>
+<body>
+
+    <nav class="sidebar">
+        <div class="sidebar-header">
+            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
+            Algorithm Lab
+        </div>
+        <ul class="nav-links">
+            <li><a class="nav-btn active" onclick="jumpTo(0)">1. Brute-Force</a></li>
+            <li><a class="nav-btn" onclick="jumpTo(1)">2. Greedy Paradigm</a></li>
+            <li><a class="nav-btn" onclick="jumpTo(2)">3. Dynamic Prog.</a></li>
+        </ul>
+    </nav>
+
+    <div class="main-wrapper">
+        <div class="top-controls">
+            <button class="btn" onclick="toggleTheme()" id="themeBtn">&#127762; Theme</button>
+            <button class="btn btn-primary" onclick="toggleFullScreen()" id="fsBtn">&#128241; Full Screen</button>
+        </div>
+
+        <main class="main-content">
+            
+            <section id="sec0" class="content-section active">
+                <h1>
+                    <svg class="hero-svg" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                    Brute-Force Methodologies
+                </h1>
+                <p>Brute-force relies on sheer computing power to evaluate <strong>every single possible configuration</strong>. It guarantees a correct answer simply by leaving no stone unturned.</p>
+                
+                <div class="uc-tabs">
+                    <button class="uc-tab active" onclick="switchTab('bf', 0)">1. Linear Search</button>
+                    <button class="uc-tab" onclick="switchTab('bf', 1)">2. String Match</button>
+                    <button class="uc-tab" onclick="switchTab('bf', 2)">3. TSP</button>
+                    <button class="uc-tab" onclick="switchTab('bf', 3)">4. Subset Sum</button>
+                </div>
+
+                <div id="bf-0" class="uc-content active">
+                    <div class="detail-box">
+                        <p><strong>Description:</strong> Checking every element in an array sequentially until the target is found. It makes no assumptions about the data being sorted.</p>
+                        <div><span class="complexity-tag">Time: $O(n)$</span> <span class="complexity-tag">Space: $O(1)$</span></div>
+                    </div>
+                    <div class="grid-2">
+                        <div class="code-window"><div class="code-header">Java: Linear Search</div><pre><code>public int linearSearch(int[] arr, int target) {
+    for (int i = 0; i < arr.length; i++) {
+        if (arr[i] == target) return i;
+    }
+    return -1;
+}</code></pre></div>
+                        <div class="debugger-card">
+                            <div class="debug-header">
+                                <span class="status-pill">Target: Find 89</span>
+                                <div class="debug-controls">
+                                    <button class="btn btn-primary" onclick="bfStep()">&#8620; Step</button>
+                                    <button class="btn" onclick="bfReset()">&#8634; Reset</button>
+                                </div>
+                            </div>
+                            <div class="debug-body">
+                                <div class="array-container" id="bfArray"></div>
+                                <div class="log-window" id="bfLog">> Debugger initialized. Ready to step...</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="bf-1" class="uc-content">
+                    <div class="detail-box">
+                        <p><strong>Description:</strong> Sliding a "pattern" window over a "text" one character at a time. If a mismatch occurs, it abandons all progress, shifts the pattern exactly one space to the right, and restarts.</p>
+                        <div><span class="complexity-tag">Time: $O(n \times m)$</span> <span class="complexity-tag">Space: $O(1)$</span></div>
+                    </div>
+                    <div class="grid-2">
+                        <div class="code-window"><div class="code-header">Java: Naive String Match</div><pre><code>public void search(String txt, String pat) {
+    int n = txt.length(), m = pat.length();
+    for (int i = 0; i <= n - m; i++) {
+        int j;
+        for (j = 0; j < m; j++) {
+            if (txt.charAt(i + j) != pat.charAt(j)) {
+                break; // Mismatch! Reset j.
+            }
+        }
+        if (j == m) System.out.println("Match at " + i);
+    }
+}</code></pre></div>
+                        <div class="debugger-card">
+                            <div class="debug-header">
+                                <span class="status-pill">Target: "ABC" in "ABXABC"</span>
+                                <div class="debug-controls">
+                                    <button class="btn btn-primary" onclick="smStep()">&#8620; Step</button>
+                                    <button class="btn" onclick="smReset()">&#8634; Reset</button>
+                                </div>
+                            </div>
+                            <div class="debug-body">
+                                <div class="sm-container">
+                                    <div class="sm-text-row" id="smTextRow"></div>
+                                    <div class="sm-pat-row" id="smPatRow"></div>
+                                </div>
+                                <div class="log-window" id="smLog">> Ready. Aligning pattern at index 0.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="bf-2" class="uc-content">
+                    <div class="detail-box">
+                        <p><strong>Description:</strong> Travelling Salesperson Problem. A brute-force approach generates every possible permutation of cities to find the shortest route.</p>
+                        <div><span class="complexity-tag">Time: $O(n!)$</span> <span class="complexity-tag">Space: $O(n)$</span></div>
+                    </div>
+                    <div class="grid-2">
+                        <div class="code-window"><div class="code-header">Java: TSP (Permutations)</div><pre><code>// Pseudocode for generating permutations
+int min_path = MAX;
+do {
+    int current_weight = 0;
+    // Calculate cost of current path permutation
+    for (int i=0; i < vertices.size()-1; i++) {
+        current_weight += graph[vertices[i]][vertices[i+1]];
+    }
+    min_path = Math.min(min_path, current_weight);
+} while (nextPermutation(vertices));
+return min_path;</code></pre></div>
+                        <div class="debugger-card">
+                            <div class="debug-header"><span class="status-pill">Visualizer: Complete Graph</span></div>
+                            <div class="debug-body">
+                                <div class="static-vis">
+                                    <svg width="150" height="150" viewBox="0 0 100 100">
+                                        <polygon points="50,10 90,40 75,90 25,90 10,40" fill="none" stroke="var(--accent)" stroke-width="2"/>
+                                        <line x1="50" y1="10" x2="75" y2="90" stroke="var(--border)" stroke-width="1"/>
+                                        <line x1="50" y1="10" x2="25" y2="90" stroke="var(--border)" stroke-width="1"/>
+                                        <line x1="90" y1="40" x2="25" y2="90" stroke="var(--border)" stroke-width="1"/>
+                                        <line x1="90" y1="40" x2="10" y2="40" stroke="var(--border)" stroke-width="1"/>
+                                        <line x1="75" y1="90" x2="10" y2="40" stroke="var(--border)" stroke-width="1"/>
+                                        <circle cx="50" cy="10" r="5" fill="var(--warning)"/>
+                                        <circle cx="90" cy="40" r="5" fill="var(--warning)"/>
+                                        <circle cx="75" cy="90" r="5" fill="var(--warning)"/>
+                                        <circle cx="25" cy="90" r="5" fill="var(--warning)"/>
+                                        <circle cx="10" cy="40" r="5" fill="var(--warning)"/>
+                                    </svg>
+                                    <p style="font-size: 0.9rem;">Factorial time $O(n!)$ crashes modern CPUs beyond $N=15$.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="bf-3" class="uc-content">
+                    <div class="detail-box">
+                        <p><strong>Description:</strong> Generating every possible subset of an array to see if elements sum to a target. It explores "include" and "exclude" branches for every item.</p>
+                        <div><span class="complexity-tag">Time: $O(2^n)$</span> <span class="complexity-tag">Space: $O(n)$</span></div>
+                    </div>
+                    <div class="grid-2">
+                        <div class="code-window"><div class="code-header">Java: Recursive Subset Sum</div><pre><code>public boolean isSubsetSum(int[] set, int n, int sum) {
+    if (sum == 0) return true;
+    if (n == 0) return false;
+
+    if (set[n - 1] > sum)
+        return isSubsetSum(set, n - 1, sum);
+
+    // Check inclusion branch OR exclusion branch
+    return isSubsetSum(set, n - 1, sum) || 
+           isSubsetSum(set, n - 1, sum - set[n - 1]);
+}</code></pre></div>
+                        <div class="debugger-card">
+                            <div class="debug-header"><span class="status-pill">Visualizer: Recursion Tree</span></div>
+                            <div class="debug-body">
+                                <div class="static-vis">
+                                    <svg width="200" height="120" viewBox="0 0 200 120">
+                                        <circle cx="100" cy="20" r="10" fill="var(--accent)"/>
+                                        <line x1="100" y1="30" x2="60" y2="60" stroke="var(--border)" stroke-width="2"/>
+                                        <line x1="100" y1="30" x2="140" y2="60" stroke="var(--border)" stroke-width="2"/>
+                                        <circle cx="60" cy="70" r="10" fill="var(--accent)"/>
+                                        <circle cx="140" cy="70" r="10" fill="var(--accent)"/>
+                                        <line x1="60" y1="80" x2="40" y2="110" stroke="var(--border)" stroke-width="2"/>
+                                        <line x1="60" y1="80" x2="80" y2="110" stroke="var(--border)" stroke-width="2"/>
+                                        <line x1="140" y1="80" x2="120" y2="110" stroke="var(--border)" stroke-width="2"/>
+                                        <line x1="140" y1="80" x2="160" y2="110" stroke="var(--border)" stroke-width="2"/>
+                                    </svg>
+                                    <p style="font-size: 0.9rem;">The tree doubles in width at every level, causing $O(2^n)$ runtime.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="sec1" class="content-section">
+                <h1>
+                    <svg class="hero-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"></path><line x1="12" y1="18" x2="12" y2="22"></line><line x1="12" y1="2" x2="12" y2="6"></line></svg>
+                    Greedy Paradigm
+                </h1>
+                <p>Greedy makes the best immediate choice at the current moment. <strong>"Take the biggest bite possible, and never look back."</strong></p>
+                
+                <div class="uc-tabs">
+                    <button class="uc-tab active" onclick="switchTab('greedy', 0)">1. Coin Change</button>
+                    <button class="uc-tab" onclick="switchTab('greedy', 1)">2. Fract. Knapsack</button>
+                    <button class="uc-tab" onclick="switchTab('greedy', 2)">3. Activity Selection</button>
+                    <button class="uc-tab" onclick="switchTab('greedy', 3)">4. Kruskal's MST</button>
+                </div>
+
+                <div id="greedy-0" class="uc-content active">
+                    <div class="detail-box">
+                        <p><strong>Description:</strong> Select the largest denomination that fits the remaining balance. Works perfectly for standard currencies but fails on arbitrary coin systems.</p>
+                        <div><span class="complexity-tag">Time: $O(n \log n)$</span> <span class="complexity-tag">Space: $O(1)$</span></div>
+                    </div>
+                    <div class="grid-2">
+                        <div class="code-window"><div class="code-header">Java: Greedy Coin Change</div><pre><code>public void greedyChange(int[] coins, int amount) {
+    // Assumption: coins array is sorted descending
+    for (int coin : coins) {
+        while (amount >= coin) {
+            amount -= coin;
+            System.out.print(coin + " ");
+        }
+    }
+}</code></pre></div>
+                        <div class="debugger-card">
+                            <div class="debug-header">
+                                <span class="status-pill" id="greedyStatus">Remaining Target: 85</span>
+                                <div class="debug-controls">
+                                    <button class="btn btn-primary" onclick="greedyStep()">&#8620; Step</button>
+                                    <button class="btn" onclick="greedyReset()">&#8634; Reset</button>
+                                </div>
+                            </div>
+                            <div class="debug-body">
+                                <div>Available Coins (Sorted):</div>
+                                <div class="array-container" id="greedyArray"></div>
+                                <div style="margin-top: 10px;">Change Given: <strong id="greedyResult" style="color:var(--success)">None</strong></div>
+                                <div class="log-window" id="greedyLog">> Ready. Target is 85.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="greedy-1" class="uc-content">
+                    <div class="detail-box">
+                        <p><strong>Description:</strong> You can break items into fractions. Sort items by value-to-weight ratio and take the highest ratios first until the bag is full.</p>
+                        <div><span class="complexity-tag">Time: $O(n \log n)$</span> <span class="complexity-tag">Space: $O(1)$</span></div>
+                    </div>
+                    <div class="grid-2">
+                        <div class="code-window"><div class="code-header">Java: Fractional Knapsack</div><pre><code>public double getMaxValue(Item[] arr, int capacity) {
+    // Sort arr by (value/weight) descending
+    double totalValue = 0;
+    for (Item i : arr) {
+        if (capacity - i.weight >= 0) {
+            capacity -= i.weight;
+            totalValue += i.value;
+        } else {
+            double fraction = (double)capacity / i.weight;
+            totalValue += (i.value * fraction);
+            break; // Full
+        }
+    }
+    return totalValue;
+}</code></pre></div>
+                        <div class="debugger-card">
+                            <div class="debug-header"><span class="status-pill">Visualizer: Fractional Items</span></div>
+                            <div class="debug-body">
+                                <div class="static-vis">
+                                    <div class="mock-knapsack">
+                                        <div class="mock-item" style="height: 40px; background:var(--success);">Item 1 (100%)</div>
+                                        <div class="mock-item" style="height: 60px; background:var(--accent);">Item 2 (100%)</div>
+                                        <div class="mock-item" style="height: 20px; background:var(--warning); opacity:0.8;">Item 3 (50%)</div>
+                                    </div>
+                                    <p style="font-size: 0.9rem;">Because items are divisible, picking the highest ratio guarantees the optimum.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="greedy-2" class="uc-content">
+                    <div class="detail-box">
+                        <p><strong>Description:</strong> Schedule the maximum number of meetings. Sort by <strong>finish time</strong>, and always pick the meeting that ends the earliest.</p>
+                        <div><span class="complexity-tag">Time: $O(n \log n)$</span> <span class="complexity-tag">Space: $O(1)$</span></div>
+                    </div>
+                    <div class="grid-2">
+                        <div class="code-window"><div class="code-header">Java: Activity Selection</div><pre><code>// Arrays start/finish sorted by finish time
+public void printMaxActivities(int[] s, int[] f, int n) {
+    int i = 0;
+    System.out.print(i + " "); 
+    for (int j = 1; j < n; j++) {
+        if (s[j] >= f[i]) {
+            System.out.print(j + " ");
+            i = j; 
+        }
+    }
+}</code></pre></div>
+                        <div class="debugger-card">
+                            <div class="debug-header"><span class="status-pill">Visualizer: Gantt Chart</span></div>
+                            <div class="debug-body">
+                                <div class="static-vis">
+                                    <div class="mock-gantt">
+                                        <div class="mock-bar" style="width:30%; left:0; top:10px; background:var(--success);">Meeting 1</div>
+                                        <div class="mock-bar" style="width:40%; left:20%; top:40px; background:var(--danger);">Overlap</div>
+                                        <div class="mock-bar" style="width:30%; left:35%; top:70px; background:var(--success);">Meeting 2</div>
+                                    </div>
+                                    <p style="font-size: 0.9rem;">Picking the earliest finish time leaves maximum space for future meetings.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="greedy-3" class="uc-content">
+                    <div class="detail-box">
+                        <p><strong>Description:</strong> Find the Minimum Spanning Tree. Sort all edges by weight. Pick the absolute cheapest edge available, provided it doesn't form a cycle.</p>
+                        <div><span class="complexity-tag">Time: $O(E \log E)$</span> <span class="complexity-tag">Space: $O(V)$</span></div>
+                    </div>
+                    <div class="grid-2">
+                        <div class="code-window"><div class="code-header">Concept: Kruskal's MST</div><pre><code>// 1. Sort all edges ascending
+// 2. Iterate through edges:
+//      if (UnionFind.find(u) != UnionFind.find(v)) {
+//          Add edge to MST
+//          UnionFind.union(u, v);
+//      }
+// 3. Stop when MST has V-1 edges</code></pre></div>
+                        <div class="debugger-card">
+                            <div class="debug-header"><span class="status-pill">Visualizer: MST Selection</span></div>
+                            <div class="debug-body">
+                                <div class="static-vis">
+                                    <svg width="150" height="100" viewBox="0 0 100 100">
+                                        <line x1="10" y1="50" x2="50" y2="10" stroke="var(--success)" stroke-width="4"/>
+                                        <line x1="50" y1="10" x2="90" y2="50" stroke="var(--border)" stroke-width="1"/>
+                                        <line x1="90" y1="50" x2="50" y2="90" stroke="var(--success)" stroke-width="4"/>
+                                        <line x1="50" y1="90" x2="10" y2="50" stroke="var(--success)" stroke-width="4"/>
+                                        <line x1="10" y1="50" x2="90" y2="50" stroke="var(--border)" stroke-width="1"/>
+                                        <circle cx="10" cy="50" r="6" fill="var(--warning)"/>
+                                        <circle cx="50" cy="10" r="6" fill="var(--warning)"/>
+                                        <circle cx="90" cy="50" r="6" fill="var(--warning)"/>
+                                        <circle cx="50" cy="90" r="6" fill="var(--warning)"/>
+                                    </svg>
+                                    <p style="font-size: 0.9rem;">Selecting cheapest edges (green) to connect nodes without creating loops.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="sec2" class="content-section">
+                <h1>
+                    <svg class="hero-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+                    Dynamic Programming (DP)
+                </h1>
+                <p>DP fixes Greedy's blind spots. It builds an array (a "notepad") to store the optimal answer to every smaller sub-problem, guaranteeing the perfect global solution.</p>
+                
+                <div class="uc-tabs">
+                    <button class="uc-tab active" onclick="switchTab('dp', 0)">1. Strange Coin</button>
+                    <button class="uc-tab" onclick="switchTab('dp', 1)">2. Climbing Stairs</button>
+                    <button class="uc-tab" onclick="switchTab('dp', 2)">3. 0/1 Knapsack</button>
+                    <button class="uc-tab" onclick="switchTab('dp', 3)">4. LCS</button>
+                </div>
+
+                <div id="dp-0" class="uc-content active">
+                    <div class="detail-box">
+                        <p><strong>Description:</strong> Makes change for arbitrary coins <code>[1, 4, 5]</code>. Checks all previous array states to definitively find the minimum coins required.</p>
+                        <div><span class="complexity-tag">Time: $O(n \times \text{tgt})$</span> <span class="complexity-tag">Space: $O(\text{tgt})$</span></div>
+                    </div>
+                    <div class="grid-2">
+                        <div class="code-window"><div class="code-header">Java: DP Bottom-Up</div><pre><code>public int dpCoinChange(int[] coins, int target) {
+    int[] dp = new int[target + 1];
+    Arrays.fill(dp, target + 1);
+    dp[0] = 0; 
+    for (int i = 1; i <= target; i++) {
+        for (int c : coins) {
+            if (i >= c) dp[i] = Math.min(dp[i], 1 + dp[i - c]);
+        }
+    }
+    return dp[target];
+}</code></pre></div>
+                        <div class="debugger-card">
+                            <div class="debug-header">
+                                <span class="status-pill">Target: 8 | Coins: [1, 4, 5]</span>
+                                <div class="debug-controls">
+                                    <button class="btn btn-primary" onclick="dpStep()">&#8620; Step</button>
+                                    <button class="btn" onclick="dpReset()">&#8634; Reset</button>
+                                </div>
+                            </div>
+                            <div class="debug-body">
+                                <div class="dp-table" id="dpTable">
+                                    <div class="dp-row" id="dpHeaderRow"></div>
+                                    <div class="dp-row" id="dpValueRow"></div>
+                                </div>
+                                <div class="log-window" id="dpLog">> Array initialized.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="dp-1" class="uc-content">
+                    <div class="detail-box">
+                        <p><strong>Description:</strong> Finding distinct ways to climb $N$ steps by summing the ways to reach the previous two steps. Eliminates exponential recursive branching.</p>
+                        <div><span class="complexity-tag">Time: $O(N)$</span> <span class="complexity-tag">Space: $O(N)$</span></div>
+                    </div>
+                    <div class="grid-2">
+                        <div class="code-window"><div class="code-header">Java: Climbing Stairs DP</div><pre><code>public int climbStairs(int n) {
+    if (n == 1) return 1;
+    int[] dp = new int[n + 1];
+    dp[1] = 1; dp[2] = 2; 
+
+    for (int i = 3; i <= n; i++) {
+        dp[i] = dp[i - 1] + dp[i - 2];
+    }
+    return dp[n];
+}</code></pre></div>
+                        <div class="debugger-card">
+                            <div class="debug-header">
+                                <span class="status-pill">Calculate Step 5</span>
+                                <div class="debug-controls">
+                                    <button class="btn btn-primary" onclick="csStep()">&#8620; Step</button>
+                                    <button class="btn" onclick="csReset()">&#8634; Reset</button>
+                                </div>
+                            </div>
+                            <div class="debug-body">
+                                <div class="array-container" id="csArray"></div>
+                                <div class="log-window" id="csLog">> Base cases loaded: dp[1]=1, dp[2]=2.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="dp-2" class="uc-content">
+                    <div class="detail-box">
+                        <p><strong>Description:</strong> Items cannot be broken. A 2D table compares Items (rows) against Current Weight Capacity (columns) to find the absolute maximum value.</p>
+                        <div><span class="complexity-tag">Time: $O(n \times W)$</span> <span class="complexity-tag">Space: $O(n \times W)$</span></div>
+                    </div>
+                    <div class="grid-2">
+                        <div class="code-window"><div class="code-header">Java: 0/1 Knapsack (2D DP)</div><pre><code>public int knapSack(int W, int[] wt, int[] val, int n) {
+    int[][] dp = new int[n + 1][W + 1];
+    for (int i = 1; i <= n; i++) {
+        for (int w = 1; w <= W; w++) {
+            if (wt[i - 1] <= w) {
+                dp[i][w] = Math.max(val[i - 1] + 
+                           dp[i - 1][w - wt[i - 1]], dp[i - 1][w]);
+            } else {
+                dp[i][w] = dp[i - 1][w];
+            }
+        }
+    }
+    return dp[n][W];
+}</code></pre></div>
+                        <div class="debugger-card">
+                            <div class="debug-header"><span class="status-pill">Visualizer: 2D Grid</span></div>
+                            <div class="debug-body">
+                                <div class="static-vis">
+                                    <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:2px; width:100%; max-width:200px;">
+                                        <div class="dp-cell header">0</div><div class="dp-cell header">1</div><div class="dp-cell header">2</div><div class="dp-cell header">W</div>
+                                        <div class="dp-cell header">A</div><div class="dp-cell">0</div><div class="dp-cell">5</div><div class="dp-cell">5</div>
+                                        <div class="dp-cell header">B</div><div class="dp-cell">0</div><div class="dp-cell active">5</div><div class="dp-cell target">9</div>
+                                    </div>
+                                    <p style="font-size: 0.9rem;">Grid evaluates combinations Greedy algorithms completely miss.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="dp-3" class="uc-content">
+                    <div class="detail-box">
+                        <p><strong>Description:</strong> Longest Common Subsequence. A 2D grid compares String A against String B to find the longest matching sequence of characters.</p>
+                        <div><span class="complexity-tag">Time: $O(n \times m)$</span> <span class="complexity-tag">Space: $O(n \times m)$</span></div>
+                    </div>
+                    <div class="grid-2">
+                        <div class="code-window"><div class="code-header">Java: LCS (2D DP)</div><pre><code>public int lcs(String s1, String s2) {
+    int m = s1.length(), n = s2.length();
+    int[][] dp = new int[m + 1][n + 1];
+
+    for (int i = 1; i <= m; i++) {
+        for (int j = 1; j <= n; j++) {
+            if (s1.charAt(i - 1) == s2.charAt(j - 1))
+                dp[i][j] = dp[i - 1][j - 1] + 1; // Diagonal
+            else
+                dp[i][j] = Math.max(dp[i - 1][j], dp[i][j - 1]);
+        }
+    }
+    return dp[m][n];
+}</code></pre></div>
+                        <div class="debugger-card">
+                            <div class="debug-header"><span class="status-pill">Visualizer: Diagonal Matches</span></div>
+                            <div class="debug-body">
+                                <div class="static-vis">
+                                    <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:2px; width:100%; max-width:200px; position:relative;">
+                                        <div class="dp-cell header"></div><div class="dp-cell header">A</div><div class="dp-cell header">B</div><div class="dp-cell header">C</div>
+                                        <div class="dp-cell header">A</div><div class="dp-cell" style="background:var(--success)">1</div><div class="dp-cell">1</div><div class="dp-cell">1</div>
+                                        <div class="dp-cell header">C</div><div class="dp-cell">1</div><div class="dp-cell">1</div><div class="dp-cell" style="background:var(--success)">2</div>
+                                    </div>
+                                    <p style="font-size: 0.9rem;">Diagonal increments occur when string characters match.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </section>
+
+        </main>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        function jumpTo(idx) {
+            document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(`sec${idx}`).classList.add('active');
+            document.querySelectorAll('.nav-btn')[idx].classList.add('active');
+            currentSlide = idx;
+        }
+
+        function switchTab(section, index) {
+            const tabs = document.querySelectorAll(`#sec${section === 'bf' ? 0 : section === 'greedy' ? 1 : 2} .uc-tab`);
+            tabs.forEach(t => t.classList.remove('active'));
+            tabs[index].classList.add('active');
+            
+            const contents = document.querySelectorAll(`[id^="${section}-"]`);
+            contents.forEach(c => c.classList.remove('active'));
+            document.getElementById(`${section}-${index}`).classList.add('active');
+        }
+
+        function toggleTheme() {
+            document.body.classList.toggle('light-mode');
+        }
+
+        function toggleFullScreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+                document.getElementById('fsBtn').innerHTML = '&#10006; Exit Full Screen';
+            } else {
+                if (document.exitFullscreen) document.exitFullscreen();
+                document.getElementById('fsBtn').innerHTML = '&#128241; Full Screen';
+            }
+        }
+
+        function log(windowId, msg) {
+            const el = document.getElementById(windowId);
+            el.innerHTML += `<div class="log-line">> ${msg}</div>`;
+            el.scrollTop = el.scrollHeight;
+        }
+
+        // --- BF 0: LINEAR SEARCH SIMULATOR ---
+        const bfData = [12, 45, 7, 89, 23];
+        let bfIdx = 0; let bfDone = false;
+        function bfRender() {
+            const container = document.getElementById('bfArray');
+            container.innerHTML = '';
+            bfData.forEach((num, i) => {
+                const box = document.createElement('div');
+                box.className = `array-box ${i === bfIdx && !bfDone ? 'active' : ''} ${bfDone && num === 89 ? 'success' : ''} ${i < bfIdx ? 'fail' : ''}`;
+                box.innerText = num;
+                container.appendChild(box);
+            });
+        }
+        function bfStep() {
+            if(bfDone) return;
+            const current = bfData[bfIdx];
+            log('bfLog', `Checking index ${bfIdx}... Value is ${current}.`);
+            if(current === 89) {
+                log('bfLog', `<span style="color:var(--success)">Target 89 found at index ${bfIdx}! Halt.</span>`);
+                bfDone = true; bfRender();
+            } else {
+                log('bfLog', `Mismatch. Incrementing index.`);
+                bfIdx++; bfRender();
+            }
+        }
+        function bfReset() {
+            bfIdx = 0; bfDone = false;
+            document.getElementById('bfLog').innerHTML = "> Debugger initialized. Ready to step...";
+            bfRender();
+        }
+
+        // --- BF 1: NAIVE STRING MATCH SIMULATOR ---
+        const smTxt = "ABXABC";
+        const smPat = "ABC";
+        let smI = 0; let smJ = 0; let smDone = false;
+        function smRender() {
+            const txtRow = document.getElementById('smTextRow');
+            const patRow = document.getElementById('smPatRow');
+            txtRow.innerHTML = ''; patRow.innerHTML = '';
+
+            // Render Text
+            for(let i=0; i<smTxt.length; i++) {
+                const box = document.createElement('div');
+                let stateClass = '';
+                // Highlight text character being actively compared
+                if(!smDone && i === smI + smJ) {
+                    if(smTxt[i] === smPat[smJ]) stateClass = 'success';
+                    else stateClass = 'fail';
+                }
+                // Highlight entire pattern when found
+                if(smDone && i >= smI && i < smI + smPat.length) stateClass = 'success';
+                
+                box.className = `array-box ${stateClass}`;
+                box.innerText = smTxt[i];
+                txtRow.appendChild(box);
+            }
+
+            // Render Pattern
+            patRow.style.transform = `translateX(${smI * 50}px)`; // 45px box + 5px gap
+            for(let j=0; j<smPat.length; j++) {
+                const box = document.createElement('div');
+                let stateClass = '';
+                if(!smDone && j === smJ) {
+                    if(smTxt[smI + smJ] === smPat[j]) stateClass = 'success';
+                    else stateClass = 'fail';
+                }
+                box.className = `array-box ${stateClass}`;
+                box.innerText = smPat[j];
+                patRow.appendChild(box);
+            }
+        }
+        function smStep() {
+            if(smDone) return;
+            if(smI > smTxt.length - smPat.length) {
+                log('smLog', `<span style="color:var(--danger)">Text exhausted. Pattern not found.</span>`);
+                smDone = true; smRender(); return;
+            }
+
+            let tChar = smTxt[smI + smJ];
+            let pChar = smPat[smJ];
+
+            if(tChar === pChar) {
+                log('smLog', `Comparing '${tChar}' and '${pChar}' => <span style="color:var(--success)">Match!</span> Checking next char...`);
+                smJ++;
+                if(smJ === smPat.length) {
+                    log('smLog', `<strong style="color:var(--success)">Full Pattern Found at index ${smI}! Halt.</strong>`);
+                    smDone = true;
+                }
+            } else {
+                log('smLog', `Comparing '${tChar}' and '${pChar}' => <span style="color:var(--danger)">Mismatch!</span> Resetting pattern to index ${smI + 1}.`);
+                smI++;
+                smJ = 0;
+            }
+            smRender();
+        }
+        function smReset() {
+            smI = 0; smJ = 0; smDone = false;
+            document.getElementById('smLog').innerHTML = "> Ready. Aligning pattern at index 0.";
+            smRender();
+        }
+
+
+        // --- GREEDY: COIN CHANGE SIMULATOR ---
+        const gCoins = [50, 20, 10, 5, 2, 1];
+        let gTarget = 85; let gIdx = 0; let gCollected = []; let gDone = false;
+        function gRender() {
+            const container = document.getElementById('greedyArray');
+            container.innerHTML = '';
+            gCoins.forEach((coin, i) => {
+                const box = document.createElement('div');
+                box.className = `array-box ${i === gIdx && !gDone ? 'active' : ''} ${i < gIdx ? 'fail' : ''}`;
+                box.innerText = coin;
+                container.appendChild(box);
+            });
+            document.getElementById('greedyStatus').innerText = `Remaining Target: ${gTarget}`;
+            document.getElementById('greedyResult').innerText = gCollected.length > 0 ? gCollected.join(', ') : 'None';
+        }
+        function greedyStep() {
+            if(gDone) return;
+            if(gTarget === 0) {
+                log('greedyLog', `<span style="color:var(--success)">Target reached! Total coins: ${gCollected.length}</span>`);
+                gDone = true; gRender(); return;
+            }
+            const currentCoin = gCoins[gIdx];
+            log('greedyLog', `Checking coin ₹${currentCoin}...`);
+            if(gTarget >= currentCoin) {
+                gTarget -= currentCoin; gCollected.push(currentCoin);
+                log('greedyLog', `<span style="color:var(--success)">Fits!</span> Subtracted ${currentCoin}. New Target: ${gTarget}.`);
+            } else {
+                log('greedyLog', `<span style="color:var(--danger)">Too big.</span> Moving to next coin.`);
+                gIdx++;
+            }
+            gRender();
+        }
+        function greedyReset() {
+            gTarget = 85; gIdx = 0; gCollected = []; gDone = false;
+            document.getElementById('greedyLog').innerHTML = "> Ready. Target is 85.";
+            gRender();
+        }
+
+        // --- DP: COIN CHANGE SIMULATOR ---
+        const dpCoins = [1, 4, 5];
+        const dpTarget = 8;
+        let dpArray = new Array(dpTarget + 1).fill('∞');
+        dpArray[0] = 0; let dpCurrentAmount = 1;
+        function dpRender() {
+            const hRow = document.getElementById('dpHeaderRow');
+            const vRow = document.getElementById('dpValueRow');
+            hRow.innerHTML = ''; vRow.innerHTML = '';
+            for(let i=0; i<=dpTarget; i++) {
+                const hCell = document.createElement('div');
+                hCell.className = 'dp-cell header'; hCell.innerText = i;
+                hRow.appendChild(hCell);
+                const vCell = document.createElement('div');
+                vCell.className = `dp-cell ${i === dpCurrentAmount ? 'active' : ''} ${i === dpTarget && dpCurrentAmount > dpTarget ? 'target' : ''}`;
+                vCell.innerText = dpArray[i];
+                vRow.appendChild(vCell);
+            }
+        }
+        function dpStep() {
+            if(dpCurrentAmount > dpTarget) {
+                log('dpLog', `<span style="color:var(--success)">Complete! Min coins for 8 is ${dpArray[dpTarget]}.</span>`);
+                dpRender(); return;
+            }
+            let best = Infinity;
+            let logMsg = `Amount <strong>${dpCurrentAmount}</strong>: Checking [1,4,5]...<br>`;
+            for(let c of dpCoins) {
+                if(dpCurrentAmount >= c) {
+                    let prev = dpArray[dpCurrentAmount - c];
+                    if(prev !== '∞') {
+                        let attempt = 1 + prev;
+                        logMsg += `&nbsp;&nbsp;Coin ${c}: dp[${dpCurrentAmount-c}] (${prev}) + 1 = ${attempt}.<br>`;
+                        best = Math.min(best, attempt);
+                    }
+                }
+            }
+            dpArray[dpCurrentAmount] = best;
+            log('dpLog', logMsg + `&nbsp;&nbsp;=> Set dp[${dpCurrentAmount}] = ${best}.`);
+            dpCurrentAmount++; dpRender();
+        }
+        function dpReset() {
+            dpArray = new Array(dpTarget + 1).fill('∞');
+            dpArray[0] = 0; dpCurrentAmount = 1;
+            document.getElementById('dpLog').innerHTML = "> DP Array initialized. Base case dp[0] = 0.";
+            dpRender();
+        }
+
+        // --- DP: CLIMBING STAIRS SIMULATOR ---
+        const csTarget = 5;
+        let csArray = ['?', 1, 2, '?', '?', '?']; 
+        let csIdx = 3;
+        function csRender() {
+            const container = document.getElementById('csArray');
+            container.innerHTML = '';
+            for(let i=1; i<=csTarget; i++) {
+                const box = document.createElement('div');
+                box.className = `array-box ${i === csIdx ? 'active' : ''} ${csIdx > csTarget && i===csTarget ? 'success' : ''}`;
+                box.innerHTML = `<span style="font-size:0.6rem; position:absolute; top:-15px; color:#94a3b8;">i=${i}</span>${csArray[i]}`;
+                container.appendChild(box);
+            }
+        }
+        function csStep() {
+            if(csIdx > csTarget) {
+                log('csLog', `<span style="color:var(--success)">Complete! Answer is ${csArray[csTarget]} ways.</span>`);
+                csRender(); return;
+            }
+            let val1 = csArray[csIdx - 1]; let val2 = csArray[csIdx - 2];
+            csArray[csIdx] = val1 + val2;
+            log('csLog', `Step ${csIdx}: dp[${csIdx-1}] (${val1}) + dp[${csIdx-2}] (${val2}) = <strong>${csArray[csIdx]}</strong>`);
+            csIdx++; csRender();
+        }
+        function csReset() {
+            csArray = ['?', 1, 2, '?', '?', '?']; csIdx = 3;
+            document.getElementById('csLog').innerHTML = "> Base cases loaded: dp[1]=1, dp[2]=2.";
+            csRender();
+        }
+
+        // Init
+        bfReset(); smReset(); greedyReset(); dpReset(); csReset();
+    </script>
+</body>
+</html>

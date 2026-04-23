@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recurrence Relations: Algorithm Architect</title>
+
+    <script>
+        MathJax = {
+            tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$'], ['\\[', '\\]']] },
+            svg: { fontCache: 'global' }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        /* Core CSS Variables */
+        :root {
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #334155;
+            --text-muted: #64748b;
+            --heading-color: #0f172a;
+            --border: #e2e8f0;
+            --highlight-bg: #eff6ff;
+            --table-header: #f1f5f9;
+            --sidebar-bg-top: #0f172a;
+            --sidebar-bg-bottom: #1e293b;
+            --sidebar-text: #f8fafc;
+            --accent: #4f46e5;
+            --success: #059669;
+            --danger: #dc2626;
+            --warning: #d97706;
+        }
+
+        body.dark-mode {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-main: #cbd5e1;
+            --text-muted: #94a3b8;
+            --heading-color: #f8fafc;
+            --border: #334155;
+            --highlight-bg: #0f172a;
+            --table-header: #020617;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Roboto, sans-serif;
+        }
+
+        body {
+            display: flex;
+            height: 100vh;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            overflow: hidden;
+            transition: 0.3s;
+        }
+
+        /* Layout */
+        .sidebar {
+            width: 300px;
+            background: linear-gradient(to bottom, var(--sidebar-bg-top), var(--sidebar-bg-bottom));
+            color: var(--sidebar-text);
+            display: flex;
+            flex-direction: column;
+            z-index: 10;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar-header {
+            padding: 24px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 1.3rem;
+            font-weight: bold;
+        }
+
+        .nav-links {
+            list-style: none;
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 15px 10px;
+        }
+
+        .nav-links a {
+            display: block;
+            padding: 12px 16px;
+            color: #cbd5e1;
+            cursor: pointer;
+            border-radius: 6px;
+            margin-bottom: 5px;
+            transition: 0.2s;
+            font-weight: 500;
+        }
+
+        .nav-links a.active,
+        .nav-links a:hover {
+            background-color: var(--accent);
+            color: white;
+        }
+
+        .theme-btn {
+            margin: 20px;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .theme-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .main-wrapper {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .main-content {
+            padding: 50px 60px 100px 60px;
+            overflow-y: auto;
+            flex-grow: 1;
+            scroll-behavior: smooth;
+        }
+
+        .content-section {
+            display: none;
+            max-width: 1000px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            padding: 45px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            animation: fadeIn 0.3s;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Typography & Components */
+        h1 {
+            color: var(--heading-color);
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 10px;
+            margin-bottom: 25px;
+            font-size: 2.2rem;
+        }
+
+        h2 {
+            color: var(--accent);
+            margin: 30px 0 15px 0;
+            font-size: 1.6rem;
+        }
+
+        h3 {
+            color: var(--heading-color);
+            margin: 20px 0 10px 0;
+        }
+
+        p,
+        li {
+            line-height: 1.7;
+            margin-bottom: 16px;
+            font-size: 1.05rem;
+        }
+
+        ul,
+        ol {
+            padding-left: 25px;
+            margin-bottom: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 25px 0;
+        }
+
+        th,
+        td {
+            padding: 14px;
+            border: 1px solid var(--border);
+            text-align: left;
+        }
+
+        th {
+            background: var(--table-header);
+            color: var(--heading-color);
+            font-weight: 700;
+        }
+
+        .info-box {
+            background: var(--highlight-bg);
+            border-left: 4px solid var(--accent);
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 0 6px 6px 0;
+        }
+
+        .danger-box {
+            background: #fef2f2;
+            border-left: 4px solid var(--danger);
+            padding: 20px;
+            color: #991b1b;
+            margin: 20px 0;
+            border-radius: 0 6px 6px 0;
+        }
+
+        .success-box {
+            background: #f0fdf4;
+            border-left: 4px solid var(--success);
+            padding: 20px;
+            color: #166534;
+            margin: 20px 0;
+            border-radius: 0 6px 6px 0;
+        }
+
+        body.dark-mode .danger-box {
+            background: rgba(239, 68, 68, 0.1);
+            color: #fca5a5;
+        }
+
+        body.dark-mode .success-box {
+            background: rgba(34, 197, 94, 0.1);
+            color: #86efac;
+        }
+
+        .interactive-card {
+            background: var(--bg-color);
+            border: 1px solid var(--border);
+            padding: 35px;
+            border-radius: 8px;
+            margin-top: 25px;
+        }
+
+        .btn {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1rem;
+            transition: 0.2s;
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+
+        /* Calculator Grid */
+        .calc-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            text-align: left;
+            margin-bottom: 25px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .input-group label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+            color: var(--heading-color);
+        }
+
+        .input-group select,
+        .input-group input {
+            padding: 12px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            background: var(--card-bg);
+            color: var(--text-main);
+            font-size: 1rem;
+        }
+
+        .calc-btn {
+            grid-column: span 2;
+            background: var(--success);
+            padding: 15px;
+            font-size: 1.1rem;
+        }
+
+        .answer-box {
+            display: none;
+            margin-top: 25px;
+            padding-top: 25px;
+            border-top: 2px dashed var(--border);
+            text-align: left;
+            animation: fadeIn 0.3s;
+        }
+
+        .answer-box.active {
+            display: block;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 350px;
+            width: 100%;
+            margin-top: 25px;
+        }
+
+        /* Bottom Nav */
+        .bottom-nav {
+            background: var(--card-bg);
+            border-top: 1px solid var(--border);
+            padding: 15px 60px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            z-index: 5;
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav class="sidebar">
+        <div class="sidebar-header">&#9881; Algorithm Pro</div>
+        <ul class="nav-links" id="navLinks">
+            <li><a class="nav-btn active" onclick="jumpTo(0)">1. The 3 Methods Explained</a></li>
+            <li><a class="nav-btn" onclick="jumpTo(1)">2. Solving for c: T(n-1) + n</a></li>
+            <li><a class="nav-btn" onclick="jumpTo(2)">3. MT Warnings & Traps</a></li>
+            <li><a class="nav-btn" onclick="jumpTo(3)">4. Divide vs. Reduce</a></li>
+            <li><a class="nav-btn" onclick="jumpTo(4)">5. Interactive Visualizer</a></li>
+            <li><a class="nav-btn" onclick="jumpTo(5)">6. Looping Practice Lab</a></li>
+        </ul>
+        <button class="theme-btn" onclick="toggleTheme()">&#127762; Toggle Dark Mode</button>
+    </nav>
+
+    <div class="main-wrapper">
+        <main class="main-content">
+
+            <section id="sec0" class="content-section active">
+                <h1>Properly Understanding the 3 Methods</h1>
+                <p>To analyze a recursive algorithm, we express its time complexity as a mathematical sequence called a
+                    recurrence relation. We have three distinct tools to solve these equations.</p>
+
+                <h2>1. The Substitution Method (Mathematical Proof)</h2>
+                <p>This is a formal proof by mathematical induction. It does not give you the answer directly; you must
+                    <em>guess</em> the answer first, and then use algebra to prove your guess is strictly bounded by a
+                    constant.
+                </p>
+                <ol>
+                    <li><strong>Guess:</strong> Formulate an intuition-based guess for the Big O bound.</li>
+                    <li><strong>Assume:</strong> Assume your guess is true for a smaller sub-problem (e.g., $n-1$ or
+                        $n/2$).</li>
+                    <li><strong>Substitute:</strong> Plug that assumption back into the original equation.</li>
+                    <li><strong>Prove:</strong> Simplify the algebra to prove that $T(n) \le c \cdot f(n)$, isolating
+                        the constant $c$ to show the bound holds.</li>
+                </ol>
+
+                <h2>2. The Recursion Tree Method (Visual Summation)</h2>
+                <p>Instead of algebra, we draw the execution of the algorithm as a branching tree. This is highly
+                    effective when substitution algebra gets messy.</p>
+
+                <ul>
+                    <li><strong>Draw the Nodes:</strong> Map out how the problem splits.</li>
+                    <li><strong>Sum the Levels:</strong> Calculate the total non-recursive work done horizontally across
+                        each level.</li>
+                    <li><strong>Find the Height:</strong> Determine how deep the tree goes before hitting the base case
+                        (usually $\log n$ or $n$).</li>
+                    <li><strong>Calculate:</strong> $\text{Total Work} = \text{Sum of all levels}$.</li>
+                </ul>
+
+                <h2>3. The Master Theorem (The Cookbook Formula)</h2>
+                <p>The fastest method. It provides an immediate formula for algorithms that split into fractions. It
+                    compares the work done at the root vs. the work done at the leaves.</p>
+
+                <p>For $T(n) = aT(n/b) + f(n)$, we calculate the "Leaf Work" using $n^{\log_b a}$:</p>
+                <ul>
+                    <li><strong>Case 1:</strong> Leaves are heavier $\implies \Theta(n^{\log_b a})$</li>
+                    <li><strong>Case 2:</strong> Leaves and Root are perfectly tied $\implies \Theta(n^{\log_b a} \log
+                        n)$</li>
+                    <li><strong>Case 3:</strong> Root is heavier $\implies \Theta(f(n))$</li>
+                </ul>
+            </section>
+
+            <section id="sec1" class="content-section">
+                <h1>Solving for $c$: $T(n) = T(n-1) + n$</h1>
+                <p>Let's use the <strong>Substitution Method</strong> to rigorously solve a classic sum-of-integers
+                    recurrence relation. The most common point of confusion is proving the constant $c$. Let's break it
+                    down step-by-step.</p>
+
+                <div class="info-box">
+                    <strong>The Equation:</strong> $$T(n) = T(n-1) + n$$
+                    <strong>The Guess:</strong> $O(n^2)$
+                    <br><strong>The Goal:</strong> Prove mathematically that $T(n) \le c \cdot n^2$ for some positive
+                    constant $c$.
+                </div>
+
+                <h3>Step 1: The Induction Assumption</h3>
+                <p>Assume our guess holds true for the smaller input, $n-1$.</p>
+                $$T(n-1) \le c(n-1)^2$$
+
+                <h3>Step 2: Substitution & Expansion</h3>
+                <p>Plug our assumption into the original equation:</p>
+                $$T(n) \le c(n-1)^2 + n$$
+                <p>Expand the quadratic $(n-1)^2$:</p>
+                $$T(n) \le c(n^2 - 2n + 1) + n$$
+                <p>Distribute the $c$:</p>
+                $$T(n) \le cn^2 - 2cn + c + n$$
+
+                <h3>Step 3: Isolating the Target</h3>
+                <p>We want to prove the whole equation is $\le cn^2$. Let's pull $cn^2$ to the front, and group the
+                    leftover "baggage" together:</p>
+                $$T(n) \le cn^2 - n(2c - 1) + c$$
+
+                <h3>Step 4: Finding the Value of $c$</h3>
+                <p>For our proof to succeed, the "baggage" must not add extra weight. It must be less than or equal to
+                    zero:</p>
+                $$- n(2c - 1) + c \le 0$$
+                <p>Let's logically test a value for $c$. What happens if we pick <strong>$c = 1$</strong>?</p>
+                $$- n(2(1) - 1) + 1 \le 0$$
+                $$- n(1) + 1 \le 0$$
+                $$- n + 1 \le 0$$
+                <p>Move $n$ to the other side:</p>
+                $$1 \le n$$
+
+                <div class="success-box">
+                    <h3>&#10004; The Proof is Complete</h3>
+                    <p>In algorithm analysis, input size $n$ is always a positive integer ($n \ge 1$). Because $1 \le n$
+                        is inherently a true statement, our choice of <strong>$c = 1$</strong> works perfectly.</p>
+                    <p>We have rigorously proven that $T(n) \le 1 \cdot n^2$. The exact time complexity is
+                        mathematically verified as <strong>$O(n^2)$</strong>.</p>
+                </div>
+            </section>
+
+            <section id="sec2" class="content-section">
+                <h1>The Master Theorem Doesn't Always Work!</h1>
+                <p>Students frequently try to force every single equation into the Master Theorem. It is a powerful
+                    tool, but it has strict limitations. <strong>It will mathematically crash if you ignore these
+                        rules.</strong></p>
+
+                <div class="danger-box">
+                    <h3 style="margin-top:0;">&#9888; When the Master Theorem FAILS:</h3>
+                    <ol>
+                        <li><strong>Subtraction in the Argument:</strong> If the equation uses $T(n-1)$ or $T(n-2)$, the
+                            theorem breaks instantly. The input size $b$ must be a division factor strictly greater than
+                            1 ($b > 1$).</li>
+                        <li><strong>Non-Polynomial $f(n)$:</strong> If the extra work outside the recursive call is
+                            exponential (e.g., $2^n$) or a trigonometric function, it cannot be reliably compared to
+                            $n^{\log_b a}$.</li>
+                        <li><strong>Asymptotic Gaps:</strong> The difference between $f(n)$ and the critical bound must
+                            be polynomial ($n^\epsilon$). A logarithmic difference (like comparing $n$ against $n \log
+                            n$) falls into a gap where the basic theorem cannot be evaluated.</li>
+                    </ol>
+                </div>
+                <p><strong>What to do when it fails?</strong> Immediately switch to the Recursion Tree Method or the
+                    Substitution Method.</p>
+            </section>
+
+            <section id="sec3" class="content-section">
+                <h1>Divide vs. Reduce and Conquer</h1>
+                <p>Recognizing the difference between these two paradigms dictates whether you are allowed to use the
+                    Master Theorem, and dictates the fundamental shape of the execution tree.</p>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Feature</th>
+                            <th>Divide and Conquer</th>
+                            <th>Reduce (Decrease) & Conquer</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>The Core Logic</strong></td>
+                            <td>Splits the problem into fractions.</td>
+                            <td>Subtracts a constant amount from the problem.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>The Recurrence Form</strong></td>
+                            <td>$T(n) = aT(n/b) + f(n)$</td>
+                            <td>$T(n) = aT(n-c) + f(n)$</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Data Shrinks By...</strong></td>
+                            <td>Division (e.g., $n/2$)</td>
+                            <td>Subtraction (e.g., $n-1$)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Tree Depth (Height)</strong></td>
+                            <td>Logarithmic: $\log_b n$</td>
+                            <td>Linear: $n / c$</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Master Theorem?</strong></td>
+                            <td><strong style="color:var(--success)">YES.</strong> Perfectly applicable.</td>
+                            <td><strong style="color:var(--danger)">NO.</strong> Master Theorem is invalid.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Algorithm Example</strong></td>
+                            <td>Merge Sort $O(n \log n)$</td>
+                            <td>Recursive Fibonacci $O(2^n)$</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="info-box">
+                    <strong>Rule of Thumb:</strong> If you see a division symbol ($/$), reach for the Master Theorem. If
+                    you see a minus sign ($-$), draw the Recursion Tree!
+                </div>
+            </section>
+
+            <section id="sec4" class="content-section">
+                <h1>Interactive Recurrence Visualizer</h1>
+                <p>Input your recurrence below. The engine determines if it's Divide or Reduce, calculates the exact
+                    bound, and graphs the complexity curve dynamically.</p>
+
+                <div class="interactive-card">
+                    <div class="calc-grid">
+                        <div class="input-group" style="grid-column: span 2;">
+                            <label>Algorithm Paradigm</label>
+                            <select id="calcType" onchange="updateCalcLabels()">
+                                <option value="divide">Divide & Conquer: T(n) = aT(n/b) + O(n^d)</option>
+                                <option value="reduce">Reduce & Conquer: T(n) = aT(n-c) + O(n^d)</option>
+                            </select>
+                        </div>
+                        <div class="input-group"><label>Branches (a)</label><input type="number" id="calcA" value="2"
+                                min="1"></div>
+                        <div class="input-group"><label id="labelB">Shrink Factor (b)</label><input type="number"
+                                id="calcB" value="2" min="1"></div>
+                        <div class="input-group" style="grid-column: span 2;">
+                            <label>Polynomial Work Degree (d) -> meaning O(n^d)</label>
+                            <select id="calcD">
+                                <option value="0">d = 0 : Constant O(1)</option>
+                                <option value="1" selected>d = 1 : Linear O(n)</option>
+                                <option value="2">d = 2 : Quadratic O(n²)</option>
+                                <option value="3">d = 3 : Cubic O(n³)</option>
+                            </select>
+                        </div>
+                        <button class="btn calc-btn" onclick="calculate()">Calculate Complexity & Graph</button>
+                    </div>
+
+                    <div id="calcResultBox" class="answer-box"
+                        style="background: var(--card-bg); padding: 25px; border-radius: 8px; border: 1px solid var(--accent); box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+                        <h3 style="margin-top:0; color: var(--heading-color);">Engine Evaluation:</h3>
+                        <p id="calcLogic" style="font-size: 1.1rem; line-height: 1.6;"></p>
+                        <h2 id="calcFinal"
+                            style="color: var(--accent); text-align: center; font-size: 2.2rem; margin: 20px 0;"></h2>
+                        <div class="chart-container"><canvas id="calcChart"></canvas></div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="sec5" class="content-section">
+                <h1>20-Problem Practice Lab</h1>
+                <p>Loop through these problems to test your intuition. Identify the complexity and actively decide if
+                    the Master Theorem is allowed to be used.</p>
+
+                <div class="interactive-card">
+                    <h3 id="pracCount" style="color: var(--text-muted); font-weight: 600;">Problem 1 of 20</h3>
+                    <h2 id="pracEq" style="margin: 30px 0; font-size: 2.2rem; color: var(--heading-color);">$$T(n) =
+                        2T(n/2) + n$$</h2>
+
+                    <button class="btn" id="pracBtn" onclick="revealPrac()"
+                        style="padding: 15px 30px; font-size: 1.1rem;">Reveal Solution</button>
+
+                    <div class="answer-box" id="pracAnswer"
+                        style="background: var(--card-bg); padding: 25px; border-radius: 8px; border: 1px solid var(--border);">
+                        <h2 id="pracAns" style="color: var(--success); margin-top: 0; font-size: 2rem;">$$O(n \log n)$$
+                        </h2>
+                        <p style="font-size: 1.1rem;"><strong>Master Theorem:</strong> <span id="pracMT"
+                                style="font-weight: 600;">Yes (Case 2)</span></p>
+                        <p style="font-size: 1.1rem;"><strong>Explanation:</strong> <span id="pracExp">Standard Merge
+                                Sort pattern. Data halves, root work equals leaf work.</span></p>
+                    </div>
+
+                    <div style="display: flex; justify-content: space-between; margin-top: 30px;">
+                        <button class="btn" style="background: var(--sidebar-bg-top);" onclick="navPrac(-1)">&#8592;
+                            Previous Problem</button>
+                        <button class="btn" onclick="navPrac(1)">Next Problem &#8594;</button>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+
+        <div class="bottom-nav">
+            <button class="btn" id="prevBtn" onclick="jumpTo(currentSlide - 1)"
+                style="background: var(--sidebar-bg-top);">&#8592; Previous</button>
+            <span id="progressText" style="font-weight: 600; color: var(--text-muted); font-size: 1.1rem;">Slide 1 of
+                6</span>
+            <button class="btn" id="nextBtn" onclick="jumpTo(currentSlide + 1)">Next &#8594;</button>
+        </div>
+    </div>
+
+    <script>
+        // --- Navigation ---
+        let currentSlide = 0;
+        const totalSlides = 6;
+        let chartInstance = null;
+
+        function jumpTo(idx) {
+            if (idx < 0 || idx >= totalSlides) return;
+            document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(`sec${idx}`).classList.add('active');
+            document.querySelectorAll('.nav-btn')[idx].classList.add('active');
+            currentSlide = idx;
+            document.getElementById('prevBtn').disabled = (idx === 0);
+            document.getElementById('nextBtn').disabled = (idx === totalSlides - 1);
+            document.getElementById('progressText').innerText = `Slide ${idx + 1} of ${totalSlides}`;
+
+            // Scroll to top of section
+            document.querySelector('.main-content').scrollTop = 0;
+            if (window.MathJax) MathJax.typesetPromise();
+        }
+
+        function toggleTheme() {
+            document.body.classList.toggle('dark-mode');
+            if (document.getElementById('calcResultBox').classList.contains('active')) calculate();
+        }
+
+        // --- Interactive Visualizer Logic ---
+        function updateCalcLabels() {
+            const type = document.getElementById('calcType').value;
+            document.getElementById('labelB').innerText = type === 'divide' ? 'Shrink Factor (b)' : 'Subtraction Constant (c)';
+            document.getElementById('calcB').value = type === 'divide' ? 2 : 1;
+        }
+
+        function calculate() {
+            const type = document.getElementById('calcType').value;
+            const a = parseFloat(document.getElementById('calcA').value);
+            const bc = parseFloat(document.getElementById('calcB').value);
+            const d = parseFloat(document.getElementById('calcD').value);
+
+            let logic = "", finalO = "", data = [];
+            const labels = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+
+            if (type === 'divide') {
+                if (bc <= 1) return alert("Shrink factor (b) must be > 1 to use Divide & Conquer!");
+                const crit = Math.log(a) / Math.log(bc);
+                logic = `<strong style="color:var(--success);">Divide & Conquer Detected.</strong> The Master Theorem is valid here.<br>Critical Bound calculations: $n^{\\log_{${bc}} ${a}} \\approx n^{${crit.toFixed(2)}}$`;
+
+                if (d < crit) {
+                    logic += `<br><br>Result: $f(n)$ is smaller. Leaves dominate (Case 1).`;
+                    finalO = `O(n^{${crit.toFixed(2)}})`;
+                    data = labels.map(n => Math.pow(n, crit));
+                }
+                else if (d === crit) {
+                    logic += `<br><br>Result: $f(n)$ equals Critical Bound. Perfect tie (Case 2).`;
+                    finalO = d === 0 ? `O(\\log n)` : `O(n^{${d}} \\log n)`;
+                    data = labels.map(n => Math.pow(n, d) * (n === 1 ? 1 : Math.log2(n)));
+                }
+                else {
+                    logic += `<br><br>Result: $f(n)$ is larger. Root dominates (Case 3).`;
+                    finalO = `O(n^{${d}})`;
+                    data = labels.map(n => Math.pow(n, d));
+                }
+            } else {
+                if (bc < 1) return alert("Subtraction constant (c) must be >= 1!");
+                logic = `<strong style="color:var(--danger);">Reduce & Conquer Detected.</strong> The Master Theorem is INVALID here.<br>Switching to Recursion Tree summation. Tree Depth is $n/${bc}$.`;
+
+                if (a === 1) {
+                    logic += `<br><br>Result: Single branch tree. Summing $n^{${d}}$ across $n$ levels increases the polynomial degree by 1.`;
+                    finalO = `O(n^{${d + 1}})`;
+                    data = labels.map(n => Math.pow(n, d + 1));
+                } else {
+                    logic += `<br><br>Result: Multi-branch tree. Exponential explosion! The branching factor dominates the polynomial work.`;
+                    finalO = d === 0 ? `O(${a}^{n/${bc}})` : `O(n^{${d}} \\cdot ${a}^{n/${bc}})`;
+                    data = labels.map(n => Math.pow(n, d) * Math.pow(a, n / bc));
+                }
+            }
+
+            document.getElementById('calcLogic').innerHTML = logic;
+            document.getElementById('calcFinal').innerHTML = `$$${finalO}$$`;
+            document.getElementById('calcResultBox').classList.add('active');
+            if (window.MathJax) MathJax.typesetPromise();
+
+            // Smooth scroll down to chart
+            setTimeout(() => { document.getElementById('calcResultBox').scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }, 100);
+            drawChart(labels, data, finalO);
+        }
+
+        function drawChart(labels, data, title) {
+            const ctx = document.getElementById('calcChart').getContext('2d');
+            if (chartInstance) chartInstance.destroy();
+
+            const isDark = document.body.classList.contains('dark-mode');
+            const textColor = isDark ? '#cbd5e1' : '#334155';
+
+            // Cap visual data to prevent graph breaking on massive exponentials
+            const max = Math.max(...data);
+            const scaled = max > 1000 ? data.map(d => d * (1000 / max)) : data;
+
+            chartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: `Mathematical Growth: ${title.replace(/[\$\\]/g, '')}`,
+                        data: scaled,
+                        borderColor: '#4f46e5',
+                        backgroundColor: 'rgba(79, 70, 229, 0.15)',
+                        fill: true,
+                        tension: 0.4,
+                        borderWidth: 3,
+                        pointBackgroundColor: '#4f46e5'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { display: false },
+                        x: { grid: { color: isDark ? '#334155' : '#e2e8f0' }, ticks: { color: textColor } }
+                    },
+                    plugins: { legend: { labels: { color: textColor, font: { size: 14 } } } }
+                }
+            });
+        }
+
+        // --- 20 Problem Practice Lab ---
+        const practiceData = [
+            { q: "T(n) = 2T(n/2) + n", a: "O(n \\log n)", mt: "<span style='color:var(--success)'>Yes (Case 2)</span>", e: "Data is halved, root work equals leaf work." },
+            { q: "T(n) = T(n-1) + 1", a: "O(n)", mt: "<span style='color:var(--danger)'>NO (Reduce & Conquer)</span>", e: "Linear recursion tree, depth n." },
+            { q: "T(n) = 2T(n-1) + 1", a: "O(2^n)", mt: "<span style='color:var(--danger)'>NO (Reduce & Conquer)</span>", e: "Tree branches twice at each step, depth n." },
+            { q: "T(n) = T(n/2) + 1", a: "O(\\log n)", mt: "<span style='color:var(--success)'>Yes (Case 2)</span>", e: "Standard Binary Search logic." },
+            { q: "T(n) = 8T(n/2) + n^2", a: "O(n^3)", mt: "<span style='color:var(--success)'>Yes (Case 1)</span>", e: "Leaves dominate. $n^{\\log_2 8} = n^3 > n^2$." },
+            { q: "T(n) = 3T(n-1) + 5", a: "O(3^n)", mt: "<span style='color:var(--danger)'>NO (Reduce & Conquer)</span>", e: "Constants (+5) disappear in exponential growth." },
+            { q: "T(n) = 4T(n/2) + n^2", a: "O(n^2 \\log n)", mt: "<span style='color:var(--success)'>Yes (Case 2)</span>", e: "Perfect tie. $n^{\\log_2 4} = n^2$." },
+            { q: "T(n) = T(n/2) + n", a: "O(n)", mt: "<span style='color:var(--success)'>Yes (Case 3)</span>", e: "Root dominates. $n^1 > n^0$." },
+            { q: "T(n) = 7T(n/2) + n^2", a: "O(n^{\\log_2 7})", mt: "<span style='color:var(--success)'>Yes (Case 1)</span>", e: "Leaves dominate. $\\log_2 7 \\approx 2.8$." },
+            { q: "T(n) = T(n-1) + n", a: "O(n^2)", mt: "<span style='color:var(--danger)'>NO (Reduce & Conquer)</span>", e: "Summing arithmetic series (1 to n)." },
+            { q: "T(n) = 3T(n/3) + n", a: "O(n \\log n)", mt: "<span style='color:var(--success)'>Yes (Case 2)</span>", e: "Tie. $n^{\\log_3 3} = n^1$." },
+            { q: "T(n) = 2T(n/2) + n^3", a: "O(n^3)", mt: "<span style='color:var(--success)'>Yes (Case 3)</span>", e: "Root work ($n^3$) is massive compared to branches." },
+            { q: "T(n) = T(n-2) + 1", a: "O(n)", mt: "<span style='color:var(--danger)'>NO (Reduce & Conquer)</span>", e: "Linear reduction, tree height n/2. Constants dropped." },
+            { q: "T(n) = 16T(n/4) + n", a: "O(n^2)", mt: "<span style='color:var(--success)'>Yes (Case 1)</span>", e: "Leaves dominate. $n^{\\log_4 16} = n^2$." },
+            { q: "T(n) = T(n/2) + \\log n", a: "O(\\log^2 n)", mt: "<span style='color:var(--success)'>Yes (Extended Case)</span>", e: "Work at each level is $\\log n$, tree height $\\log n$." },
+            { q: "T(n) = 2T(n-1) + n", a: "O(2^n)", mt: "<span style='color:var(--danger)'>NO (Reduce & Conquer)</span>", e: "Exponential branch nodes completely overpower the linear work." },
+            { q: "T(n) = 9T(n/3) + n^2", a: "O(n^2 \\log n)", mt: "<span style='color:var(--success)'>Yes (Case 2)</span>", e: "Tie. $n^{\\log_3 9} = n^2$." },
+            { q: "T(n) = 2T(n/4) + 1", a: "O(\\sqrt{n})", mt: "<span style='color:var(--success)'>Yes (Case 1)</span>", e: "Leaves dominate. $n^{\\log_4 2} = n^{0.5}$." },
+            { q: "T(n) = 4T(n/2) + n^3", a: "O(n^3)", mt: "<span style='color:var(--success)'>Yes (Case 3)</span>", e: "Cubic root work dominates quadratic leaves." },
+            { q: "T(n) = T(n-1) + \\log n", a: "O(n \\log n)", mt: "<span style='color:var(--danger)'>NO (Reduce & Conquer)</span>", e: "Adding $\\log n$ horizontally across $n$ vertical levels." }
+        ];
+
+        let pIdx = 0;
+        function loadPrac() {
+            document.getElementById('pracCount').innerText = `Problem ${pIdx + 1} of 20`;
+            document.getElementById('pracEq').innerHTML = `$$${practiceData[pIdx].q}$$`;
+            document.getElementById('pracAns').innerHTML = `$$${practiceData[pIdx].a}$$`;
+            document.getElementById('pracMT').innerHTML = practiceData[pIdx].mt;
+            document.getElementById('pracExp').innerHTML = practiceData[pIdx].e;
+            document.getElementById('pracAnswer').classList.remove('active');
+            document.getElementById('pracBtn').style.display = "inline-block";
+            if (window.MathJax) MathJax.typesetPromise();
+        }
+
+        function navPrac(dir) {
+            pIdx = (pIdx + dir + 20) % 20;
+            loadPrac();
+        }
+
+        function revealPrac() {
+            document.getElementById('pracBtn').style.display = "none";
+            document.getElementById('pracAnswer').classList.add('active');
+        }
+
+        // Initialize First Slide
+        jumpTo(0);
+        loadPrac();
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recurrence Relations Study Guide</title>
+
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+            },
+            svg: { fontCache: 'global' }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        /* Core CSS Variables */
+        :root {
+            --bg-color: #f1f5f9;
+            --card-bg: #ffffff;
+            --text-main: #334155;
+            --text-muted: #64748b;
+            --heading-color: #0f172a;
+            --border: #e2e8f0;
+            --highlight-bg: #eff6ff;
+            --table-header: #f8fafc;
+            --sidebar-bg-top: #111827;
+            --sidebar-bg-bottom: #1f2937;
+            --sidebar-hover: #374151;
+            --sidebar-text: #e5e7eb;
+            --sidebar-muted: #9ca3af;
+            --accent: #6366f1;
+            --accent-hover: #4f46e5;
+            --success: #10b981;
+            --warning: #f59e0b;
+        }
+
+        body.dark-mode {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-main: #cbd5e1;
+            --text-muted: #94a3b8;
+            --heading-color: #f8fafc;
+            --border: #334155;
+            --highlight-bg: #0f172a;
+            --table-header: #0f172a;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            display: flex;
+            height: 100vh;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        /* Sidebar & Navigation */
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(to bottom, var(--sidebar-bg-top), var(--sidebar-bg-bottom));
+            color: var(--sidebar-text);
+            display: flex;
+            flex-direction: column;
+            box-shadow: 4px 0 20px rgba(0, 0, 0, 0.15);
+            z-index: 10;
+            transition: transform 0.4s ease, width 0.4s ease;
+        }
+
+        .sidebar-header {
+            padding: 24px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .sidebar-header h2 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        .search-container {
+            padding: 20px;
+        }
+
+        .search-container input {
+            width: 100%;
+            padding: 10px 15px;
+            border-radius: 8px;
+            border: 1px solid transparent;
+            background-color: rgba(255, 255, 255, 0.08);
+            color: #ffffff;
+            outline: none;
+        }
+
+        .search-container input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+        }
+
+        .nav-links {
+            list-style: none;
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 0 10px;
+        }
+
+        .nav-links a {
+            display: block;
+            padding: 10px 16px;
+            color: var(--sidebar-muted);
+            text-decoration: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            margin-bottom: 2px;
+            transition: all 0.2s ease;
+            font-size: 0.95rem;
+        }
+
+        .nav-links a:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+            color: var(--sidebar-text);
+        }
+
+        .nav-links a.active {
+            background-color: var(--accent);
+            color: #ffffff;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+
+        .theme-toggle-container {
+            padding: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .action-btn {
+            width: 100%;
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--sidebar-text);
+            padding: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: background 0.3s ease;
+        }
+
+        .action-btn:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        /* Main Content wrapper */
+        .main-wrapper {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .top-controls {
+            display: flex;
+            justify-content: flex-end;
+            padding: 20px 40px 0 40px;
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 100%;
+            pointer-events: none;
+        }
+
+        .top-controls button {
+            pointer-events: auto;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            transition: all 0.2s ease;
+        }
+
+        .top-controls button:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .main-content {
+            flex-grow: 1;
+            padding: 80px 60px 100px 60px;
+            overflow-y: auto;
+            scroll-behavior: smooth;
+        }
+
+        .content-section {
+            display: none;
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            padding: 50px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03);
+            animation: fadeIn 0.4s ease-in-out;
+            border: 1px solid var(--border);
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateX(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* Typography & Elements */
+        h1 {
+            color: var(--heading-color);
+            margin-bottom: 24px;
+            font-size: 2.2rem;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 12px;
+        }
+
+        h2 {
+            color: var(--accent);
+            margin: 30px 0 15px 0;
+            font-size: 1.5rem;
+        }
+
+        h3 {
+            margin: 20px 0 10px 0;
+            color: var(--heading-color);
+        }
+
+        h4 {
+            margin: 15px 0 5px 0;
+            color: var(--accent-hover);
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+        }
+
+        p {
+            line-height: 1.7;
+            margin-bottom: 16px;
+        }
+
+        ul {
+            margin-bottom: 20px;
+            padding-left: 20px;
+        }
+
+        li {
+            margin-bottom: 10px;
+            line-height: 1.6;
+        }
+
+        .highlight-box {
+            background-color: var(--highlight-bg);
+            border-left: 4px solid var(--accent);
+            padding: 18px 24px;
+            margin: 25px 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .ctdv-box {
+            background: rgba(99, 102, 241, 0.05);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        body.dark-mode .ctdv-box {
+            background: rgba(99, 102, 241, 0.1);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 0.95rem;
+        }
+
+        th,
+        td {
+            padding: 12px 15px;
+            border: 1px solid var(--border);
+            text-align: left;
+        }
+
+        th {
+            background-color: var(--table-header);
+            color: var(--heading-color);
+            font-weight: 600;
+        }
+
+        /* Presentation Mode */
+        body.presentation-mode .sidebar {
+            width: 0;
+            transform: translateX(-100%);
+            overflow: hidden;
+        }
+
+        body.presentation-mode .content-section {
+            max-width: 1400px;
+            font-size: 1.2rem;
+        }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            padding: 20px 60px;
+            background: var(--card-bg);
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-arrow-btn {
+            background: var(--accent);
+            color: #ffffff;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-arrow-btn:hover:not(:disabled) {
+            background: var(--accent-hover);
+        }
+
+        .nav-arrow-btn:disabled {
+            background: var(--sidebar-muted);
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Interactive Components */
+        .interactive-card {
+            background: var(--bg-color);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 30px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .reveal-btn {
+            background-color: var(--accent);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: 0.2s;
+        }
+
+        .reveal-btn:hover {
+            background-color: var(--accent-hover);
+        }
+
+        .answer-box {
+            display: none;
+            margin-top: 25px;
+            padding-top: 25px;
+            border-top: 2px dashed var(--border);
+            text-align: left;
+            animation: fadeIn 0.4s;
+        }
+
+        .answer-box.active {
+            display: block;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 400px;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .cta-container {
+            text-align: center;
+            margin: 40px 0;
+        }
+
+        .cta-btn {
+            background-color: var(--success);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+
+        .cta-btn:hover {
+            background-color: #059669;
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav class="sidebar">
+        <div class="sidebar-header">
+            <h2>&#9881; Algorithm Architect</h2>
+        </div>
+        <div class="search-container">
+            <input type="text" id="searchInput" placeholder="&#128269; Search topics..." onkeyup="searchContent()">
+        </div>
+        <ul class="nav-links" id="sidebarNavLinks">
+            <li><a class="nav-btn active" onclick="jumpToSection(0)">1. Intro to Recurrences</a></li>
+            <li><a class="nav-btn" onclick="jumpToSection(1)">2. Substitution Method</a></li>
+            <li><a class="nav-btn" onclick="jumpToSection(2)">3. Recursion Tree Method</a></li>
+            <li><a class="nav-btn" onclick="jumpToSection(3)">4. Master's Theorem</a></li>
+            <li><a class="nav-btn" onclick="jumpToSection(4)">5. Visualizing the Bounds</a></li>
+            <li><a class="nav-btn" onclick="jumpToSection(5)">6. Practice Lab: Recurrences</a></li>
+        </ul>
+        <div class="theme-toggle-container">
+            <button class="action-btn" onclick="toggleTheme()" id="themeBtn"><span id="themeIcon">🌙</span> Dark
+                Mode</button>
+        </div>
+    </nav>
+
+    <div class="main-wrapper">
+        <div class="top-controls">
+            <button onclick="togglePresentation()" id="presToggleBtn">&#128250; Enter Presentation</button>
+        </div>
+
+        <main class="main-content" id="mainArea">
+
+            <section id="sec0" class="content-section active">
+                <h1>Analysis of Recursive Algorithms</h1>
+                <p>When an algorithm calls itself to solve smaller sub-problems, we cannot analyze its time complexity
+                    using simple loops. Instead, we use a <strong>Recurrence Relation</strong>: an equation that
+                    recursively defines a sequence.</p>
+
+                <div class="ctdv-box">
+                    <h4>Chalk</h4>
+                    <p>Consider <strong>Merge Sort</strong>. It splits an array of size $n$ into two halves, sorts them
+                        recursively, and then merges them. We express its time mathematically as: $$T(n) = 2T(n/2) +
+                        O(n)$$</p>
+
+                    <h4>Talk</h4>
+                    <p>This means: "The time to solve a problem of size $n$ equals $2$ times the time to solve a problem
+                        of size $n/2$, plus $O(n)$ time to merge the halves together."</p>
+
+                    <h4>Do</h4>
+                    <p>To find the Big O bound, we must solve this recurrence relation. We have three primary weapons in
+                        our mathematical arsenal:</p>
+                    <ul>
+                        <li><strong>Substitution Method:</strong> Guessing the bound and proving it.</li>
+                        <li><strong>Recursion Tree Method:</strong> Drawing the execution branches.</li>
+                        <li><strong>Master's Theorem:</strong> The ultimate formula shortcut.</li>
+                    </ul>
+
+                    <h4>Verify</h4>
+                    <p>We verify our findings by ensuring the calculated asymptotic bound correctly matches real-world
+                        execution times as $n \to \infty$.</p>
+                </div>
+            </section>
+
+            <section id="sec1" class="content-section">
+                <h1>Solving: The Substitution Method</h1>
+                <p>The substitution method relies on mathematical induction. It is a "guess and check" strategy.</p>
+
+                <div class="ctdv-box">
+                    <h4>Chalk</h4>
+                    <p>Let's solve the recurrence: $$T(n) = T(n-1) + n$$</p>
+
+                    <h4>Talk</h4>
+                    <p>We will guess that the solution is $O(n^2)$. To prove this, we must show that $T(n) \le c \cdot
+                        n^2$ for an appropriate constant $c > 0$.</p>
+
+                    <h4>Do</h4>
+                    <p>Assume our guess holds true for smaller values, specifically for $n-1$: $$T(n-1) \le c(n-1)^2$$
+                    </p>
+                    <p>Substitute this assumption back into the original equation:</p>
+                    $$T(n) \le c(n-1)^2 + n$$
+                    $$T(n) \le c(n^2 - 2n + 1) + n$$
+                    $$T(n) \le cn^2 - 2cn + c + n$$
+                    $$T(n) \le cn^2 - n(2c - 1) + c$$
+
+                    <h4>Verify</h4>
+                    <p>For $T(n) \le cn^2$ to be true, the remaining term $-n(2c - 1) + c$ must be less than or equal to
+                        $0$. As long as we choose a constant $c \ge 1$, this condition holds true. Therefore, our guess
+                        is verified: $T(n) = O(n^2)$.</p>
+                </div>
+            </section>
+
+            <section id="sec2" class="content-section">
+                <h1>Solving: Recursion Tree Method</h1>
+                <p>The recursion tree visualizes what happens as recursive calls unfold. We calculate the cost of work
+                    done at each level of the tree, and then sum the levels together.</p>
+
+                <div class="ctdv-box">
+                    <h4>Chalk</h4>
+                    <p>Let's solve Merge Sort's recurrence: $$T(n) = 2T(n/2) + n$$</p>
+
+
+                    <h4>Talk</h4>
+                    <p>The root of the tree represents a cost of $n$. It splits into two nodes, each costing $n/2$.
+                        Those split into four nodes, each costing $n/4$.</p>
+
+                    <h4>Do</h4>
+                    <ul>
+                        <li><strong>Level 0 Cost:</strong> $n$</li>
+                        <li><strong>Level 1 Cost:</strong> $(n/2) + (n/2) = n$</li>
+                        <li><strong>Level 2 Cost:</strong> $(n/4) + (n/4) + (n/4) + (n/4) = n$</li>
+                    </ul>
+                    <p>Notice a pattern? The cost at <em>every</em> level is exactly $n$.</p>
+                    <p>Now, how deep is the tree? Since we divide $n$ by 2 at each level, the tree hits the base case
+                        ($size = 1$) at a depth of $\log_2 n$.</p>
+
+                    <h4>Verify</h4>
+                    <p>Total Cost = (Cost per level) $\times$ (Number of levels).</p>
+                    $$Total = n \times \log_2 n = O(n \log n)$$
+                </div>
+            </section>
+
+            <section id="sec3" class="content-section">
+                <h1>Solving: Master's Theorem</h1>
+                <p>The Master Theorem is a direct formula providing a "cookbook" solution for recurrence relations of
+                    the form:</p>
+                <div class="highlight-box">
+                    $$T(n) = aT(n/b) + f(n)$$
+                </div>
+                <p>Where:
+                    <br>• $a \ge 1$: Number of sub-problems.
+                    <br>• $b > 1$: Factor by which input size shrinks.
+                    <br>• $f(n)$: Cost of the work done outside the recursive calls (dividing/merging).
+                </p>
+
+                <div class="ctdv-box">
+                    <h4>Chalk & Talk: The Three Cases</h4>
+                    <p>We determine the result by comparing $f(n)$ against a critical polynomial bound: $n^{\log_b a}$.
+                    </p>
+
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Case</th>
+                                <th>Condition</th>
+                                <th>Result $T(n)$</th>
+                                <th>Real-Life Scenario</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>1. Leaves Dominate</strong></td>
+                                <td>$f(n)$ is smaller than $n^{\log_b a}$</td>
+                                <td>$\Theta(n^{\log_b a})$</td>
+                                <td>Tree Traversals where splitting is cheap.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>2. Even Balance</strong></td>
+                                <td>$f(n)$ is exactly equal to $n^{\log_b a}$</td>
+                                <td>$\Theta(n^{\log_b a} \log n)$</td>
+                                <td>Merge Sort. Work is distributed evenly.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>3. Root Dominates</strong></td>
+                                <td>$f(n)$ is larger than $n^{\log_b a}$</td>
+                                <td>$\Theta(f(n))$</td>
+                                <td>Inefficient combining algorithms.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h4>Do & Verify</h4>
+                    <p>Solve: $T(n) = 8T(n/2) + 1000n^2$</p>
+                    <ul>
+                        <li>$a = 8, b = 2, f(n) = 1000n^2$</li>
+                        <li>Critical bound: $n^{\log_2 8} = n^3$</li>
+                        <li>Compare: $f(n)$ is $O(n^2)$, which is smaller than $n^3$.</li>
+                        <li>This is <strong>Case 1</strong>. The bound is $O(n^3)$.</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="sec4" class="content-section">
+                <h1>Visualizing Recurrence Bounds</h1>
+                <p>Understanding what these solved relations mean is crucial. A simple tweak in a recursive algorithm
+                    can shift its execution from $O(n)$ to $O(n^2)$.</p>
+
+                <div class="chart-container">
+                    <canvas id="recurrenceChart"></canvas>
+                </div>
+
+                <div class="cta-container">
+                    <button class="cta-btn" onclick="jumpToSection(5)">I understand the math. Start Problem-Solving
+                        Practice &#8594;</button>
+                </div>
+            </section>
+
+            <section id="sec5" class="content-section">
+                <h1>Practice Lab: Solving Recurrences</h1>
+                <p>Use the Substitution, Recursion Tree, or Master Method to solve these recurrence relations. Calculate
+                    the bound in your head before revealing the answer!</p>
+
+                <div class="interactive-card" id="practiceCardUI">
+                    <h3 id="pracCount">Problem 1 of 10</h3>
+                    <h2 id="pracEquation">$$T(n) = 2T(n/2) + n$$</h2>
+
+                    <button class="reveal-btn" id="revealBtn" onclick="revealPractice()">Reveal Answer</button>
+
+                    <div class="answer-box" id="pracAnswerBox">
+                        <h3>Asymptotic Bound: <span id="pracTarget" style="color: var(--accent);">O(n log n)</span></h3>
+                        <p><strong>Methodology:</strong> <span id="pracMethod">Master Theorem Case 2</span></p>
+                        <div id="pracDerivation"
+                            style="font-size: 1.1rem; margin: 15px 0; background: var(--bg-color); padding: 15px; border-radius: 8px;">
+                            $a=2, b=2, f(n)=n$.<br>Critical: $n^{\log_2 2} = n^1$. Since $f(n)$ matches $n^1$, we
+                            multiply by $\log n$.
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; margin-top: 15px;">
+                    <button class="action-btn" style="width: auto; padding: 10px 25px;"
+                        onclick="navPractice(-1)">&#8592; Previous</button>
+                    <button class="action-btn"
+                        style="width: auto; padding: 10px 25px; background: var(--sidebar-bg-top);"
+                        onclick="navPractice(1)">Next Problem &#8594;</button>
+                </div>
+
+                <div class="cta-container">
+                    <button class="cta-btn" onclick="showAllPracticeTable()">Show All Solutions (Cheat Sheet)</button>
+                </div>
+
+                <div id="allPracticeTableContainer" style="display: none; animation: fadeIn 0.5s;">
+                    <table id="allPracticeTable">
+                        <thead>
+                            <tr>
+                                <th>Recurrence</th>
+                                <th>Bound</th>
+                                <th>Methodology</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+
+        <div class="bottom-nav">
+            <button class="nav-arrow-btn" id="prevBtn" onclick="navigate(-1)">&#8592; Previous</button>
+            <span class="progress-indicator" id="progressText" style="font-weight: 600; color: var(--text-muted);">Slide
+                1 of 6</span>
+            <button class="nav-arrow-btn" id="nextBtn" onclick="navigate(1)">Next &#8594;</button>
+        </div>
+    </div>
+
+    <script>
+        // --- Core Navigation ---
+        const totalSections = 6;
+        let currentIndex = 0;
+        let chartInstance = null;
+
+        function jumpToSection(index) {
+            if (index < 0 || index >= totalSections) return;
+            currentIndex = index;
+            document.querySelectorAll('.content-section').forEach(sec => sec.classList.remove('active'));
+            document.getElementById(`sec${currentIndex}`).classList.add('active');
+
+            const navLinks = document.querySelectorAll('.nav-btn');
+            navLinks.forEach(link => link.classList.remove('active'));
+            navLinks[currentIndex].classList.add('active');
+
+            document.getElementById('mainArea').scrollTop = 0;
+            updateBottomNavUI();
+
+            // Draw chart if we navigate to slide 4 (index 4)
+            if (currentIndex === 4) renderChart();
+
+            if (window.MathJax) MathJax.typesetPromise();
+        }
+
+        function navigate(direction) { jumpToSection(currentIndex + direction); }
+
+        function updateBottomNavUI() {
+            document.getElementById('prevBtn').disabled = (currentIndex === 0);
+            document.getElementById('nextBtn').disabled = (currentIndex === totalSections - 1);
+            document.getElementById('progressText').innerText = `Slide ${currentIndex + 1} of ${totalSections}`;
+        }
+
+        // --- Theme & Presentation ---
+        function toggleTheme() {
+            document.body.classList.toggle('dark-mode');
+            document.getElementById('themeBtn').innerHTML = document.body.classList.contains('dark-mode')
+                ? '<span id="themeIcon">☀️</span> Light Mode' : '<span id="themeIcon">🌙</span> Dark Mode';
+            if (currentIndex === 4) renderChart(); // Redraw chart for dark mode colors
+        }
+
+        function togglePresentation() {
+            const body = document.body;
+            if (!body.classList.contains('presentation-mode')) {
+                body.classList.add('presentation-mode');
+                document.getElementById('presToggleBtn').innerHTML = '&#10006; Exit Presentation';
+                if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen();
+            } else {
+                body.classList.remove('presentation-mode');
+                document.getElementById('presToggleBtn').innerHTML = '&#128250; Enter Presentation';
+                if (document.exitFullscreen && document.fullscreenElement) document.exitFullscreen();
+            }
+            if (currentIndex === 4) setTimeout(renderChart, 300); // Redraw chart sizes
+        }
+
+        // --- Chart.js Rendering ---
+        function renderChart() {
+            const ctx = document.getElementById('recurrenceChart').getContext('2d');
+            const isDark = document.body.classList.contains('dark-mode');
+            const gridColor = isDark ? '#334155' : '#e2e8f0';
+            const textColor = isDark ? '#cbd5e1' : '#334155';
+
+            if (chartInstance) chartInstance.destroy();
+
+            const labels = [1, 2, 4, 8, 16, 32, 64];
+
+            // Common bounds for recurrences
+            const dataO1 = labels.map(() => 10);
+            const dataLogN = labels.map(n => 10 * Math.log2(n));
+            const dataN = labels.map(n => n);
+            const dataNLogN = labels.map(n => n * Math.log2(n));
+            const dataN2 = labels.map(n => Math.pow(n, 2) / 20); // Scaled for viewability
+
+            chartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        { label: 'O(log n) - Binary Search', data: dataLogN, borderColor: '#3b82f6', fill: false, tension: 0.3 },
+                        { label: 'O(n) - Tree Traversal', data: dataN, borderColor: '#10b981', fill: false, tension: 0.3 },
+                        { label: 'O(n log n) - Merge Sort', data: dataNLogN, borderColor: '#f97316', fill: false, tension: 0.3 },
+                        { label: 'O(n²) - Naive Recursion', data: dataN2, borderColor: '#ef4444', fill: false, tension: 0.3 }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { max: 200, grid: { color: gridColor }, ticks: { color: textColor } },
+                        x: { title: { display: true, text: 'Input Size (n)', color: textColor }, grid: { color: gridColor }, ticks: { color: textColor } }
+                    },
+                    plugins: {
+                        legend: { labels: { color: textColor, font: { size: 13 } } }
+                    }
+                }
+            });
+        }
+
+        // --- Interactive Practice Lab (10 Looped Recurrence Problems) ---
+        const practiceData = [
+            { f: "T(n) = 2T(n/2) + n", t: "O(n \\log n)", m: "Master Theorem (Case 2)", d: "$a=2, b=2, f(n)=n^1$. Critical bound: $n^{\\log_2 2} = n^1$. They are equal, so multiply by $\\log n$." },
+            { f: "T(n) = 4T(n/2) + n", t: "O(n^2)", m: "Master Theorem (Case 1)", d: "$a=4, b=2, f(n)=n^1$. Critical bound: $n^{\\log_2 4} = n^2$. Leaves dominate, so $O(n^2)$." },
+            { f: "T(n) = T(n/2) + 1", t: "O(\\log n)", m: "Master Theorem (Case 2)", d: "$a=1, b=2, f(n)=1 (n^0)$. Critical: $n^{\\log_2 1} = n^0$. They are equal. Output is $\\log n$." },
+            { f: "T(n) = 3T(n/4) + n\\log n", t: "O(n \\log n)", m: "Master Theorem (Case 3)", d: "$a=3, b=4$. Critical bound $n^{\\log_4 3} \\approx n^{0.79}$. $f(n)$ dominates, so $O(n \\log n)$." },
+            { f: "T(n) = T(n-1) + 1", t: "O(n)", m: "Recursion Tree / Substitution", d: "Tree has $n$ levels, each costing $1$. Total cost $= n \\times 1 = O(n)$." },
+            { f: "T(n) = 2T(n-1) + 1", t: "O(2^n)", m: "Recursion Tree", d: "Tree depth is $n$. At level $k$, there are $2^k$ nodes. Sum of geometric series $1 + 2 + 4 + \\dots + 2^n$ is $O(2^n)$." },
+            { f: "T(n) = T(n-1) + n", t: "O(n^2)", m: "Substitution Method", d: "Matches the sum of first $n$ numbers: $n + (n-1) + (n-2) + \\dots + 1 = n(n+1)/2 = O(n^2)$." },
+            { f: "T(n) = 8T(n/2) + n^3", t: "O(n^3 \\log n)", m: "Master Theorem (Case 2)", d: "$a=8, b=2$. Critical bound: $n^{\\log_2 8} = n^3$. Matches $f(n)$, multiply by $\\log n$." },
+            { f: "T(n) = T(n/3) + O(1)", t: "O(\\log n)", m: "Recursion Tree", d: "Cost is $O(1)$ at each level. Tree depth is $\\log_3 n$. Total cost is $1 \\times \\log_3 n = O(\\log n)$." },
+            { f: "T(n) = 7T(n/2) + n^2", t: "O(n^{\\log_2 7})", m: "Master Theorem (Case 1)", d: "$a=7, b=2$. Critical: $n^{\\log_2 7} \\approx n^{2.8}$. This is greater than $f(n) = n^2$. Leaves dominate." }
+        ];
+
+        let pracIndex = 0;
+
+        function loadPractice(index) {
+            const data = practiceData[index];
+            document.getElementById('pracCount').innerText = `Problem ${index + 1} of ${practiceData.length}`;
+            document.getElementById('pracEquation').innerHTML = `$$${data.f}$$`;
+            document.getElementById('pracTarget').innerHTML = `$$${data.t}$$`;
+            document.getElementById('pracMethod').innerText = data.m;
+            document.getElementById('pracDerivation').innerHTML = data.d;
+
+            document.getElementById('pracAnswerBox').classList.remove('active');
+            document.getElementById('revealBtn').style.display = "inline-block";
+
+            if (window.MathJax) MathJax.typesetPromise();
+        }
+
+        function revealPractice() {
+            document.getElementById('revealBtn').style.display = "none";
+            document.getElementById('pracAnswerBox').classList.add('active');
+        }
+
+        // Loop the practice index using modulo arithmetic
+        function navPractice(dir) {
+            pracIndex = (pracIndex + dir + practiceData.length) % practiceData.length;
+            loadPractice(pracIndex);
+        }
+
+        function showAllPracticeTable() {
+            const tableBody = document.querySelector("#allPracticeTable tbody");
+            tableBody.innerHTML = "";
+            practiceData.forEach(d => {
+                const tr = document.createElement("tr");
+                tr.innerHTML = `<td>\\(${d.f}\\)</td><td>\\(${d.t}\\)</td><td>${d.m}</td>`;
+                tableBody.appendChild(tr);
+            });
+            document.getElementById('allPracticeTableContainer').style.display = "block";
+            if (window.MathJax) MathJax.typesetPromise();
+            document.getElementById('allPracticeTableContainer').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Initialize UI
+        updateBottomNavUI();
+        loadPractice(0);
+    </script>
+</body>
+
+</html>

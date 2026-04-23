@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Brute-Force Bootcamp</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --accent: #e74c3c;
+            --success: #2ecc71;
+            --bg: #ecf0f1;
+            --card: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--primary);
+            margin: 0;
+            line-height: 1.6;
+        }
+
+        /* Navigation (SPA) */
+        nav {
+            background: var(--primary);
+            padding: 10px;
+            text-align: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 5px;
+        }
+
+        nav button {
+            background: none;
+            border: 2px solid transparent;
+            color: white;
+            padding: 10px 15px;
+            font-size: 1em;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: 0.3s;
+        }
+
+        nav button:hover,
+        nav button.active {
+            border-color: var(--secondary);
+            background: rgba(52, 152, 219, 0.2);
+        }
+
+        /* Layout */
+        .container {
+            max-width: 1100px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .section {
+            display: none;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        .card {
+            background: var(--card);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            margin-bottom: 30px;
+        }
+
+        h1,
+        h2,
+        h3 {
+            color: var(--primary);
+        }
+
+        h1.title {
+            text-align: center;
+            color: var(--secondary);
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            text-align: center;
+            font-style: italic;
+            color: #7f8c8d;
+            margin-bottom: 30px;
+        }
+
+        /* General Button */
+        .btn {
+            background: var(--secondary);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: 0.2s;
+        }
+
+        .btn:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        .btn:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes shake {
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            25% {
+                transform: translateX(-5px);
+            }
+
+            75% {
+                transform: translateX(5px);
+            }
+        }
+
+        .shake {
+            animation: shake 0.3s;
+            border-color: var(--accent) !important;
+        }
+
+        /* Games/Interactives */
+        .game-area {
+            background: var(--bg);
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            border: 2px dashed #bdc3c7;
+            margin: 20px 0;
+        }
+
+        /* Keyring Game */
+        .keys {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .key {
+            width: 50px;
+            height: 50px;
+            background: #f1c40f;
+            border-radius: 50% 50% 10% 10%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-weight: bold;
+            border: 3px solid #f39c12;
+            transition: 0.2s;
+        }
+
+        .key:hover {
+            transform: scale(1.1);
+        }
+
+        .lock-status {
+            font-size: 2em;
+            margin-top: 10px;
+        }
+
+        /* Combo Lock Game */
+        .dials {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .dial {
+            width: 60px;
+            height: 80px;
+            background: #fff;
+            border: 3px solid #333;
+            font-size: 2em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            user-select: none;
+            border-radius: 8px;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Interactive Recursion Tree */
+        .tree-container {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .visualizer,
+        .code-view {
+            flex: 1;
+            background: var(--bg);
+            padding: 15px;
+            border-radius: 8px;
+            min-width: 300px;
+        }
+
+        .array-display {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin: 20px 0;
+        }
+
+        .cell {
+            width: 40px;
+            height: 40px;
+            border: 2px solid #ccc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            border-radius: 8px;
+            background: white;
+        }
+
+        .fixed {
+            background: #d6eaf8;
+            border-color: var(--secondary);
+        }
+
+        .swapping {
+            background: #fdf2e9;
+            border-color: #e67e22;
+            transform: translateY(-5px);
+            transition: 0.3s;
+        }
+
+        pre {
+            font-size: 0.9em;
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+
+        .hl {
+            background: #fff3cd;
+            display: block;
+            border-left: 4px solid #ffc107;
+        }
+
+        /* Quiz */
+        .quiz-q {
+            margin-bottom: 20px;
+            padding: 15px;
+            border-left: 5px solid var(--secondary);
+            background: var(--bg);
+            border-radius: 0 8px 8px 0;
+        }
+
+        .quiz-opt {
+            display: block;
+            width: 100%;
+            text-align: left;
+            margin: 5px 0;
+            background: white;
+            color: var(--primary);
+            border: 1px solid #ccc;
+        }
+
+        .quiz-opt:hover {
+            background: #e0f7fa;
+            border-color: var(--secondary);
+        }
+
+        .quiz-opt.correct {
+            background: var(--success);
+            color: white;
+            border-color: var(--success);
+        }
+
+        .quiz-opt.wrong {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+
+        .feedback {
+            font-style: italic;
+            margin-top: 10px;
+            display: none;
+        }
+
+        /* Accordion for Checkpoints */
+        details {
+            background: var(--bg);
+            margin-bottom: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            overflow: hidden;
+        }
+
+        summary {
+            padding: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            background: #e8eaed;
+            list-style: none;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        summary::-webkit-details-marker {
+            display: none;
+        }
+
+        summary::after {
+            content: '▼';
+            color: var(--secondary);
+            font-size: 0.8em;
+            transition: 0.3s;
+        }
+
+        details[open] summary::after {
+            transform: rotate(180deg);
+        }
+
+        details>div {
+            padding: 15px;
+            border-top: 1px solid #ccc;
+            background: white;
+            color: #444;
+        }
+
+        .q-category {
+            margin-top: 30px;
+            color: var(--secondary);
+            border-bottom: 2px solid var(--secondary);
+            padding-bottom: 5px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav>
+        <button class="nav-btn active" onclick="showTab('intro')">1. The Basics</button>
+        <button class="nav-btn" onclick="showTab('locks')">2. The Lock Lab</button>
+        <button class="nav-btn" onclick="showTab('recursion')">3. Recursion Simulator</button>
+        <button class="nav-btn" onclick="showTab('problems')">4. Big Problems</button>
+        <button class="nav-btn" onclick="showTab('quiz')">5. Pop Quiz</button>
+        <button class="nav-btn" onclick="showTab('checkpoints')">6. Check Points & Questions</button>
+    </nav>
+
+    <div class="container">
+
+        <div id="intro" class="section active">
+            <h1 class="title">The Brute-Force Bootcamp</h1>
+            <div class="subtitle">"If it doesn't work, hit it harder." - Bob the Brute-Forcer</div>
+
+            <div class="card">
+                <h2>What is Brute Force?</h2>
+                <p>Meet Bob. Bob lost his keys in a 10-room house. A clever person might think: <em>"Where did I last
+                        have them?"</em> Bob doesn't think. Bob walks into Room 1, flips every cushion. Then Room 2.
+                    Then Room 3. This is <strong>Exhaustive Search</strong>.</p>
+                <p>Brute force is the "sledgehammer" of the algorithm world. It tries every possible option until it
+                    hits the right one. It's not fast, but it is 100% reliable.</p>
+
+                <h3>The "Big Three" Methods</h3>
+                <table style="width: 100%; border-collapse: collapse; text-align: left; margin-top: 20px;">
+                    <tr style="background: var(--primary); color: white;">
+                        <th style="padding: 10px;">Method</th>
+                        <th style="padding: 10px;">The Goal</th>
+                        <th style="padding: 10px;">Order Matters?</th>
+                        <th style="padding: 10px;">Time Complexity</th>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 10px;"><strong>Linear Traversal</strong></td>
+                        <td style="padding: 10px;">Find a specific item.</td>
+                        <td style="padding: 10px;">N/A</td>
+                        <td style="padding: 10px;">$O(n)$</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 10px;"><strong>Combinations</strong></td>
+                        <td style="padding: 10px;">Pick a group/subset.</td>
+                        <td style="padding: 10px;">No (Team {A,B} = {B,A})</td>
+                        <td style="padding: 10px;">$O(2^n)$ (Exponential)</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px;"><strong>Permutations</strong></td>
+                        <td style="padding: 10px;">Find the right sequence.</td>
+                        <td style="padding: 10px;">Yes (Passcode 123 != 321)</td>
+                        <td style="padding: 10px;">$O(n!)$ (Factorial)</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <div id="locks" class="section">
+            <h1 class="title">The Lock Laboratory</h1>
+            <div class="subtitle">Experience the different ways Bob breaks into things.</div>
+
+            <div class="card">
+                <h2>1. Linear Traversal: The Dark Porch</h2>
+                <p>Bob is at his front door. He has 5 keys. Only ONE works. He must try them one by one. <em>(Hint: It's
+                        always in the last place you look!)</em></p>
+                <div class="game-area">
+                    <div class="keys" id="keyring">
+                        <div class="key" onclick="tryKey(0, this)">1</div>
+                        <div class="key" onclick="tryKey(1, this)">2</div>
+                        <div class="key" onclick="tryKey(2, this)">3</div>
+                        <div class="key" onclick="tryKey(3, this)">4</div>
+                        <div class="key" onclick="tryKey(4, this)">5</div>
+                    </div>
+                    <div class="lock-status" id="linearLock">🔒 Door Locked</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>2. Permutations: The Bicycle Lock</h2>
+                <p>Bob's bike has a 3-dial lock. The numbers are 1, 2, and 3. The exact <strong>order</strong> matters.
+                    Can you brute-force the combination? (Target: 3-1-2)</p>
+                <div class="game-area">
+                    <div class="dials">
+                        <div class="dial" onclick="spin(this)">1</div>
+                        <div class="dial" onclick="spin(this)">1</div>
+                        <div class="dial" onclick="spin(this)">1</div>
+                    </div>
+                    <button class="btn" onclick="checkCombo()">Try to Open</button>
+                    <div class="lock-status" id="comboLock">🔒 Bike Locked</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="recursion" class="section">
+            <h1 class="title">The Recursion Simulator</h1>
+            <div class="subtitle">How does code actually generate $O(n!)$ permutations?</div>
+
+            <div class="card">
+                <p>Instead of writing endless `for` loops, we use <strong>Recursion</strong> and
+                    <strong>Backtracking</strong>. Click "Next Step" to watch the algorithm swap elements, freeze them
+                    in place, and backtrack when it hits a dead end.</p>
+
+                <div class="controls" style="text-align: center; margin-bottom: 20px;">
+                    <button class="btn" id="nextBtn">Next Step →</button>
+                    <button class="btn" id="resetBtn" style="background:#95a5a6">Reset</button>
+                </div>
+
+                <div class="tree-container">
+                    <div class="visualizer">
+                        <h3 style="margin-top:0;">Array State</h3>
+                        <div class="array-display" id="arrayCells">
+                            <div class="cell">A</div>
+                            <div class="cell">B</div>
+                            <div class="cell">C</div>
+                        </div>
+                        <p style="text-align: center; font-style: italic;" id="simMsg">Press Next Step to start.</p>
+                        <hr>
+                        <h4>Found Permutations:</h4>
+                        <div id="foundPerms" style="display: flex; gap: 5px; flex-wrap: wrap;"></div>
+                    </div>
+
+                    <div class="code-view">
+                        <h3 style="margin-top:0;">Python Trace</h3>
+                        <pre id="codeBlock">
+def permute(data, start, end):
+<span id="L2">    if start == end:</span>
+<span id="L3">        print("".join(data))</span>
+    else:
+<span id="L5">        for i in range(start, end + 1):</span>
+<span id="L6">            # Swap to Fix</span>
+<span id="L7">            swap(data, start, i)</span>
+<span id="L8">            permute(data, start + 1, end)</span>
+<span id="L9">            # Backtrack (Undo)</span>
+<span id="L10">            swap(data, start, i)</span>
+                        </pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="problems" class="section">
+            <h1 class="title">The "Holy Grail" Problems</h1>
+            <div class="subtitle">Why Combinatorial Explosion ruins Bob's day.</div>
+
+            <div class="card">
+                <h2>1. The Traveling Salesperson Problem (TSP)</h2>
+                <p><strong>The Goal:</strong> Bob is delivering packages to $n$ cities. He needs the shortest route that
+                    visits every city once and returns home.</p>
+                <p><strong>Brute Force Logic:</strong> Try every single <strong>Permutation</strong> of the cities.
+                    Calculate the distance for each, and keep the lowest.</p>
+                <p><strong>The Problem:</strong> Complexity is $O(n!)$. If Bob has 20 cities, he has
+                    $2,432,902,008,176,640,000$ routes to check. The sun will explode before his computer finishes.</p>
+            </div>
+
+            <div class="card">
+                <h2>2. The Knapsack Problem</h2>
+                <p><strong>The Goal:</strong> Bob found a treasure cave. His backpack holds 50kg. He wants to pick items
+                    to maximize his gold without tearing the bag.</p>
+                <p><strong>Brute Force Logic:</strong> Try every <strong>Combination</strong> (subset). For every item,
+                    branch out: "Include it" or "Exclude it".</p>
+                <p><strong>The Problem:</strong> Complexity is $O(2^n)$. With 100 items, Bob has to check $2^{100}$
+                    combinations. This is why we eventually learn Dynamic Programming!</p>
+            </div>
+        </div>
+
+        <div id="quiz" class="section">
+            <h1 class="title">Pop Quiz Checkpoint</h1>
+            <div class="subtitle">Test your knowledge for the BE CSE Exam.</div>
+
+            <div class="card" id="quizContainer">
+            </div>
+        </div>
+
+        <div id="checkpoints" class="section">
+            <h1 class="title">Check Points & Questions</h1>
+            <div class="subtitle">20 Expected BE CSE Exam Questions. Click a question to reveal the answer!</div>
+
+            <div class="card" id="faqContainer">
+                <h3 class="q-category">Part 1: Core Concepts & Terminology</h3>
+
+                <details>
+                    <summary>1. Define the Brute-Force algorithmic strategy.</summary>
+                    <div>A straightforward approach to solving a problem based on the problem's statement and
+                        definitions, usually involving an exhaustive search of all possible states.</div>
+                </details>
+
+                <details>
+                    <summary>2. What is Exhaustive Search?</summary>
+                    <div>The process of systematically exploring the entire search space (every possible candidate) to
+                        find the solution that satisfies the problem's constraints.</div>
+                </details>
+
+                <details>
+                    <summary>3. Why is brute-force often used as a "Baseline"?</summary>
+                    <div>Because it is simple to implement and guarantees correctness. Software engineers use it to
+                        generate the "correct" answers to test against their more complex, optimized algorithms.</div>
+                </details>
+
+                <details>
+                    <summary>4. Explain "Combinatorial Explosion".</summary>
+                    <div>It occurs when the number of possible configurations (like permutations $n!$ or subsets $2^n$)
+                        grows so rapidly as the input size increases that it becomes computationally impossible to solve
+                        the problem in a reasonable time.</div>
+                </details>
+
+                <h3 class="q-category">Part 2: Complexities & Math</h3>
+
+                <details>
+                    <summary>5. What is the time complexity of searching an unsorted array using Brute Force?</summary>
+                    <div>$O(n)$, known as Linear Traversal, because you may have to inspect every single element.</div>
+                </details>
+
+                <details>
+                    <summary>6. If order matters, which method is used and what is its Big-O?</summary>
+                    <div>Permutations. The time complexity is $O(n!)$ because there are $n$ choices for the first slot,
+                        $n-1$ for the second, etc.</div>
+                </details>
+
+                <details>
+                    <summary>7. If order does NOT matter, which method is used and what is its Big-O?</summary>
+                    <div>Combinations (or Subsets). Generating all possible subsets of an $n$-element set has a time
+                        complexity of $O(2^n)$.</div>
+                </details>
+
+                <details>
+                    <summary>8. Which grows faster for large values of $n$: $O(2^n)$ or $O(n!)$?</summary>
+                    <div>$O(n!)$ grows much faster. For example, $2^{10}$ is roughly 1,000, while $10!$ is over 3.6
+                        million.</div>
+                </details>
+
+                <h3 class="q-category">Part 3: Classic Examples</h3>
+
+                <details>
+                    <summary>9. How does Selection Sort utilize Brute Force?</summary>
+                    <div>It repeatedly scans the entire remaining unsorted portion of an array to "brute-force" find the
+                        minimum value, resulting in an $O(n^2)$ complexity.</div>
+                </details>
+
+                <details>
+                    <summary>10. Explain the Brute Force String Matching algorithm.</summary>
+                    <div>It aligns the pattern with the start of the text. If a mismatch occurs, it shifts the pattern
+                        by exactly one character to the right and starts checking again from the beginning of the
+                        pattern. Complexity is $O(n \times m)$.</div>
+                </details>
+
+                <details>
+                    <summary>11. Define the Traveling Salesperson Problem (TSP).</summary>
+                    <div>Given a list of cities and the distances between them, find the shortest possible route that
+                        visits each city exactly once and returns to the origin.</div>
+                </details>
+
+                <details>
+                    <summary>12. Why is TSP considered a Permutation problem?</summary>
+                    <div>Because the set of cities is always the same, but the *sequence* (order) in which you visit
+                        them changes the total distance. You must check $O(n!)$ sequences.</div>
+                </details>
+
+                <details>
+                    <summary>13. Define the 0/1 Knapsack Problem.</summary>
+                    <div>Given a set of items, each with a weight and a value, determine which items to include in a
+                        collection so that the total weight is less than a given limit and the total value is as large
+                        as possible.</div>
+                </details>
+
+                <details>
+                    <summary>14. Why is 0/1 Knapsack considered a Combination problem?</summary>
+                    <div>Because you are making a binary choice for every item ("Include" or "Exclude"), creating
+                        subsets. The order you put them in the bag doesn't matter, leading to $O(2^n)$ subsets.</div>
+                </details>
+
+                <h3 class="q-category">Part 4: Implementation & Recursion</h3>
+
+                <details>
+                    <summary>15. What data structure is inherently used when implementing brute-force via Recursion?
+                    </summary>
+                    <div>The System Call Stack. It keeps track of the state of local variables at each level of the
+                        recursion tree.</div>
+                </details>
+
+                <details>
+                    <summary>16. What is a State Space Tree?</summary>
+                    <div>A tree data structure where the root represents the initial problem state, the branches
+                        represent choices, and the leaves represent final configurations (solutions or dead ends).</div>
+                </details>
+
+                <details>
+                    <summary>17. Define "Backtracking" in the context of generating permutations.</summary>
+                    <div>Backtracking is the process of undoing a choice (e.g., swapping elements back to their original
+                        positions) after exploring its consequences, so the algorithm can cleanly explore the next
+                        available choice.</div>
+                </details>
+
+                <details>
+                    <summary>18. Write the core recurrence relation or logic for generating subsets (combinations).
+                    </summary>
+                    <div>For each item at index $i$, recursively call the function twice: once where the item is added
+                        to the current subset, and once where it is ignored.</div>
+                </details>
+
+                <details>
+                    <summary>19. What is the Base Case in a recursive permutation function?</summary>
+                    <div>The base case is reached when the current starting index is equal to the length of the array
+                        (meaning all positions have been fixed).</div>
+                </details>
+
+                <details>
+                    <summary>20. When should a programmer explicitly AVOID using Brute Force?</summary>
+                    <div>When the input size $n$ is large and the problem belongs to the $O(n!)$ or $O(2^n)$ complexity
+                        classes, as the program will hang indefinitely due to Combinatorial Explosion.</div>
+                </details>
+
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // --- SPA Navigation ---
+        function showTab(tabId) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // --- Game 1: Linear Lock ---
+        const correctKey = 3; // 4th key
+        function tryKey(index, element) {
+            const lock = document.getElementById('linearLock');
+            if (index === correctKey) {
+                lock.innerText = "🔓 Door Opened! (O(n) checks done)";
+                lock.style.color = "var(--success)";
+                element.style.background = "var(--success)";
+            } else {
+                lock.innerText = "🔒 Wrong Key. Keep going.";
+                lock.classList.add('shake');
+                element.style.background = "#ccc";
+                setTimeout(() => lock.classList.remove('shake'), 300);
+            }
+        }
+
+        // --- Game 2: Combo Lock ---
+        function spin(element) {
+            let val = parseInt(element.innerText);
+            element.innerText = val >= 3 ? 1 : val + 1;
+        }
+        function checkCombo() {
+            const dials = document.querySelectorAll('.dial');
+            const combo = `${dials[0].innerText}-${dials[1].innerText}-${dials[2].innerText}`;
+            const lock = document.getElementById('comboLock');
+            if (combo === "3-1-2") {
+                lock.innerText = "🔓 Bike Unlocked! (Permutation found)";
+                lock.style.color = "var(--success)";
+            } else {
+                lock.innerText = "🔒 Nope. Order matters!";
+                lock.classList.add('shake');
+                setTimeout(() => lock.classList.remove('shake'), 300);
+            }
+        }
+
+        // --- Recursion Simulator ---
+        const simData = ['A', 'B', 'C'];
+        let steps = [];
+        let currentStep = -1;
+
+        function generateSteps(arr, start, end) {
+            if (start === end) {
+                steps.push({ type: 'base', arr: [...arr], line: 'L3', msg: `Base case! Found: ${arr.join('')}`, fixed: start });
+                return;
+            }
+            for (let i = start; i <= end; i++) {
+                [arr[start], arr[i]] = [arr[i], arr[start]];
+                steps.push({ type: 'swap', arr: [...arr], line: 'L7', msg: `Swapping indices ${start} & ${i}`, fixed: start, swapping: [start, i] });
+
+                steps.push({ type: 'recurse', arr: [...arr], line: 'L8', msg: `Recursing deeper...`, fixed: start });
+                generateSteps(arr, start + 1, end);
+
+                [arr[start], arr[i]] = [arr[i], arr[start]];
+                steps.push({ type: 'backtrack', arr: [...arr], line: 'L10', msg: `Backtracking: undo swap ${start} & ${i}`, fixed: start - 1, swapping: [start, i] });
+            }
+        }
+
+        generateSteps([...simData], 0, 2);
+
+        document.getElementById('nextBtn').onclick = () => {
+            currentStep++;
+            if (currentStep < steps.length) {
+                let step = steps[currentStep];
+
+                document.getElementById('arrayCells').innerHTML = step.arr.map((char, idx) => {
+                    let cls = 'cell';
+                    if (idx <= step.fixed) cls += ' fixed';
+                    if (step.swapping && step.swapping.includes(idx)) cls += ' swapping';
+                    return `<div class="${cls}">${char}</div>`;
+                }).join('');
+
+                document.getElementById('simMsg').innerText = step.msg;
+                document.querySelectorAll('.code-view span').forEach(s => s.classList.remove('hl'));
+                document.getElementById(step.line).classList.add('hl');
+
+                if (step.type === 'base') {
+                    document.getElementById('foundPerms').innerHTML += `<span style="background:var(--success); color:white; padding: 2px 8px; border-radius:4px;">${step.arr.join('')}</span>`;
+                }
+            } else {
+                document.getElementById('simMsg').innerText = "All permutations generated!";
+                document.getElementById('nextBtn').disabled = true;
+            }
+        };
+
+        document.getElementById('resetBtn').onclick = () => {
+            currentStep = -1;
+            document.getElementById('foundPerms').innerHTML = "";
+            document.getElementById('simMsg').innerText = "Press Next Step to start.";
+            document.getElementById('nextBtn').disabled = false;
+            document.getElementById('arrayCells').innerHTML = `<div class="cell">A</div><div class="cell">B</div><div class="cell">C</div>`;
+            document.querySelectorAll('.code-view span').forEach(s => s.classList.remove('hl'));
+        };
+
+        // --- Quiz System ---
+        const questions = [
+            {
+                q: "What is 'Combinatorial Explosion'?",
+                options: [
+                    "When your code crashes due to a syntax error.",
+                    "When the number of possible solutions grows too fast (like n!) for large inputs.",
+                    "A fast way to sort an array.",
+                    "When recursion exceeds the stack limit linearly."
+                ],
+                correct: 1,
+                feedback: "Correct! Algorithms like O(n!) or O(2^n) 'explode' in complexity, making brute force impossible for large n."
+            },
+            {
+                q: "Why is the Knapsack Problem considered O(2^n) in Brute Force?",
+                options: [
+                    "Because we check every possible subset (Include or Exclude for each item).",
+                    "Because we arrange the items in every possible sequence.",
+                    "Because we check the bag twice.",
+                    "Because it uses two nested loops."
+                ],
+                correct: 0,
+                feedback: "Spot on! It's a combination problem. Every item has 2 states (In/Out), leading to 2^n possibilities."
+            },
+            {
+                q: "In the recursive permutation code, why do we need the second 'swap' (backtrack)?",
+                options: [
+                    "To save memory.",
+                    "To print the result.",
+                    "To restore the array's state so the next iteration starts fresh.",
+                    "To avoid infinite loops."
+                ],
+                correct: 2,
+                feedback: "Yes! Backtracking acts as an 'Undo' button, ensuring the array is clean for the next branch of the tree."
+            }
+        ];
+
+        const quizContainer = document.getElementById('quizContainer');
+        questions.forEach((quest, qIdx) => {
+            let html = `<div class="quiz-q"><h3>Q${qIdx + 1}: ${quest.q}</h3>`;
+            quest.options.forEach((opt, oIdx) => {
+                html += `<button class="btn quiz-opt" onclick="checkAnswer(this, ${qIdx}, ${oIdx})">${opt}</button>`;
+            });
+            html += `<div class="feedback" id="feedback-${qIdx}">${quest.feedback}</div></div>`;
+            quizContainer.innerHTML += html;
+        });
+
+        function checkAnswer(btn, qIdx, oIdx) {
+            const qDiv = btn.parentElement;
+            const buttons = qDiv.querySelectorAll('.quiz-opt');
+            buttons.forEach(b => { b.disabled = true; b.classList.remove('correct', 'wrong'); });
+
+            const isCorrect = (oIdx === questions[qIdx].correct);
+            btn.classList.add(isCorrect ? 'correct' : 'wrong');
+            if (!isCorrect) buttons[questions[qIdx].correct].classList.add('correct');
+
+            const feedback = document.getElementById(`feedback-${qIdx}`);
+            feedback.style.display = 'block';
+            feedback.style.color = isCorrect ? 'var(--success)' : 'var(--accent)';
+        }
+    </script>
+</body>
+
+</html>
