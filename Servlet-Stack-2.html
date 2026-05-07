@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Java Web Dev Masterclass</title>
+    <style>
+        /* Base Variables */
+        :root {
+            --bg-color: #f8f9fa;
+            --text-color: #212529;
+            --nav-bg: #343a40;
+            --nav-text: #ffffff;
+            --primary: #0d6efd;
+            --code-bg: #282c34;
+            --code-text: #abb2bf;
+            --highlight: #dc3545;
+            --base-font: 16px;
+            --sidebar-bg: #e9ecef;
+        }
+
+        /* Dark Theme */
+        body.theme-dark {
+            --bg-color: #212529;
+            --text-color: #f8f9fa;
+            --sidebar-bg: #343a40;
+            --primary: #0bc5ea;
+        }
+
+        /* Hacker Theme */
+        body.theme-hacker {
+            --bg-color: #000000;
+            --text-color: #00ff00;
+            --nav-bg: #001a00;
+            --sidebar-bg: #001100;
+            --primary: #00ff00;
+            --code-bg: #0a0a0a;
+            --code-text: #00ff00;
+            --highlight: #ffffff;
+        }
+
+        * { box-sizing: border-box; }
+        
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-size: var(--base-font);
+            margin: 0;
+            padding: 0;
+            transition: background-color 0.3s, color 0.3s;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        /* Navigation Bar */
+        nav {
+            background-color: var(--nav-bg);
+            color: var(--nav-text);
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .icon-btn {
+            background: none;
+            border: none;
+            color: var(--nav-text);
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 5px;
+            transition: transform 0.2s;
+        }
+
+        .icon-btn:hover { transform: scale(1.2); }
+        
+        .nav-customizer {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.9rem;
+        }
+
+        /* Layout */
+        header {
+            text-align: center;
+            padding: 15px;
+            background: rgba(13, 110, 253, 0.1);
+            border-bottom: 2px solid var(--primary);
+        }
+
+        .main-container {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 250px;
+            background: var(--sidebar-bg);
+            padding: 20px 0;
+            overflow-y: auto;
+            border-right: 1px solid var(--primary);
+        }
+
+        .topic-btn {
+            width: 100%;
+            padding: 15px 20px;
+            text-align: left;
+            background: none;
+            border: none;
+            color: var(--text-color);
+            cursor: pointer;
+            font-weight: 600;
+            border-left: 4px solid transparent;
+        }
+
+        .topic-btn:hover { background: rgba(0,0,0,0.05); }
+        .topic-btn.active { border-left-color: var(--primary); background: rgba(13, 110, 253, 0.1); }
+        body.theme-dark .topic-btn:hover { background: rgba(255,255,255,0.05); }
+
+        /* Content Area */
+        .content {
+            flex: 1;
+            padding: 20px 40px;
+            overflow-y: auto;
+        }
+
+        .conceptual-text { margin-bottom: 30px; line-height: 1.6; }
+
+        /* Interactive Debugger */
+        .debugger-panel {
+            border: 2px solid var(--primary);
+            border-radius: 8px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .toolbar {
+            background: var(--nav-bg);
+            padding: 10px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .toolbar button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .toolbar button:hover { opacity: 0.9; }
+
+        .code-container {
+            display: flex;
+            background: var(--code-bg);
+        }
+
+        .code-window {
+            flex: 6;
+            padding: 15px;
+            color: var(--code-text);
+            font-family: 'Courier New', Courier, monospace;
+            overflow-x: auto;
+        }
+
+        .line { display: block; padding: 2px 5px; white-space: pre; }
+        .line.active { background-color: rgba(220, 53, 69, 0.3); border-left: 3px solid var(--highlight); }
+        .line-num { display: inline-block; width: 30px; color: #5c6370; user-select: none; }
+
+        .explanation-window {
+            flex: 4;
+            background: var(--sidebar-bg);
+            padding: 15px;
+            border-left: 2px solid var(--primary);
+            font-size: 0.95em;
+        }
+
+        .q-and-a { margin-top: 20px; }
+        .qa-item { background: rgba(0,0,0,0.05); margin-bottom: 10px; padding: 15px; border-radius: 5px; }
+        .theme-dark .qa-item { background: rgba(255,255,255,0.05); }
+    </style>
+</head>
+<body>
+
+    <nav id="topNav">
+        <div><strong>📚 KT Portal</strong></div>
+        <div class="nav-controls">
+            <button class="icon-btn" onclick="setTheme('light')" title="Light Theme">☀️</button>
+            <button class="icon-btn" onclick="setTheme('dark')" title="Dark Theme">🌙</button>
+            <button class="icon-btn" onclick="setTheme('hacker')" title="Hacker Theme">💻</button>
+            
+            <span style="color:var(--nav-text)">|</span>
+
+            <button class="icon-btn" onclick="adjustFont(1)" title="Increase Font">A➕</button>
+            <button class="icon-btn" onclick="adjustFont(-1)" title="Decrease Font">A➖</button>
+            
+            <span style="color:var(--nav-text)">|</span>
+
+            <div class="nav-customizer">
+                <span>Nav Color:</span>
+                <input type="color" id="navColorPicker" value="#343a40" onchange="customizeNav(this.value)">
+            </div>
+
+            <span style="color:var(--nav-text)">|</span>
+
+            <button class="icon-btn" onclick="toggleFullScreen()" title="Full Screen">⛶</button>
+        </div>
+    </nav>
+
+    <header>
+        <h2>Java Servlet, JSP & JDBC Masterclass</h2>
+        <h4>© Copyright: Soham Sengupta</h4>
+    </header>
+
+    <div class="main-container">
+        <div class="sidebar" id="sidebarList">
+            </div>
+
+        <div class="content">
+            <h2 id="topicTitle">Welcome</h2>
+            <div id="topicConcept" class="conceptual-text">
+                Select a topic from the left to begin learning.
+            </div>
+
+            <div class="debugger-panel" id="debuggerPanel" style="display:none;">
+                <div class="toolbar">
+                    <button onclick="stepOver()">⏭️ Step Over</button>
+                    <button onclick="resetDebugger()" style="background:#dc3545;">🔄 Reset</button>
+                    <button onclick="copyCode()">📋 Copy Code</button>
+                </div>
+                <div class="code-container">
+                    <div class="code-window" id="codeBlock"></div>
+                    <div class="explanation-window">
+                        <h3>Execution Context</h3>
+                        <p id="explanationText">Click 'Step Over' to start line-by-line execution.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="qaSection" class="q-and-a" style="display:none;">
+                <h3>Conceptual Q&A</h3>
+                <div id="qaList"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- CONTENT DATABASE ---
+        const contentData = {
+            "ssr_servlets": {
+                title: "1. SSR & Servlet Basics (@WebServlet vs web.xml)",
+                concept: `
+                    <p><strong>Server-Side Rendering (SSR):</strong> The server processes logic, accesses databases, and dynamically generates a complete HTML page to send to the client. This differs from CSR (Client-Side Rendering) where the browser builds the page using JavaScript.</p>
+                    <p><strong>Servlet Technology:</strong> A Java class running on a web container (like Tomcat) that handles HTTP requests and responses. </p>
+                    <p><strong>Routing Approaches:</strong><br>
+                    1. <code>@WebServlet</code>: Modern (Java EE 6+). Annotate the class directly for quick, clean routing.<br>
+                    2. <code>web.xml</code>: Traditional. Keeps configuration separate from code. Useful for centralized management or applying filters to multiple servlets without modifying Java code.</p>
+                `,
+                code: [
+                    "// Approach 1: Modern @WebServlet",
+                    "@WebServlet(\"/process\")",
+                    "public class MyServlet extends HttpServlet {",
+                    "    protected void doGet(HttpServletRequest req, HttpServletResponse res) {",
+                    "        res.setContentType(\"text/html\");",
+                    "        PrintWriter out = res.getWriter();",
+                    "        out.println(\"<h1>Hello Soham Sengupta!</h1>\");",
+                    "    }",
+                    "}",
+                    "",
+                    "",
+                    "<servlet-mapping>",
+                    "    <servlet-name>MyServlet</servlet-name>",
+                    "    <url-pattern>/process</url-pattern>",
+                    "</servlet-mapping>"
+                ],
+                steps: {
+                    1: "The server maps the '/process' URL to this Servlet via annotation.",
+                    3: "The doGet method intercepts GET requests from the client's browser.",
+                    4: "Sets the HTTP Response header 'Content-Type' to tell the browser to expect HTML.",
+                    5: "Retrieves the PrintWriter object to stream character data back to the client.",
+                    6: "Writes the actual HTML payload to the response buffer.",
+                    13: "In the alternative web.xml approach, this XML tags maps the URL to the servlet name."
+                },
+                qa: [
+                    { q: "Why might a team prefer web.xml over @WebServlet?", a: "To centralize routing rules without recompiling Java classes, or to map third-party Servlets where you cannot add annotations to the source code." }
+                ]
+            },
+            "dispatching": {
+                title: "2. Request Dispatching (forward vs sendRedirect)",
+                concept: `
+                    <p>Servlets rarely generate full UI. They process data and pass control.</p>
+                    <ul>
+                        <li><strong>RequestDispatcher.forward():</strong> Happens entirely on the server. The URL in the browser DOES NOT change. Fast, and preserves the <code>request</code> object attributes.</li>
+                        <li><strong>RequestDispatcher.include():</strong> Includes the output of another resource (like a common header.jsp) into the current response.</li>
+                        <li><strong>response.sendRedirect():</strong> Sends a 302 HTTP status to the browser. The browser makes a brand NEW request to the new URL. The URL bar CHANGES. Request attributes are lost.</li>
+                    </ul>
+                `,
+                code: [
+                    "protected void doPost(HttpServletRequest req, HttpServletResponse res) {",
+                    "    String action = req.getParameter(\"action\");",
+                    "    ",
+                    "    if(action.equals(\"view\")) {",
+                    "        req.setAttribute(\"user\", \"Soham\");",
+                    "        RequestDispatcher rd = req.getRequestDispatcher(\"profile.jsp\");",
+                    "        rd.forward(req, res);",
+                    "    } else {",
+                    "        res.sendRedirect(\"https://google.com\");",
+                    "    }",
+                    "}"
+                ],
+                steps: {
+                    1: "Reads the form data sent by the client.",
+                    4: "Attaches a Java object/string to the request memory so the JSP can read it.",
+                    5: "Obtains a dispatcher pointing to 'profile.jsp' on the same server.",
+                    6: "Executes the FORWARD. The browser still sees the original URL, but profile.jsp renders the UI.",
+                    8: "Executes a REDIRECT. Instructs the client browser to navigate to an entirely different URL."
+                },
+                qa: [
+                    { q: "When should you use sendRedirect instead of forward?", a: "After a successful database insert (POST request). Redirecting to a success page prevents the user from accidentally resubmitting the form if they refresh the browser (Post/Redirect/Get pattern)." }
+                ]
+            },
+            "state_management": {
+                title: "3. Headers, Cookies & Session Handling",
+                concept: `
+                    <p>HTTP is stateless. We use headers, cookies, and sessions to maintain state.</p>
+                    <ul>
+                        <li><strong>Common Headers:</strong> <code>User-Agent</code> (Client info), <code>Accept</code>, <code>Content-Type</code>.</li>
+                        <li><strong>Cookies:</strong> Small text files stored on the client. Sent with every request.</li>
+                        <li><strong>Sessions (HttpSession):</strong> Server-side memory for a specific user. Linked via a <code>JSESSIONID</code> cookie. Best for storing complex objects securely.</li>
+                    </ul>
+                `,
+                code: [
+                    "// Inside a Servlet handling a Login",
+                    "HttpSession session = req.getSession();",
+                    "User authUser = new User(\"Soham\");",
+                    "session.setAttribute(\"loggedInUser\", authUser);",
+                    "",
+                    "Cookie themeCookie = new Cookie(\"theme\", \"dark\");",
+                    "themeCookie.setMaxAge(60 * 60 * 24);",
+                    "res.addCookie(themeCookie);"
+                ],
+                steps: {
+                    1: "Fetches the current user's session. If they don't have a JSESSIONID, the server creates a new session.",
+                    2: "Creates a complex Java object representing the authenticated user.",
+                    3: "Stores the object securely in server memory, tied specifically to this user's session.",
+                    5: "Creates a new manual Cookie to store a non-sensitive UI preference.",
+                    6: "Sets cookie lifespan to 24 hours (in seconds).",
+                    7: "Adds the cookie to the HTTP Response headers (Set-Cookie) to be saved by the browser."
+                },
+                qa: [
+                    { q: "Why store user profiles in Session rather than Cookies?", a: "Cookies are sent back and forth over the network and can be viewed/tampered with by the client. Sessions store the actual data on the server; the client only holds a meaningless ID." }
+                ]
+            },
+            "jsp_basics": {
+                title: "4. JSP Basics (Directives, Scriptlets, Tags)",
+                concept: `
+                    <p>JSP allows HTML with embedded Java. It is translated into a Servlet by the container.</p>
+                    <ul>
+                        <li><strong>Directives <code>&lt;%@ %&gt;</code>:</strong> Page configs, imports.</li>
+                        <li><strong>Scriptlets <code>&lt;% %&gt;</code>:</strong> Standard Java code logic.</li>
+                        <li><strong>Expressions <code>&lt;%= %&gt;</code>:</strong> Prints directly to the output stream.</li>
+                        <li><strong>Implicit Objects:</strong> <code>request</code>, <code>response</code>, <code>session</code>, <code>out</code> are available automatically.</li>
+                    </ul>
+                `,
+                code: [
+                    "<%@ page import=\"java.util.Date\" %>",
+                    "<html><body>",
+                    "    <h2>Welcome, <%= session.getAttribute(\"user\") %></h2>",
+                    "    <% ",
+                    "        Date now = new Date();",
+                    "        out.println(\"<p>Server time: \" + now + \"</p>\");",
+                    "    %>",
+                    "</body></html>"
+                ],
+                steps: {
+                    0: "Directive: Imports the java.util.Date class for this page.",
+                    2: "Expression: Fetches the 'user' attribute from the implicit 'session' object and prints it directly to HTML.",
+                    3: "Scriptlet Start: Opens a block for standard Java code.",
+                    4: "Instantiates a new Java Date object.",
+                    5: "Uses the implicit 'out' object (a JspWriter) to print HTML containing the date.",
+                    6: "Scriptlet End."
+                },
+                qa: [
+                    { q: "Is it good practice to use scriptlets in modern JSP?", a: "No. Modern architecture prefers JSTL (JSP Standard Tag Library) and Expression Language (EL) to keep Java logic out of the view layer." }
+                ]
+            },
+            "jdbc_crud": {
+                title: "5. JDBC & CRUD Operations",
+                concept: `
+                    <p><strong>JDBC:</strong> Java Database Connectivity API. Allows Java to interact with relational databases (MySQL, Postgres).</p>
+                    <p><strong>Drivers:</strong> Type 4 (Thin Driver) is the standard. It's written in pure Java and converts JDBC calls directly to the vendor's network protocol.</p>
+                `,
+                code: [
+                    "String url = \"jdbc:mysql://localhost:3306/kt_db\";",
+                    "String query = \"INSERT INTO employees (name, role) VALUES (?, ?)\";",
+                    "",
+                    "try (Connection conn = DriverManager.getConnection(url, \"root\", \"pass\")) {",
+                    "    PreparedStatement pstmt = conn.prepareStatement(query);",
+                    "    pstmt.setString(1, \"Soham Sengupta\");",
+                    "    pstmt.setString(2, \"Developer\");",
+                    "    int rows = pstmt.executeUpdate();",
+                    "    System.out.println(rows + \" row(s) inserted.\");",
+                    "} catch (SQLException e) {",
+                    "    e.printStackTrace();",
+                    "}"
+                ],
+                steps: {
+                    0: "Defines the connection URL for a MySQL database.",
+                    1: "Defines the SQL query. The '?' are placeholders to prevent SQL Injection.",
+                    3: "Opens the database connection within a try-with-resources block so it auto-closes.",
+                    4: "Compiles the query into a PreparedStatement.",
+                    5: "Binds the string 'Soham Sengupta' to the first '?' parameter.",
+                    7: "Executes the modification query (Insert/Update/Delete).",
+                    9: "Catches and handles any database connectivity or syntax errors."
+                },
+                qa: [
+                    { q: "Why use PreparedStatement instead of regular Statement?", a: "PreparedStatement pre-compiles the SQL query and escapes input parameters, making it faster for repeated queries and strictly preventing SQL Injection attacks." }
+                ]
+            }
+        };
+
+        let currentTopicId = null;
+        let currentStepIndex = -1;
+        let activeLineNumbers = [];
+
+        // --- INITIALIZATION ---
+        function initApp() {
+            const sidebar = document.getElementById('sidebarList');
+            for (const [key, data] of Object.entries(contentData)) {
+                const btn = document.createElement('button');
+                btn.className = 'topic-btn';
+                btn.innerText = data.title;
+                btn.onclick = () => loadTopic(key, btn);
+                sidebar.appendChild(btn);
+            }
+            // Load first topic
+            loadTopic('ssr_servlets', sidebar.firstChild);
+        }
+
+        // --- TOPIC LOADING ---
+        function loadTopic(topicId, btnElement) {
+            document.querySelectorAll('.topic-btn').forEach(btn => btn.classList.remove('active'));
+            if(btnElement) btnElement.classList.add('active');
+
+            currentTopicId = topicId;
+            const data = contentData[topicId];
+            
+            document.getElementById('topicTitle').innerText = data.title;
+            document.getElementById('topicConcept').innerHTML = data.concept;
+            
+            // Setup Debugger
+            const codeBlock = document.getElementById('codeBlock');
+            let html = '';
+            data.code.forEach((line, idx) => {
+                const escapedLine = line.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                html += `<span class="line" id="line-${idx}"><span class="line-num">${idx+1}</span> ${escapedLine}</span>\n`;
+            });
+            codeBlock.innerHTML = html;
+            
+            document.getElementById('debuggerPanel').style.display = 'flex';
+            resetDebugger();
+
+            // Setup Q&A
+            const qaList = document.getElementById('qaList');
+            qaList.innerHTML = '';
+            data.qa.forEach((item, idx) => {
+                qaList.innerHTML += `
+                    <div class="qa-item">
+                        <strong>Q: ${item.q}</strong>
+                        <p style="margin-top: 8px; color: var(--primary);">A: ${item.a}</p>
+                    </div>`;
+            });
+            document.getElementById('qaSection').style.display = 'block';
+        }
+
+        // --- DEBUGGER LOGIC ---
+        function stepOver() {
+            const data = contentData[currentTopicId];
+            const steps = Object.keys(data.steps).map(Number);
+            
+            currentStepIndex++;
+            
+            // Clear old highlights
+            document.querySelectorAll('.line').forEach(el => el.classList.remove('active'));
+
+            if (currentStepIndex >= steps.length) {
+                document.getElementById('explanationText').innerText = "✅ Execution complete.";
+                return;
+            }
+
+            const targetLineNum = steps[currentStepIndex];
+            const lineEl = document.getElementById(`line-${targetLineNum}`);
+            if(lineEl) {
+                lineEl.classList.add('active');
+                lineEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+            
+            document.getElementById('explanationText').innerText = `Line ${targetLineNum + 1}: ` + data.steps[targetLineNum];
+        }
+
+        function resetDebugger() {
+            currentStepIndex = -1;
+            document.querySelectorAll('.line').forEach(el => el.classList.remove('active'));
+            document.getElementById('explanationText').innerText = "Click 'Step Over' to start line-by-line execution.";
+        }
+
+        function copyCode() {
+            const codeText = contentData[currentTopicId].code.join('\n');
+            navigator.clipboard.writeText(codeText);
+            alert("Code snippet copied to clipboard!");
+        }
+
+        // --- CUSTOMIZER LOGIC ---
+        function setTheme(theme) {
+            document.body.className = '';
+            if (theme !== 'light') {
+                document.body.classList.add(`theme-${theme}`);
+            }
+        }
+
+        let currentFont = 16;
+        function adjustFont(change) {
+            currentFont += (change * 2);
+            document.documentElement.style.setProperty('--base-font', currentFont + 'px');
+        }
+
+        function customizeNav(color) {
+            document.documentElement.style.setProperty('--nav-bg', color);
+        }
+
+        function toggleFullScreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
+        }
+
+        // Start App
+        window.onload = initApp;
+    </script>
+</body>
+</html>
