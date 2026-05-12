@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DAA Interactive Study: Longest Common Subsequence</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --secondary: #1e40af;
+            --bg: #f8fafc;
+            --text: #334155;
+            --card-bg: #ffffff;
+            --highlight-match: #4ade80;
+            --highlight-mismatch: #fca5a5;
+            --highlight-lookback: #fef08a;
+        }
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        h1, h2, h3 { color: #0f172a; }
+        h1 { border-bottom: 3px solid var(--primary); padding-bottom: 10px; }
+        .card {
+            background: var(--card-bg);
+            padding: 20px 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            border-left: 5px solid var(--primary);
+        }
+        .fail-card { border-left-color: #ef4444; }
+        
+        /* Tabbed Code Snippet Styles */
+        .code-container {
+            background: #1e293b;
+            border-radius: 6px;
+            margin-top: 15px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+        }
+        .code-tabs {
+            display: flex;
+            background: #0f172a;
+            border-bottom: 1px solid #334155;
+        }
+        .code-tab {
+            background: transparent;
+            color: #94a3b8;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-family: 'Segoe UI', sans-serif;
+            font-weight: 600;
+            font-size: 0.9em;
+            transition: all 0.2s ease;
+        }
+        .code-tab:hover { color: #f8fafc; background: #1e293b; }
+        .code-tab.active { color: #38bdf8; background: #1e293b; border-bottom: 2px solid #38bdf8; }
+        .code-content {
+            display: none;
+            color: #f8fafc;
+            padding: 15px;
+            overflow-x: auto;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.9em;
+            white-space: pre-wrap;
+            margin: 0;
+        }
+        .code-content.active { display: block; }
+
+        /* Animation Containers */
+        .animation-container {
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            margin-top: 30px;
+            text-align: center;
+        }
+        
+        /* Brute Force Animation Styles */
+        .bf-tree-container {
+            text-align: left;
+            background: #f1f5f9;
+            padding: 20px;
+            border-radius: 6px;
+            min-height: 250px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 1em;
+            overflow-y: auto;
+            border: 1px solid #cbd5e1;
+        }
+        .bf-node {
+            opacity: 0;
+            transform: translateX(-10px);
+            animation: slideIn 0.4s forwards;
+            margin: 5px 0;
+            padding: 4px 8px;
+            border-radius: 4px;
+            border-left: 2px dashed #94a3b8;
+        }
+        @keyframes slideIn {
+            to { opacity: 1; transform: translateX(0); }
+        }
+        .bf-node.match { background-color: #dcfce7; border-left: 3px solid #22c55e; font-weight: bold; color: #166534;}
+        .bf-node.mismatch { background-color: #fee2e2; border-left: 3px solid #ef4444; color: #991b1b;}
+        .bf-node.root { border-left: none; background-color: #e0f2fe; color: #075985; font-weight: bold;}
+
+        /* DP Table Styles */
+        table.dp-table {
+            margin: 20px auto;
+            border-collapse: collapse;
+            font-size: 1.2rem;
+        }
+        table.dp-table th, table.dp-table td {
+            width: 50px;
+            height: 50px;
+            border: 2px solid #cbd5e1;
+            text-align: center;
+            vertical-align: middle;
+            transition: all 0.3s ease;
+        }
+        table.dp-table th { background-color: #e2e8f0; font-weight: bold; }
+        .active-match { background-color: var(--highlight-match); color: #000; transform: scale(1.1); font-weight: bold; }
+        .active-mismatch { background-color: var(--highlight-mismatch); color: #000; transform: scale(1.1); font-weight: bold; }
+        .lookback { background-color: var(--highlight-lookback); }
+        
+        /* General Buttons */
+        .run-btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: background 0.3s;
+        }
+        .run-btn:hover { background-color: var(--secondary); }
+        .run-btn:disabled { background-color: #94a3b8; cursor: not-allowed; }
+        .log { margin-top: 15px; font-weight: bold; min-height: 24px; color: var(--secondary); }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Problem 2: Longest Common Subsequence (LCS)</h1>
+    
+    <p><strong>The Setup:</strong> You are given two strings, String <em>X</em> of length <em>m</em> and String <em>Y</em> of length <em>n</em>. Your task is to find the length of the longest subsequence that is present in both strings.</p>
+
+    <h2>Algorithmic Paradigms</h2>
+
+    <div class="card">
+        <h3>1. The Brute-Force Approach</h3>
+        <p>Brute-force relies on exhaustive search. It recursively checks characters from the end. If they don't match, it spawns two new recursive branches. Generating all subsequences of one string and verifying them in the other leads to a massive <strong>O(m · 2<sup>n</sup>)</strong> or <strong>O(n · 2<sup>m</sup>)</strong> decision tree.</p>
+        
+        <div class="code-container">
+            <div class="code-tabs">
+                <button class="code-tab active" onclick="switchSnippetTab(this, 'bf-c')">C</button>
+                <button class="code-tab" onclick="switchSnippetTab(this, 'bf-py')">Python</button>
+                <button class="code-tab" onclick="switchSnippetTab(this, 'bf-java')">Java</button>
+            </div>
+            <pre class="code-content active" id="bf-c">
+int lcs_recursive(char* X, char* Y, int m, int n) {
+    if (m == 0 || n == 0) return 0;
+    
+    // Match found
+    if (X[m-1] == Y[n-1]) {
+        return 1 + lcs_recursive(X, Y, m-1, n-1);
+    }
+    // Mismatch: Branch into two recursive paths
+    else {
+        int branch1 = lcs_recursive(X, Y, m, n-1);
+        int branch2 = lcs_recursive(X, Y, m-1, n);
+        return (branch1 > branch2) ? branch1 : branch2;
+    }
+}</pre>
+            <pre class="code-content" id="bf-py">
+def lcs_recursive(X, Y, m, n):
+    if m == 0 or n == 0:
+        return 0
+        
+    # Match found
+    if X[m-1] == Y[n-1]:
+        return 1 + lcs_recursive(X, Y, m-1, n-1)
+    # Mismatch: Branch into two recursive paths
+    else:
+        branch1 = lcs_recursive(X, Y, m, n-1)
+        branch2 = lcs_recursive(X, Y, m-1, n)
+        return max(branch1, branch2)</pre>
+            <pre class="code-content" id="bf-java">
+public static int lcsRecursive(String X, String Y, int m, int n) {
+    if (m == 0 || n == 0) return 0;
+    
+    // Match found
+    if (X.charAt(m-1) == Y.charAt(n-1)) {
+        return 1 + lcsRecursive(X, Y, m-1, n-1);
+    } 
+    // Mismatch: Branch into two recursive paths
+    else {
+        int branch1 = lcsRecursive(X, Y, m, n-1);
+        int branch2 = lcsRecursive(X, Y, m-1, n);
+        return Math.max(branch1, branch2);
+    }
+}</pre>
+        </div>
+
+        <div class="animation-container" style="margin-top: 20px; padding: 15px;">
+            <h4>Animated Brute-Force Recursion Tree</h4>
+            <p style="font-size: 0.9em;">Evaluating <strong>LCS("AB", "BA")</strong>. Watch how a mismatch forces the algorithm to branch and recalculate overlapping subproblems entirely from scratch.</p>
+            <div class="bf-tree-container" id="bf-anim-container">
+                <div style="color: #94a3b8; font-style: italic;">Tree will generate here...</div>
+            </div>
+            <button class="run-btn" id="bf-btn" onclick="runBFAnimation()">Animate Recursion Tree</button>
+        </div>
+    </div>
+
+    <div class="card fail-card">
+        <h3>2. The Greedy Approach</h3>
+        <p><strong>Why Greedy Fails Here:</strong> The Greedy approach lacks foresight. If you greedily match the first common character and move forward, you might lock yourself out of a much longer subsequence later.</p>
+        
+        <div class="code-container">
+            <div class="code-tabs">
+                <button class="code-tab active" onclick="switchSnippetTab(this, 'gr-c')">C</button>
+                <button class="code-tab" onclick="switchSnippetTab(this, 'gr-py')">Python</button>
+                <button class="code-tab" onclick="switchSnippetTab(this, 'gr-java')">Java</button>
+            </div>
+            <pre class="code-content active" id="gr-c">
+// Naive Greedy LCS (FAILS for optimal answers)
+int lcs_greedy_fails(char* X, char* Y, int m, int n) {
+    int count = 0;
+    int j_start = 0;
+    
+    for (int i = 0; i < m; i++) {
+        for (int j = j_start; j < n; j++) {
+            if (X[i] == Y[j]) {
+                count++;
+                j_start = j + 1; // Eagerly lock in the match
+                break;
+            }
+        }
+    }
+    return count; 
+}</pre>
+            <pre class="code-content" id="gr-py">
+# Naive Greedy LCS (FAILS for optimal answers)
+def lcs_greedy_fails(X, Y):
+    count = 0
+    j_start = 0
+    
+    for charX in X:
+        for j in range(j_start, len(Y)):
+            if charX == Y[j]:
+                count += 1
+                j_start = j + 1 # Eagerly lock in the match
+                break
+                
+    return count</pre>
+            <pre class="code-content" id="gr-java">
+// Naive Greedy LCS (FAILS for optimal answers)
+public static int lcsGreedyFails(String X, String Y) {
+    int count = 0;
+    int jStart = 0;
+    
+    for (int i = 0; i < X.length(); i++) {
+        for (int j = jStart; j < Y.length(); j++) {
+            if (X.charAt(i) == Y.charAt(j)) {
+                count++;
+                jStart = j + 1; // Eagerly lock in the match
+                break;
+            }
+        }
+    }
+    return count; 
+}</pre>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>3. The Dynamic Programming (DP) Approach</h3>
+        <p>Dynamic Programming solves overlapping subproblems and stores the results in a 2D table so no character comparison is ever calculated twice. Time and space drop to <strong>O(m × n)</strong>.</p>
+        
+        <div class="code-container">
+            <div class="code-tabs">
+                <button class="code-tab active" onclick="switchSnippetTab(this, 'dp-c')">C</button>
+                <button class="code-tab" onclick="switchSnippetTab(this, 'dp-py')">Python</button>
+                <button class="code-tab" onclick="switchSnippetTab(this, 'dp-java')">Java</button>
+            </div>
+            <pre class="code-content active" id="dp-c">
+int lcs_dp(char* X, char* Y, int m, int n) {
+    int L[m+1][n+1];
+    
+    for (int i = 0; i <= m; i++) {
+        for (int j = 0; j <= n; j++) {
+            if (i == 0 || j == 0)
+                L[i][j] = 0;
+            else if (X[i-1] == Y[j-1])
+                L[i][j] = L[i-1][j-1] + 1; // Match: Add diagonal
+            else
+                L[i][j] = (L[i-1][j] > L[i][j-1]) ? L[i-1][j] : L[i][j-1]; // Max of left/above
+        }
+    }
+    return L[m][n];
+}</pre>
+            <pre class="code-content" id="dp-py">
+def lcs_dp(X, Y):
+    m, n = len(X), len(Y)
+    L = [[0] * (n + 1) for _ in range(m + 1)]
+    
+    for i in range(1, m + 1):
+        for j in range(1, n + 1):
+            if X[i-1] == Y[j-1]:
+                L[i][j] = L[i-1][j-1] + 1 # Match: Add diagonal
+            else:
+                L[i][j] = max(L[i-1][j], L[i][j-1]) # Max of left/above
+                
+    return L[m][n]</pre>
+            <pre class="code-content" id="dp-java">
+public static int lcsDP(String X, String Y) {
+    int m = X.length(), n = Y.length();
+    int[][] L = new int[m + 1][n + 1];
+    
+    for (int i = 0; i <= m; i++) {
+        for (int j = 0; j <= n; j++) {
+            if (i == 0 || j == 0) {
+                L[i][j] = 0;
+            } else if (X.charAt(i-1) == Y.charAt(j-1)) {
+                L[i][j] = L[i-1][j-1] + 1; // Match: Add diagonal
+            } else {
+                L[i][j] = Math.max(L[i-1][j], L[i][j-1]); // Max of left/above
+            }
+        }
+    }
+    return L[m][n];
+}</pre>
+        </div>
+    </div>
+
+    <div class="animation-container">
+        <h2>Interactive DP Matrix Visualization</h2>
+        <p>Watch how DP systematically calculates the LCS length for String <strong>X = "ABC"</strong> and String <strong>Y = "BAC"</strong>.</p>
+        
+        <table class="dp-table" id="dp-matrix">
+            </table>
+        
+        <div class="log" id="dp-log">Ready to build the matrix...</div>
+        <button class="run-btn" id="dp-btn" onclick="runLCSAnimation()">Run DP Animation</button>
+    </div>
+</div>
+
+<script>
+    const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+    // --- TAB SWITCHER LOGIC ---
+    function switchSnippetTab(btn, contentId) {
+        // Find the parent code-container
+        const container = btn.closest('.code-container');
+        
+        // Remove active class from all tabs and contents in THIS container
+        container.querySelectorAll('.code-tab').forEach(t => t.classList.remove('active'));
+        container.querySelectorAll('.code-content').forEach(c => c.classList.remove('active'));
+        
+        // Add active class to clicked tab and target content
+        btn.classList.add('active');
+        document.getElementById(contentId).classList.add('active');
+    }
+
+    // --- BRUTE FORCE ANIMATION LOGIC ---
+    async function runBFAnimation() {
+        const container = document.getElementById('bf-anim-container');
+        const btn = document.getElementById('bf-btn');
+        btn.disabled = true;
+        container.innerHTML = ''; // Clear container
+
+        const addNode = async (text, indent, styleClass) => {
+            const div = document.createElement('div');
+            div.className = `bf-node ${styleClass}`;
+            div.style.marginLeft = `${indent * 25}px`;
+            div.innerHTML = text;
+            container.appendChild(div);
+            container.scrollTop = container.scrollHeight; // Auto-scroll
+            await sleep(800);
+        };
+
+        await addNode('Call: LCS("AB", "BA")', 0, 'root');
+        await addNode('↳ Mismatch (\'B\' != \'A\'). Branching into two...', 1, 'mismatch');
+        
+        // Branch 1
+        await addNode('Call: LCS("A", "BA")  [Branch 1]', 2, '');
+        await addNode('↳ Match (\'A\' == \'A\')! Returns 1 + LCS("", "B")', 3, 'match');
+        await addNode('Call: LCS("", "B") Base Case Returns 0', 4, '');
+        
+        // Branch 2
+        await addNode('Call: LCS("AB", "B")  [Branch 2]', 2, '');
+        await addNode('↳ Match (\'B\' == \'B\')! Returns 1 + LCS("A", "")', 3, 'match');
+        await addNode('Call: LCS("A", "") Base Case Returns 0', 4, '');
+
+        await addNode('<hr><em>Notice how multiple branches evaluate identically and independently. For longer strings, this geometric branching creates O(m·2ⁿ) time complexity!</em>', 0, 'root');
+        
+        btn.innerText = "Re-run Animation";
+        btn.disabled = false;
+    }
+
+    // --- DP ANIMATION LOGIC ---
+    const strX = "ABC";
+    const strY = "BAC";
+    const m = strX.length;
+    const n = strY.length;
+    let dpTable = document.getElementById('dp-matrix');
+    let dpLog = document.getElementById('dp-log');
+    let dpBtn = document.getElementById('dp-btn');
+
+    function initTable() {
+        dpTable.innerHTML = '';
+        let headerRow = document.createElement('tr');
+        headerRow.innerHTML = `<th></th><th>0</th>`;
+        for (let j = 0; j < n; j++) headerRow.innerHTML += `<th>${strY[j]}</th>`;
+        dpTable.appendChild(headerRow);
+
+        for (let i = 0; i <= m; i++) {
+            let row = document.createElement('tr');
+            let rowHeader = i === 0 ? "0" : strX[i - 1];
+            row.innerHTML = `<th>${rowHeader}</th>`;
+            
+            for (let j = 0; j <= n; j++) {
+                let cellId = `cell-${i}-${j}`;
+                if (i === 0 || j === 0) {
+                    row.innerHTML += `<td id="${cellId}" style="background-color:#f1f5f9;">0</td>`;
+                } else {
+                    row.innerHTML += `<td id="${cellId}"></td>`;
+                }
+            }
+            dpTable.appendChild(row);
+        }
+    }
+
+    function clearHighlights() {
+        document.querySelectorAll('td').forEach(cell => {
+            cell.classList.remove('active-match', 'active-mismatch', 'lookback');
+        });
+    }
+
+    async function runLCSAnimation() {
+        dpBtn.disabled = true;
+        initTable();
+        let dp = Array(m + 1).fill().map(() => Array(n + 1).fill(0));
+        
+        dpLog.innerText = "Base cases (first row and column) are initialized to 0.";
+        await sleep(1500);
+
+        for (let i = 1; i <= m; i++) {
+            for (let j = 1; j <= n; j++) {
+                clearHighlights();
+                let currentCell = document.getElementById(`cell-${i}-${j}`);
+                
+                dpLog.innerText = `Comparing X[${i-1}]='${strX[i-1]}' with Y[${j-1}]='${strY[j-1]}'`;
+                await sleep(1000);
+
+                if (strX[i - 1] === strY[j - 1]) {
+                    dp[i][j] = dp[i - 1][j - 1] + 1;
+                    currentCell.classList.add('active-match');
+                    document.getElementById(`cell-${i-1}-${j-1}`).classList.add('lookback');
+                    dpLog.innerText = `Match! Taking diagonal cell (${dp[i-1][j-1]}) + 1 = ${dp[i][j]}`;
+                } else {
+                    dp[i][j] = Math.max(dp[i - 1][j], dp[i][j - 1]);
+                    currentCell.classList.add('active-mismatch');
+                    document.getElementById(`cell-${i-1}-${j}`).classList.add('lookback');
+                    document.getElementById(`cell-${i}-${j-1}`).classList.add('lookback');
+                    dpLog.innerText = `Mismatch. Taking max of Above (${dp[i-1][j]}) and Left (${dp[i][j-1]}) = ${dp[i][j]}`;
+                }
+                
+                currentCell.innerText = dp[i][j];
+                await sleep(1500);
+            }
+        }
+        
+        clearHighlights();
+        document.getElementById(`cell-${m}-${n}`).classList.add('active-match');
+        dpLog.innerText = `Finished! The maximum LCS length is found at the bottom right: ${dp[m][n]}`;
+        dpBtn.innerText = "Re-run DP Animation";
+        dpBtn.disabled = false;
+    }
+
+    // Initialize UI on load
+    initTable();
+</script>
+
+</body>
+</html>

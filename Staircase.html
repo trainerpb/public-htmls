@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DAA Interactive Study: Staircase Problem</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --secondary: #1e40af;
+            --bg: #f8fafc;
+            --text: #334155;
+            --card-bg: #ffffff;
+            --highlight: #fef08a;
+        }
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        h1, h2, h3 { color: #0f172a; }
+        h1 { border-bottom: 3px solid var(--primary); padding-bottom: 10px; }
+        .card {
+            background: var(--card-bg);
+            padding: 20px 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            border-left: 5px solid var(--primary);
+        }
+        .fail-card { border-left-color: #ef4444; }
+        .code-block {
+            background: #1e293b;
+            color: #f8fafc;
+            padding: 15px;
+            border-radius: 6px;
+            font-family: 'Courier New', Courier, monospace;
+            overflow-x: auto;
+        }
+        .animation-container {
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            margin-top: 30px;
+            text-align: center;
+        }
+        .staircase {
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            height: 250px;
+            margin-top: 20px;
+            gap: 5px;
+        }
+        .stair {
+            width: 60px;
+            background-color: #cbd5e1;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            font-weight: bold;
+            color: #333;
+            border-radius: 4px 4px 0 0;
+            transition: all 0.4s ease;
+        }
+        .stair span { margin-top: 10px; font-size: 0.9em; }
+        .stair.active { background-color: var(--primary); color: white; transform: scale(1.05); }
+        .stair.looking-back { background-color: #93c5fd; }
+        button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: background 0.3s;
+        }
+        button:hover { background-color: var(--secondary); }
+        button:disabled { background-color: #94a3b8; cursor: not-allowed; }
+        .log { margin-top: 15px; font-weight: bold; min-height: 24px; color: var(--secondary); }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Problem 1: The Staircase Problem</h1>
+    <p><strong>The Setup:</strong> You are climbing a staircase that takes <em>n</em> steps to reach the top[cite: 177]. Each time you can either climb 1 step or 2 steps[cite: 178]. In how many distinct ways can you climb to the top? [cite: 179]</p>
+
+    <h2>Algorithmic Paradigms</h2>
+
+    <div class="card">
+        <h3>1. The Brute-Force Approach</h3>
+        <p>Brute-force relies on exhaustive search[cite: 180]. For this problem, it means mapping out every single combination of 1-step and 2-step climbs from the bottom to the top[cite: 180].</p>
+        <ul>
+            <li><strong>How it works:</strong> You recursively branch out. At step 0, you branch into two parallel timelines: taking 1 step and taking 2 steps[cite: 181]. You repeat this exhaustive branching for every single position until you hit step <em>n</em>[cite: 182]. If a path perfectly lands on <em>n</em>, you count it as a valid way[cite: 183]. If it overshoots, you discard it[cite: 184].</li>
+            <li><strong>Time Complexity:</strong> <em>O(2^n)</em> – The algorithm recalculates the exact same steps repeatedly, creating a massive, exponentially growing decision tree[cite: 184].</li>
+            <li><strong>Space Complexity:</strong> <em>O(n)</em> – To maintain the recursion stack[cite: 185].</li>
+        </ul>
+    </div>
+
+    <div class="card fail-card">
+        <h3>2. The Greedy Approach</h3>
+        <p><strong>Why Greedy Fails Here:</strong> The Greedy approach is entirely incompatible with this problem[cite: 188]. Greedy algorithms are designed exclusively for optimization (finding a single "best," "maximum," or "minimum" path based on local weights or values)[cite: 189]. The Staircase problem is a combinatorics problem—it asks for the total count of all possible paths[cite: 190]. Making a single "optimal" local choice (e.g., always taking 2 steps to get up faster) destroys the other branches of computation[cite: 191]. You cannot count exhaustive possibilities if you only ever pick one path[cite: 192].</p>
+    </div>
+
+    <div class="card">
+        <h3>3. The Dynamic Programming (DP) Approach</h3>
+        <p>Dynamic Programming systematically solves and stores the answers to overlapping subproblems so that no calculation is ever performed twice[cite: 193].</p>
+        <ul>
+            <li><strong>How it works:</strong> To reach step <em>n</em>, you must have come from either step <em>n-1</em> (by taking a 1-step jump) or step <em>n-2</em> (by taking a 2-step jump)[cite: 194]. Therefore, the total number of ways to reach step <em>n</em> is simply the sum of the ways to reach <em>n-1</em> and <em>n-2</em>[cite: 195].</li>
+            <li><strong>The Logic:</strong> This boils down to the Fibonacci sequence: <code>ways(n) = ways(n-1) + ways(n-2)</code>[cite: 196]. Instead of recursively recalculating these paths like Brute-Force, DP computes the ways for step 1, then step 2, then step 3, storing each answer in an array (or just holding the last two values in memory) until it reaches <em>n</em>[cite: 197].</li>
+            <li><strong>Time Complexity:</strong> <em>O(n)</em> – It only takes a single, linear pass to compute the answer[cite: 198].</li>
+            <li><strong>Space Complexity:</strong> <em>O(1)</em> – If you only store the results of the previous two steps instead of a full array[cite: 199].</li>
+        </ul>
+    </div>
+
+    <div class="card">
+        <h3>Generalizing to <em>r</em> Steps</h3>
+        <p>If you expand the rules of the Staircase Problem to allow jumping up to 3 steps, or generalize it to <em>r</em> steps, the fundamental Dynamic Programming logic remains exactly the same, but the state calculation expands[cite: 203].</p>
+        <ul>
+            <li><strong>The Logic:</strong> The number of ways to reach step <em>n</em> is the summation of the ways to reach all <em>r</em> previous steps: <code>ways(n) = ways(n-1) + ways(n-2) + ... + ways(n-r)</code>[cite: 209].</li>
+            <li><strong>Time Complexity:</strong> <em>O(n × r)</em>[cite: 209]. The DP algorithm must run a small loop of size <em>r</em> to sum up the previous <em>r</em> values for every single one of the <em>n</em> steps[cite: 210].</li>
+            <li><strong>Space Complexity:</strong> <em>O(r)</em>[cite: 212]. Because the algorithm must constantly look back at the previous <em>r</em> steps, you need to maintain an array or sliding window of size <em>r</em> in memory to store those recent results[cite: 213].</li>
+        </ul>
+    </div>
+
+    <div class="animation-container">
+        <h2>Interactive DP Visualization (2-Step Rules)</h2>
+        <p>Watch how Dynamic Programming calculates the ways to reach Step 6 by looking back at the two previous steps.</p>
+        
+        <div class="staircase" id="staircase">
+            </div>
+        
+        <div class="log" id="animation-log">Ready to calculate...</div>
+        <button id="anim-btn" onclick="runAnimation()">Run DP Animation</button>
+    </div>
+</div>
+
+<script>
+    const totalStairs = 6;
+    const stairsContainer = document.getElementById('staircase');
+    const log = document.getElementById('animation-log');
+    const btn = document.getElementById('anim-btn');
+    let dp = [];
+
+    // Initialize UI
+    function initStairs() {
+        stairsContainer.innerHTML = '';
+        for (let i = 0; i <= totalStairs; i++) {
+            const stair = document.createElement('div');
+            stair.className = 'stair';
+            stair.id = `stair-${i}`;
+            stair.style.height = `${40 + (i * 30)}px`;
+            
+            const label = document.createElement('span');
+            label.innerText = `Step ${i}`;
+            stair.appendChild(label);
+
+            const value = document.createElement('span');
+            value.id = `val-${i}`;
+            value.innerText = "?";
+            value.style.fontSize = "1.2em";
+            stair.appendChild(value);
+
+            stairsContainer.appendChild(stair);
+        }
+    }
+
+    // Helper for sleep
+    const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+    // Reset styles
+    function clearHighlight() {
+        document.querySelectorAll('.stair').forEach(el => {
+            el.classList.remove('active', 'looking-back');
+        });
+    }
+
+    async function runAnimation() {
+        btn.disabled = true;
+        initStairs();
+        dp = new Array(totalStairs + 1).fill(0);
+        
+        // Base cases
+        dp[0] = 1;
+        document.getElementById('val-0').innerText = dp[0];
+        document.getElementById('stair-0').classList.add('active');
+        log.innerText = "Base Case: 1 way to be at Step 0 (do nothing).";
+        await sleep(1500);
+        clearHighlight();
+
+        dp[1] = 1;
+        document.getElementById('val-1').innerText = dp[1];
+        document.getElementById('stair-1').classList.add('active');
+        log.innerText = "Base Case: 1 way to reach Step 1 (take 1 step).";
+        await sleep(1500);
+        clearHighlight();
+
+        // DP Calculation
+        for (let i = 2; i <= totalStairs; i++) {
+            document.getElementById(`stair-${i-1}`).classList.add('looking-back');
+            document.getElementById(`stair-${i-2}`).classList.add('looking-back');
+            document.getElementById(`stair-${i}`).classList.add('active');
+            
+            log.innerText = `Calculating Step ${i}: ways(${i-1}) + ways(${i-2}) = ${dp[i-1]} + ${dp[i-2]}`;
+            await sleep(2000);
+
+            dp[i] = dp[i-1] + dp[i-2];
+            document.getElementById(`val-${i}`).innerText = dp[i];
+            
+            log.innerText = `Step ${i} = ${dp[i]} ways!`;
+            await sleep(1500);
+            clearHighlight();
+        }
+
+        log.innerText = `Finished! DP uniquely calculates ${dp[totalStairs]} ways to reach Step ${totalStairs} in O(n) time.`;
+        btn.innerText = "Re-run Animation";
+        btn.disabled = false;
+    }
+
+    initStairs();
+</script>
+
+</body>
+</html>

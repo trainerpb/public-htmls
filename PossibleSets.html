@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DAA Interactive Study: Bitmask Subsequence Generator</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --secondary: #1e40af;
+            --bg: #f8fafc;
+            --text: #334155;
+            --card-bg: #ffffff;
+            --highlight-take: #dcfce7;
+            --highlight-skip: #fee2e2;
+            --highlight-border: #38bdf8;
+        }
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        h1, h2, h3 { color: #0f172a; }
+        h1 { border-bottom: 3px solid var(--primary); padding-bottom: 10px; }
+        .card {
+            background: var(--card-bg);
+            padding: 20px 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            border-left: 5px solid var(--primary);
+        }
+        
+        /* Tabbed Code Snippet Styles */
+        .code-container {
+            background: #1e293b;
+            border-radius: 6px;
+            margin-top: 15px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+        }
+        .code-tabs {
+            display: flex;
+            background: #0f172a;
+            border-bottom: 1px solid #334155;
+        }
+        .code-tab {
+            background: transparent;
+            color: #94a3b8;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-family: 'Segoe UI', sans-serif;
+            font-weight: 600;
+            font-size: 0.9em;
+            transition: all 0.2s ease;
+        }
+        .code-tab:hover { color: #f8fafc; background: #1e293b; }
+        .code-tab.active { color: #38bdf8; background: #1e293b; border-bottom: 2px solid #38bdf8; }
+        .code-content {
+            display: none;
+            color: #f8fafc;
+            padding: 15px;
+            overflow-x: auto;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.9em;
+            white-space: pre-wrap;
+            margin: 0;
+        }
+        .code-content.active { display: block; }
+
+        /* Animation Containers */
+        .animation-container {
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            margin-top: 30px;
+            text-align: center;
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            align-items: center;
+        }
+        input[type="text"] {
+            padding: 10px;
+            font-size: 16px;
+            border: 2px solid #cbd5e1;
+            border-radius: 4px;
+            width: 200px;
+            text-align: center;
+        }
+        
+        /* Interactive Table Styles */
+        .status-board {
+            background: #f1f5f9;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            font-size: 1.1em;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-around;
+        }
+        table.bit-table {
+            margin: 20px auto;
+            border-collapse: collapse;
+            font-size: 1.2rem;
+            width: 100%;
+            max-width: 600px;
+        }
+        table.bit-table th, table.bit-table td {
+            padding: 15px;
+            border: 2px solid #cbd5e1;
+            text-align: center;
+            vertical-align: middle;
+            transition: all 0.3s ease;
+        }
+        table.bit-table th { background-color: #e2e8f0; font-weight: bold; width: 20%;}
+        
+        .cell-take { background-color: var(--highlight-take); color: #166534; font-weight: bold; }
+        .cell-skip { background-color: var(--highlight-skip); color: #991b1b; text-decoration: line-through; }
+        
+        .result-box {
+            font-size: 1.5em;
+            font-family: monospace;
+            padding: 15px;
+            background: #e0f2fe;
+            color: #0369a1;
+            border-radius: 6px;
+            margin-top: 20px;
+            min-height: 30px;
+            border: 2px dashed #0284c7;
+        }
+
+        /* General Buttons */
+        .run-btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .run-btn:hover { background-color: var(--secondary); }
+        .run-btn:disabled { background-color: #94a3b8; cursor: not-allowed; }
+        .log { margin-top: 20px; font-weight: bold; font-size: 1.1em; min-height: 48px; color: var(--secondary); text-align: left; background: #fffbeb; padding: 15px; border-left: 4px solid #f59e0b; border-radius: 4px;}
+        
+        .history-container {
+            margin-top: 20px;
+            text-align: left;
+            max-height: 150px;
+            overflow-y: auto;
+            background: #f8fafc;
+            padding: 10px;
+            border: 1px solid #e2e8f0;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Subsequence Generator (Bitmasking)</h1>
+    
+    <p><strong>The Concept:</strong> To find all possible subsequences of a string of length $n$, we can map every character to a specific bit in a binary number. By counting from $0$ to $(2^n - 1)$, the binary representation of our current count gives us every possible combination of "Take" (1) and "Skip" (0) decisions.</p>
+
+    <div class="card">
+        <h3>The Code Implementation</h3>
+        <p>This method completely avoids recursion. It uses the left shift operator (<code>1 << n</code>) to find the upper bounds, and the Bitwise AND operator (<code>&</code>) to check if the $i$-th bit is turned on.</p>
+        
+        <div class="code-container">
+            <div class="code-tabs">
+                <button class="code-tab active" onclick="switchSnippetTab(this, 'code-java')">Java</button>
+                <button class="code-tab" onclick="switchSnippetTab(this, 'code-c')">C</button>
+                <button class="code-tab" onclick="switchSnippetTab(this, 'code-py')">Python</button>
+            </div>
+            
+            <pre class="code-content active" id="code-java">
+public static void generateSubsequences(String s) {
+    int n = s.length();
+    int totalMasks = 1 << n; // Calculates 2^n
+    
+    // Count from 0 up to (2^n - 1)
+    for (int mask = 0; mask < totalMasks; mask++) {
+        StringBuilder sub = new StringBuilder();
+        
+        // Check each bit position
+        for (int i = 0; i < n; i++) {
+            // If the i-th bit in 'mask' is a 1, take the character
+            if ((mask & (1 << i)) != 0) {
+                sub.append(s.charAt(i));
+            }
+        }
+        System.out.println("Subsequence: {" + sub.toString() + "}");
+    }
+}</pre>
+
+            <pre class="code-content" id="code-c">
+#include &lt;stdio.h&gt;
+#include &lt;string.h&gt;
+
+void generateSubsequences(char* s) {
+    int n = strlen(s);
+    int totalMasks = 1 << n; // Calculates 2^n
+    
+    // Count from 0 up to (2^n - 1)
+    for (int mask = 0; mask < totalMasks; mask++) {
+        printf("Subsequence: {");
+        // Check each bit position
+        for (int i = 0; i < n; i++) {
+            // If the i-th bit in 'mask' is a 1, take the character
+            if ((mask & (1 << i)) != 0) {
+                printf("%c", s[i]);
+            }
+        }
+        printf("}\n");
+    }
+}</pre>
+
+            <pre class="code-content" id="code-py">
+def generate_subsequences(s):
+    n = len(s)
+    total_masks = 1 << n # Calculates 2^n
+    
+    # Count from 0 up to (2^n - 1)
+    for mask in range(total_masks):
+        sub = []
+        # Check each bit position
+        for i in range(n):
+            # If the i-th bit in 'mask' is a 1, take the character
+            if (mask & (1 << i)) != 0:
+                sub.append(s[i])
+                
+        print(f"Subsequence: {{ {''.join(sub)} }}")</pre>
+        </div>
+    </div>
+
+    <div class="animation-container">
+        <h2>Interactive Bitmask Visualizer</h2>
+        <p>Enter a short string to map characters to bits, then step through the loop!</p>
+        
+        <div class="input-group">
+            <input type="text" id="inputString" value="ABC" maxlength="5" placeholder="e.g., ABCD">
+            <button class="run-btn" id="start-btn" onclick="initializeVisualizer()">Load String</button>
+        </div>
+
+        <div id="visualizer-area" style="display: none;">
+            <div class="status-board">
+                <div id="stat-mask">Current Mask: 0</div>
+                <div id="stat-binary">Binary: 000</div>
+                <div id="stat-progress">Step: 0 / 8</div>
+            </div>
+
+            <table class="bit-table" id="bit-table">
+                </table>
+
+            <div class="result-box" id="result-box">
+                Resulting Subsequence: "{ }"
+            </div>
+
+            <div class="log" id="anim-log">Click "Step Over" to evaluate Mask 0.</div>
+
+            <div style="margin-top: 15px; display: flex; gap: 10px; justify-content: center;">
+                <button class="run-btn" id="step-btn" onclick="stepOver()">Step Over (Next Mask)</button>
+            </div>
+
+            <div class="history-container" id="history-log">
+                <strong>Generated Subsequences:</strong><br>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // --- TAB SWITCHER LOGIC ---
+    function switchSnippetTab(btn, contentId) {
+        const container = btn.closest('.code-container');
+        container.querySelectorAll('.code-tab').forEach(t => t.classList.remove('active'));
+        container.querySelectorAll('.code-content').forEach(c => c.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById(contentId).classList.add('active');
+    }
+
+    // --- VISUALIZER LOGIC ---
+    let targetString = "";
+    let n = 0;
+    let totalMasks = 0;
+    let currentMask = 0;
+
+    function initializeVisualizer() {
+        targetString = document.getElementById('inputString').value;
+        if (!targetString) {
+            alert("Please enter a string.");
+            return;
+        }
+        
+        n = targetString.length;
+        if (n > 8) {
+            alert("For visualization purposes, please limit the string to 8 characters.");
+            return;
+        }
+
+        totalMasks = 1 << n;
+        currentMask = 0;
+
+        // Reset UI
+        document.getElementById('visualizer-area').style.display = 'block';
+        document.getElementById('step-btn').disabled = false;
+        document.getElementById('step-btn').innerText = "Step Over (Next Mask)";
+        document.getElementById('history-log').innerHTML = "<strong>Generated Subsequences:</strong><br>";
+        
+        buildTable();
+        updateUI(true);
+    }
+
+    function buildTable() {
+        const table = document.getElementById('bit-table');
+        table.innerHTML = ""; // Clear
+        
+        // Header Row (String Index & Character)
+        let headerRow = `<tr><th>Index (i)</th>`;
+        let charRow = `<tr><th>Character</th>`;
+        let bitRow = `<tr id="row-bits"><th>Bit Check <br><span style="font-size:0.7em;font-weight:normal;">(mask & (1<<i))</span></th>`;
+        let actionRow = `<tr id="row-actions"><th>Action</th>`;
+
+        // Note: bit index 0 (1<<0) checks the rightmost bit, which maps to targetString[0]
+        for (let i = 0; i < n; i++) {
+            headerRow += `<td>i = ${i}</td>`;
+            charRow += `<td style="font-size:1.4em; font-weight:bold; color:var(--primary);">${targetString[i]}</td>`;
+            bitRow += `<td id="bit-cell-${i}">-</td>`;
+            actionRow += `<td id="action-cell-${i}">-</td>`;
+        }
+        
+        headerRow += `</tr>`;
+        charRow += `</tr>`;
+        bitRow += `</tr>`;
+        actionRow += `</tr>`;
+
+        table.innerHTML = headerRow + charRow + bitRow + actionRow;
+    }
+
+    function stepOver() {
+        if (currentMask >= totalMasks) return;
+        updateUI(false);
+        currentMask++;
+        
+        if (currentMask >= totalMasks) {
+            document.getElementById('step-btn').disabled = true;
+            document.getElementById('step-btn').innerText = "Generation Complete!";
+            document.getElementById('anim-log').innerText = `Finished! Successfully generated all ${totalMasks} subsequences in O(n * 2^n) time.`;
+        }
+    }
+
+    function updateUI(isInit) {
+        let maskToEval = isInit ? 0 : currentMask;
+        
+        // Pad binary representation with leading zeros
+        let binaryStr = maskToEval.toString(2).padStart(n, '0');
+        
+        document.getElementById('stat-mask').innerText = `Current Mask: ${maskToEval}`;
+        document.getElementById('stat-binary').innerText = `Binary: ${binaryStr}`;
+        document.getElementById('stat-progress').innerText = `Step: ${maskToEval + 1} / ${totalMasks}`;
+
+        let currentSubsequence = "";
+        let logText = `Evaluating Mask = ${maskToEval}. Binary representation is ${binaryStr}.<br><br>`;
+
+        for (let i = 0; i < n; i++) {
+            // Using exact bitwise math: (mask & (1 << i)) != 0
+            let isBitSet = (maskToEval & (1 << i)) !== 0;
+            let bitCell = document.getElementById(`bit-cell-${i}`);
+            let actionCell = document.getElementById(`action-cell-${i}`);
+
+            if (isBitSet) {
+                bitCell.innerText = "1";
+                actionCell.innerText = "Take";
+                actionCell.className = "cell-take";
+                currentSubsequence += targetString[i];
+                logText += `• i=${i}: (1<<${i}) is set. Taking '${targetString[i]}'.<br>`;
+            } else {
+                bitCell.innerText = "0";
+                actionCell.innerText = "Skip";
+                actionCell.className = "cell-skip";
+                logText += `• i=${i}: (1<<${i}) is 0. Skipping '${targetString[i]}'.<br>`;
+            }
+        }
+
+        document.getElementById('result-box').innerText = `Resulting Subsequence: "{ ${currentSubsequence} }"`;
+        document.getElementById('anim-log').innerHTML = logText;
+        
+        // Append to history
+        document.getElementById('history-log').innerHTML += `Mask ${maskToEval}: { ${currentSubsequence} }<br>`;
+        // Auto scroll history
+        let historyDiv = document.getElementById('history-log');
+        historyDiv.scrollTop = historyDiv.scrollHeight;
+    }
+</script>
+
+</body>
+</html>
