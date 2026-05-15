@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Greedy Coin Change SPA</title>
+    <style>
+        /* Base Light Theme */
+        :root {
+            --bg-color: #f4f7f6;
+            --text-color: #333;
+            --container-bg: white;
+            --panel-bg: #ecf0f1;
+            --border-color: #ccc;
+            --box-bg: #fdfdfd;
+            --box-border: #e0e0e0;
+            --primary-color: #2c3e50;
+            --accent-color: #2980b9;
+        }
+
+        /* Dark Theme Variables */
+        body.dark-theme {
+            --bg-color: #121212;
+            --text-color: #e0e0e0;
+            --container-bg: #1e1e1e;
+            --panel-bg: #2c2c2c;
+            --border-color: #444;
+            --box-bg: #2a2a2a;
+            --box-border: #555;
+            --primary-color: #64b5f6;
+            --accent-color: #81d4fa;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .container {
+            background: var(--container-bg);
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            padding: 30px;
+            max-width: 1000px;
+            width: 100%;
+            transition: background-color 0.3s;
+        }
+
+        /* Top Bar & Theme Toggle */
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .theme-btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        /* Intro Text */
+        .intro-box {
+            background: var(--panel-bg);
+            padding: 15px;
+            border-left: 5px solid var(--primary-color);
+            border-radius: 4px;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        /* Gold Coins Display */
+        .coin-showcase {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .gold-coin {
+            width: 60px;
+            height: 60px;
+            background: radial-gradient(ellipse at top left, #ffd700, #b8860b);
+            border: 3px solid #da9a00;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2em;
+            color: #5a3c00;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+            text-shadow: 1px 1px 0px rgba(255,255,255,0.4);
+        }
+
+        h1 { text-align: center; color: var(--primary-color); }
+        
+        .setup-panel {
+            display: flex;
+            gap: 15px;
+            background: var(--panel-bg);
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        input {
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            width: 100px;
+            background: var(--container-bg);
+            color: var(--text-color);
+        }
+
+        .btn {
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            color: white;
+            transition: 0.3s;
+        }
+        .btn-opt { background-color: #27ae60; }
+        .btn-opt:hover { background-color: #2ecc71; }
+        .btn-unopt { background-color: #e67e22; }
+        .btn-unopt:hover { background-color: #f39c12; }
+        
+        .warning-callout {
+            background: #fee2e2;
+            color: #b91c1c;
+            border-left: 5px solid #ef4444;
+            padding: 15px;
+            margin: 20px 0;
+            font-weight: bold;
+            font-size: 1.1em;
+            display: none;
+            border-radius: 4px;
+        }
+
+        .visualizer {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+        }
+        
+        .viz-box {
+            flex: 1;
+            background: var(--box-bg);
+            border: 2px solid var(--box-border);
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .stat-large {
+            font-size: 3em;
+            font-weight: bold;
+            color: var(--accent-color);
+            margin: 10px 0;
+        }
+        
+        .coin-breakdown {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 15px;
+        }
+        
+        .coin-badge {
+            background: var(--primary-color);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+
+        /* Side-by-Side Code Styles */
+        .code-section { margin-top: 40px; }
+        .tabs { display: flex; border-bottom: 2px solid var(--border-color); margin-bottom: 15px;}
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            background: var(--panel-bg);
+            color: var(--text-color);
+            border: none;
+            border-radius: 5px 5px 0 0;
+            font-weight: bold;
+            margin-right: 5px;
+        }
+        .tab.active { background: var(--primary-color); color: white; }
+        
+        .language-block { display: none; }
+        .language-block.active { display: flex; gap: 20px; }
+        
+        .code-panel {
+            flex: 1;
+            background: #1e1e1e;
+            color: #d4d4d4;
+            border-radius: 5px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        .code-header {
+            background: #333;
+            color: #fff;
+            padding: 8px 15px;
+            font-weight: bold;
+            font-size: 0.9em;
+            text-align: center;
+            border-bottom: 1px solid #555;
+        }
+        .code-content {
+            padding: 15px;
+            font-family: Consolas, monospace;
+            overflow-x: auto;
+            text-align: left;
+            line-height: 1.5;
+            font-size: 0.9em;
+        }
+        .code-line { display: flex; }
+        .line-num {
+            color: #858585;
+            width: 25px;
+            user-select: none;
+            text-align: right;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="top-bar">
+        <h1>Greedy Coin Change Simulator</h1>
+        <button class="theme-btn" onclick="toggleTheme()">Toggle Dark Mode</button>
+    </div>
+
+    <div class="intro-box">
+        <strong>The Coin Exchange Problem</strong> aims to find the minimum number of coins needed to make a specific target amount. It can be approached using <em>Greedy Algorithms</em> (which are extremely fast but can fail on arbitrary, non-standard coin systems) or <em>Dynamic Programming (DP)</em> (which guarantees an optimal solution by checking overlapping subproblems). 
+        <br><br>
+        <strong>Note:</strong> The Dynamic Programming (DP) approach will be taught in the next class! Today, we focus on the efficiency trap of the Greedy approach.
+    </div>
+
+    <h3 style="text-align: center; margin-bottom: 5px;">Available Denominations</h3>
+    <div class="coin-showcase">
+        <div class="gold-coin">25¢</div>
+        <div class="gold-coin">10¢</div>
+        <div class="gold-coin">5¢</div>
+        <div class="gold-coin">1¢</div>
+    </div>
+    
+    <div class="setup-panel">
+        <label><b>Target Amount:</b></label>
+        <input type="number" id="targetAmount" value="68" min="1" max="999">
+        <button class="btn btn-opt" onclick="runSimulation('optimized')">Start Division O(n)</button>
+        <button class="btn btn-unopt" onclick="runSimulation('unoptimized')">Start While Loop O(V)</button>
+    </div>
+
+    <div id="warningMsg" class="warning-callout">
+        ⚠️ Caution- you make less efficient! The while loop is performing redundant sequential subtractions.
+    </div>
+
+    <div class="visualizer">
+        <div class="viz-box">
+            <h3>Remaining Amount</h3>
+            <div id="amountDisplay" class="stat-large">68</div>
+            <div id="currentAction" style="min-height: 20px;">Waiting to start...</div>
+        </div>
+        <div class="viz-box">
+            <h3>Total Execution Steps</h3>
+            <div id="stepDisplay" class="stat-large" style="color: #e74c3c;">0</div>
+            <div>Operations Performed</div>
+        </div>
+    </div>
+
+    <div class="viz-box" style="margin-top: 20px;">
+        <h3>Coins Selected Breakdown</h3>
+        <div id="breakdownDisplay" class="coin-breakdown">
+            </div>
+    </div>
+
+    <div class="code-section">
+        <h3>Side-by-Side Implementation Code</h3>
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('java')">Java</button>
+            <button class="tab" onclick="switchTab('python')">Python</button>
+            <button class="tab" onclick="switchTab('c')">C</button>
+        </div>
+
+        <div id="code-java" class="language-block active">
+            <div class="code-panel">
+                <div class="code-header" style="background: #1e4620;">Optimized (Division / Modulo)</div>
+                <div class="code-content">
+<div class="code-line"><span class="line-num">1</span><span style="color: #569cd6;">for</span> (<span style="color: #569cd6;">int</span> i = <span style="color: #b5cea8;">0</span>; i &lt; coins.length; i++) {</div>
+<div class="code-line"><span class="line-num">2</span>    <span style="color: #c586c0;">if</span> (target == <span style="color: #b5cea8;">0</span>) <span style="color: #c586c0;">break</span>;</div>
+<div class="code-line"><span class="line-num">3</span>    </div>
+<div class="code-line"><span class="line-num">4</span>    <span style="color: #6a9955;">// O(1) Math per coin type</span></div>
+<div class="code-line"><span class="line-num">5</span>    counts[i] = target / coins[i]; </div>
+<div class="code-line"><span class="line-num">6</span>    target = target % coins[i]; </div>
+<div class="code-line"><span class="line-num">7</span>}</div>
+                </div>
+            </div>
+            <div class="code-panel">
+                <div class="code-header" style="background: #5c2b29;">Unoptimized (While Loop)</div>
+                <div class="code-content">
+<div class="code-line"><span class="line-num">1</span><span style="color: #569cd6;">for</span> (<span style="color: #569cd6;">int</span> i = <span style="color: #b5cea8;">0</span>; i &lt; coins.length; i++) {</div>
+<div class="code-line"><span class="line-num">2</span></div>
+<div class="code-line"><span class="line-num">3</span>    <span style="color: #6a9955;">// Loops V times in worst case!</span></div>
+<div class="code-line"><span class="line-num">4</span>    <span style="color: #c586c0;">while</span> (coins[i] &lt;= target) {</div>
+<div class="code-line"><span class="line-num">5</span>        target -= coins[i]; </div>
+<div class="code-line"><span class="line-num">6</span>        counts[i]++;</div>
+<div class="code-line"><span class="line-num">7</span>    }</div>
+<div class="code-line"><span class="line-num">8</span>}</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="code-python" class="language-block">
+            <div class="code-panel">
+                <div class="code-header" style="background: #1e4620;">Optimized (Division / Modulo)</div>
+                <div class="code-content">
+<div class="code-line"><span class="line-num">1</span><span style="color: #c586c0;">for</span> i <span style="color: #c586c0;">in</span> <span style="color: #569cd6;">range</span>(<span style="color: #569cd6;">len</span>(coins)):</div>
+<div class="code-line"><span class="line-num">2</span>    <span style="color: #c586c0;">if</span> target == <span style="color: #b5cea8;">0</span>: <span style="color: #c586c0;">break</span></div>
+<div class="code-line"><span class="line-num">3</span>    </div>
+<div class="code-line"><span class="line-num">4</span>    <span style="color: #6a9955;"># O(1) Math per coin type</span></div>
+<div class="code-line"><span class="line-num">5</span>    counts[i] = target // coins[i]</div>
+<div class="code-line"><span class="line-num">6</span>    target = target % coins[i]</div>
+                </div>
+            </div>
+            <div class="code-panel">
+                <div class="code-header" style="background: #5c2b29;">Unoptimized (While Loop)</div>
+                <div class="code-content">
+<div class="code-line"><span class="line-num">1</span><span style="color: #c586c0;">for</span> i <span style="color: #c586c0;">in</span> <span style="color: #569cd6;">range</span>(<span style="color: #569cd6;">len</span>(coins)):</div>
+<div class="code-line"><span class="line-num">2</span></div>
+<div class="code-line"><span class="line-num">3</span>    <span style="color: #6a9955;"># Loops V times in worst case!</span></div>
+<div class="code-line"><span class="line-num">4</span>    <span style="color: #c586c0;">while</span> coins[i] &lt;= target:</div>
+<div class="code-line"><span class="line-num">5</span>        target -= coins[i]</div>
+<div class="code-line"><span class="line-num">6</span>        counts[i] += <span style="color: #b5cea8;">1</span></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="code-c" class="language-block">
+            <div class="code-panel">
+                <div class="code-header" style="background: #1e4620;">Optimized (Division / Modulo)</div>
+                <div class="code-content">
+<div class="code-line"><span class="line-num">1</span><span style="color: #c586c0;">for</span> (<span style="color: #569cd6;">int</span> i = <span style="color: #b5cea8;">0</span>; i &lt; <span style="color: #b5cea8;">4</span>; i++) {</div>
+<div class="code-line"><span class="line-num">2</span>    <span style="color: #c586c0;">if</span> (target == <span style="color: #b5cea8;">0</span>) <span style="color: #c586c0;">break</span>;</div>
+<div class="code-line"><span class="line-num">3</span>    </div>
+<div class="code-line"><span class="line-num">4</span>    <span style="color: #6a9955;">// O(1) Math per coin type</span></div>
+<div class="code-line"><span class="line-num">5</span>    counts[i] = target / coins[i]; </div>
+<div class="code-line"><span class="line-num">6</span>    target = target % coins[i]; </div>
+<div class="code-line"><span class="line-num">7</span>}</div>
+                </div>
+            </div>
+            <div class="code-panel">
+                <div class="code-header" style="background: #5c2b29;">Unoptimized (While Loop)</div>
+                <div class="code-content">
+<div class="code-line"><span class="line-num">1</span><span style="color: #c586c0;">for</span> (<span style="color: #569cd6;">int</span> i = <span style="color: #b5cea8;">0</span>; i &lt; <span style="color: #b5cea8;">4</span>; i++) {</div>
+<div class="code-line"><span class="line-num">2</span></div>
+<div class="code-line"><span class="line-num">3</span>    <span style="color: #6a9955;">// Loops V times in worst case!</span></div>
+<div class="code-line"><span class="line-num">4</span>    <span style="color: #c586c0;">while</span> (coins[i] &lt;= target) {</div>
+<div class="code-line"><span class="line-num">5</span>        target -= coins[i]; </div>
+<div class="code-line"><span class="line-num">6</span>        counts[i]++;</div>
+<div class="code-line"><span class="line-num">7</span>    }</div>
+<div class="code-line"><span class="line-num">8</span>}</div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    const coins = [25, 10, 5, 1];
+    let isRunning = false;
+
+    // Theme Toggle Logic
+    function toggleTheme() {
+        document.body.classList.toggle('dark-theme');
+    }
+
+    // Tab Switcher Logic
+    function switchTab(lang) {
+        document.querySelectorAll('.language-block').forEach(c => c.classList.remove('active'));
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.getElementById('code-' + lang).classList.add('active');
+        event.target.classList.add('active');
+    }
+
+    const delay = ms => new Promise(res => setTimeout(res, ms));
+
+    function resetUI(amt) {
+        document.getElementById('amountDisplay').innerText = amt;
+        document.getElementById('stepDisplay').innerText = '0';
+        document.getElementById('currentAction').innerText = 'Starting calculation...';
+        document.getElementById('breakdownDisplay').innerHTML = '';
+        document.getElementById('warningMsg').style.display = 'none';
+    }
+
+    function updateBreakdown(coin, count) {
+        if(count > 0) {
+            const badge = document.createElement('div');
+            badge.className = 'coin-badge';
+            badge.innerText = `${coin}¢: ${count}`;
+            document.getElementById('breakdownDisplay').appendChild(badge);
+        }
+    }
+
+    async function runSimulation(type) {
+        if (isRunning) return;
+        isRunning = true;
+        
+        let target = parseInt(document.getElementById('targetAmount').value);
+        if(isNaN(target) || target < 0) { target = 68; document.getElementById('targetAmount').value = 68; }
+        if(target > 999) { target = 999; document.getElementById('targetAmount').value = 999; } 
+        
+        resetUI(target);
+        let steps = 0;
+
+        if (type === 'unoptimized') {
+            document.getElementById('warningMsg').style.display = 'block';
+            for (let i = 0; i < coins.length; i++) {
+                let coin = coins[i];
+                let count = 0;
+                document.getElementById('currentAction').innerText = `Evaluating ${coin}¢ coin...`;
+                await delay(300);
+                
+                while (coin <= target) {
+                    target -= coin;
+                    count++;
+                    steps++;
+                    
+                    document.getElementById('amountDisplay').innerText = target;
+                    document.getElementById('stepDisplay').innerText = steps;
+                    document.getElementById('currentAction').innerHTML = `Subtracting ${coin}¢: <br> Remaining = ${target}`;
+                    
+                    await delay(target > 100 ? 10 : 200); 
+                }
+                updateBreakdown(coin, count);
+            }
+        } else {
+            for (let i = 0; i < coins.length; i++) {
+                let coin = coins[i];
+                if (target === 0) break;
+
+                document.getElementById('currentAction').innerText = `Calculating Math for ${coin}¢...`;
+                await delay(600);
+
+                let count = Math.floor(target / coin);
+                target = target % coin;
+                steps++; 
+
+                document.getElementById('amountDisplay').innerText = target;
+                document.getElementById('stepDisplay').innerText = steps;
+                document.getElementById('currentAction').innerHTML = `Division: Amount / ${coin} = ${count} coins.<br> Modulo: Remainder = ${target}`;
+                
+                updateBreakdown(coin, count);
+                await delay(800);
+            }
+        }
+
+        document.getElementById('currentAction').innerText = `Finished! Target reached in ${steps} steps.`;
+        isRunning = false;
+    }
+</script>
+</body>
+</html>
