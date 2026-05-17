@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Greedy Approach: Activity Selection</title>
+    <style>
+        /* Base Variables (Light Theme) */
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --success: #2ecc71;
+            --warning: #f39c12;
+            --danger: #e74c3c;
+            --light: #ecf0f1;
+            --dark: #34495e;
+            --bg: #f9f9f9;
+            --box-bg: #ffffff;
+            --text-main: #333333;
+            --text-muted: #777777;
+            --border: #cccccc;
+        }
+
+        /* Dark Theme */
+        [data-theme="dark"] {
+            --primary: #64b5f6;
+            --secondary: #2196f3;
+            --light: #2c3e50;
+            --dark: #ecf0f1;
+            --bg: #121212;
+            --box-bg: #1e1e1e;
+            --text-main: #e0e0e0;
+            --text-muted: #aaaaaa;
+            --border: #444444;
+        }
+
+        /* Hacker Theme */
+        [data-theme="hacker"] {
+            --primary: #00ff00;
+            --secondary: #008800;
+            --success: #00ff00;
+            --warning: #aaaa00;
+            --danger: #ff0000;
+            --light: #111111;
+            --dark: #00ff00;
+            --bg: #000000;
+            --box-bg: #0a0a0a;
+            --text-main: #00ff00;
+            --text-muted: #008800;
+            --border: #004400;
+        }
+
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            line-height: 1.6; 
+            color: var(--text-main); 
+            background-color: var(--bg);
+            max-width: 1000px; 
+            margin: 0 auto; 
+            padding: 20px; 
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        h1, h2, h3 { color: var(--primary); }
+        .box { background: var(--box-bg); padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); margin-bottom: 20px; border: 1px solid var(--border); transition: background-color 0.3s;}
+        
+        /* Utility Bar */
+        .utility-bar { display: flex; justify-content: flex-end; gap: 10px; margin-bottom: 15px; }
+        .utility-bar select, .utility-bar button { padding: 8px 12px; border-radius: 5px; border: 1px solid var(--border); background: var(--box-bg); color: var(--text-main); font-weight: bold; cursor: pointer; transition: all 0.2s;}
+        .utility-bar button:hover, .utility-bar select:hover { border-color: var(--primary); }
+
+        /* Tabs */
+        .tab-container { background: var(--box-bg); border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); overflow: hidden; border: 1px solid var(--border); }
+        .tabs { display: flex; background: var(--light); border-bottom: 1px solid var(--border); }
+        .tab-button { flex: 1; padding: 15px; text-align: center; cursor: pointer; border: none; background: none; font-size: 16px; font-weight: bold; color: var(--text-muted); transition: background 0.3s; }
+        .tab-button:hover { background: rgba(0,0,0,0.05); }
+        .tab-button.active { background: var(--box-bg); color: var(--primary); border-bottom: 3px solid var(--secondary); }
+        .tab-content { display: none; padding: 20px; }
+        .tab-content.active { display: block; }
+
+        /* Simulator Controls */
+        .controls { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+        .sim-btn { padding: 10px 15px; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; font-weight: bold; color: white; transition: transform 0.1s, opacity 0.3s; }
+        .sim-btn:active { transform: scale(0.98); }
+        .sim-btn:hover { opacity: 0.9; }
+        .sim-btn:disabled { background: var(--text-muted) !important; cursor: not-allowed; transform: none; opacity: 0.5; }
+        #btn-reset { background: var(--danger); }
+        #btn-sort { background: var(--warning); }
+        #btn-step { background: var(--success); }
+
+        /* Timeline Grid */
+        .timeline-container { position: relative; width: 100%; height: 380px; background: var(--box-bg); border: 1px solid var(--border); border-radius: 5px; margin-top: 30px; overflow: hidden; }
+        .timeline-axis { position: absolute; top: 0; left: 0; width: 100%; height: 25px; border-bottom: 1px solid var(--border); display: flex; background: var(--light); }
+        .time-mark { flex: 1; border-right: 1px dashed var(--border); text-align: right; padding-right: 4px; font-size: 11px; color: var(--text-muted); line-height: 25px; }
+        .timeline-grid { position: absolute; top: 25px; left: 0; width: 100%; height: calc(100% - 25px); display: flex; pointer-events: none; }
+        .grid-line { flex: 1; border-right: 1px dashed var(--border); opacity: 0.5;}
+
+        /* Activity Bars */
+        .activity-bar { position: absolute; height: 30px; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; color: #fff; transition: all 0.5s cubic-bezier(0.25, 0.8, 0.25, 1); box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+        .status-default { background: var(--secondary); }
+        .status-evaluating { background: #9b59b6; box-shadow: 0 0 10px #9b59b6; transform: scale(1.02); z-index: 10; }
+        .status-selected { background: var(--success); }
+        .status-discarded { background: var(--text-muted); opacity: 0.4; text-decoration: line-through; }
+
+        .dashboard { display: flex; justify-content: space-between; margin-top: 15px; padding: 15px; background: var(--light); border-radius: 5px; font-size: 16px; border-left: 4px solid var(--secondary); }
+        
+        /* Code Blocks */
+        pre { background: #1e1e1e; color: #d4d4d4; padding: 15px; border-radius: 5px; overflow-x: auto; font-family: 'Courier New', Courier, monospace; font-size: 14px; border: 1px solid #333;}
+        .complexity-box { padding: 15px; background: var(--light); border-left: 4px solid var(--secondary); margin-bottom: 15px; border-radius: 4px;}
+        
+        .code-tabs { display: flex; gap: 5px; margin-bottom: -10px; }
+        .code-tab { padding: 5px 15px; background: var(--border); color: var(--text-main); border-radius: 5px 5px 0 0; cursor: pointer; font-size: 14px; font-weight: bold; border: 1px solid var(--border); border-bottom: none;}
+        .code-tab.active { background: #1e1e1e; color: #fff; border-color: #333;}
+        .code-panel { display: none; }
+        .code-panel.active { display: block; }
+    </style>
+</head>
+<body>
+
+    <div class="utility-bar">
+        <select id="theme-selector" onchange="setTheme(this.value)">
+            <option value="light">Light Theme</option>
+            <option value="dark">Dark Theme</option>
+            <option value="hacker">Hacker Theme</option>
+        </select>
+        <button onclick="toggleFullScreen()" id="fs-btn">⛶ Fullscreen</button>
+    </div>
+
+    <div class="box">
+        <h1>Activity Selection Algorithm</h1>
+        <p><strong>The Problem:</strong> You have a single resource (like a conference room) and a set of activities, each with a specific <em>Start Time</em> and <em>End Time</em>. The goal is to select the <strong>maximum possible number of non-overlapping activities</strong>.</p>
+        <p><strong>The Greedy Strategy:</strong> Always pick the available activity that <strong>ends the earliest</strong>. By freeing up the resource as quickly as possible, you leave the maximum amount of time for future activities. Never look back.</p>
+    </div>
+
+    <div class="tab-container">
+        <div class="tabs">
+            <button class="tab-button active" onclick="switchTab('simulator')">Interactive Simulator</button>
+            <button class="tab-button" onclick="switchTab('code')">Implementation Code</button>
+            <button class="tab-button" onclick="switchTab('complexity')">Complexity Analysis</button>
+        </div>
+
+        <div id="simulator" class="tab-content active">
+            <div class="controls">
+                <button class="sim-btn" id="btn-reset" onclick="initSimulation()">1. Generate Random Data</button>
+                <button class="sim-btn" id="btn-sort" onclick="sortData()" disabled>2. Sort by End Time</button>
+                <button class="sim-btn" id="btn-step" onclick="stepForward()" disabled>3. Step: Evaluate Next</button>
+            </div>
+
+            <div class="dashboard">
+                <span id="dash-info">Status: Waiting to sort...</span>
+                <span><strong>Selected: <span id="dash-count" style="color:var(--success);">0</span></strong></span>
+            </div>
+
+            <div class="timeline-container">
+                <div class="timeline-axis" id="axis"></div>
+                <div class="timeline-grid" id="grid"></div>
+                <div id="bars-container"></div>
+            </div>
+        </div>
+
+        <div id="code" class="tab-content">
+            <div class="code-tabs">
+                <div class="code-tab active" onclick="switchCode('java')">Java</div>
+                <div class="code-tab" onclick="switchCode('python')">Python</div>
+                <div class="code-tab" onclick="switchCode('c')">C</div>
+            </div>
+            
+            <div id="code-java" class="code-panel active">
+<pre><code>import java.util.Arrays;
+import java.util.Comparator;
+
+public class ActivitySelection {
+    public static void selectActivities(int[][] activities) {
+        // Step 1: Sort activities based on their end time (column 1)
+        Arrays.sort(activities, Comparator.comparingInt(a -> a[1]));
+
+        System.out.println("Selected Activities:");
+        
+        // Step 2: The first activity is always selected
+        int i = 0;
+        System.out.print("(" + activities[i][0] + ", " + activities[i][1] + ") ");
+
+        // Step 3: Consider the rest of the activities
+        for (int j = 1; j < activities.length; j++) {
+            // If this activity starts after or when the previous one finished
+            if (activities[j][0] >= activities[i][1]) {
+                System.out.print("(" + activities[j][0] + ", " + activities[j][1] + ") ");
+                i = j; // Update the index of the last selected activity
+            }
+        }
+    }
+}</code></pre>
+            </div>
+
+            <div id="code-python" class="code-panel">
+<pre><code>def select_activities(activities):
+    # Step 1: Sort activities based on their end time (index 1)
+    activities.sort(key=lambda x: x[1])
+    
+    selected = []
+    
+    # Step 2: The first activity is always selected
+    i = 0
+    selected.append(activities[i])
+    
+    # Step 3: Consider the rest of the activities
+    for j in range(1, len(activities)):
+        # If this activity starts after or when the previous one finished
+        if activities[j][0] >= activities[i][1]:
+            selected.append(activities[j])
+            i = j # Update the index of the last selected activity
+            
+    return selected</code></pre>
+            </div>
+
+            <div id="code-c" class="code-panel">
+<pre><code>#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+
+struct Activity { int start; int end; };
+
+// Comparator for qsort to sort by end time
+int compare(const void *a, const void *b) {
+    return (((struct Activity *)a)->end - (((struct Activity *)b)->end));
+}
+
+void selectActivities(struct Activity arr[], int n) {
+    // Step 1: Sort activities based on end time
+    qsort(arr, n, sizeof(struct Activity), compare);
+
+    printf("Selected Activities:\n");
+
+    // Step 2: The first activity is always selected
+    int i = 0;
+    printf("(%d, %d) ", arr[i].start, arr[i].end);
+
+    // Step 3: Consider the rest of the activities
+    for (int j = 1; j < n; j++) {
+        // If this activity starts after or when the previous one finished
+        if (arr[j].start >= arr[i].end) {
+            printf("(%d, %d) ", arr[j].start, arr[j].end);
+            i = j; // Update last selected index
+        }
+    }
+}</code></pre>
+            </div>
+        </div>
+
+        <div id="complexity" class="tab-content">
+            <div class="complexity-box">
+                <h3 style="margin-top:0;">Time Complexity: <strong>O(N log N)</strong></h3>
+                <p>The time complexity is completely dominated by the sorting step.</p>
+                <ul>
+                    <li>Sorting the array of activities based on their end times requires <strong>O(N log N)</strong> operations.</li>
+                    <li>Iterating through the array sequentially to make the greedy choices takes linear time, <strong>O(N)</strong>.</li>
+                </ul>
+                <p><em>Note: If the input data is already provided to you sorted by end-time, the algorithm operates in strictly O(N) time.</em></p>
+            </div>
+            <div class="complexity-box" style="border-left-color: #9b59b6;">
+                <h3 style="margin-top:0;">Space Complexity: <strong>O(1)</strong></h3>
+                <p>The Greedy strategy evaluates items in-place. We only need a few auxiliary variables (like storing the index of the last selected activity) to track our state. No large 2D arrays (like in Dynamic Programming) are required.</p>
+                <p><em>Note: Depending on the specific sorting algorithm implemented by the programming language (e.g., Merge Sort vs Quick Sort), the sorting function itself might utilize O(log N) or O(N) stack space.</em></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- Fullscreen Logic ---
+        function toggleFullScreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    alert(`Error attempting to enable fullscreen mode: ${err.message} (${err.name})`);
+                });
+                document.getElementById('fs-btn').innerText = "✖ Exit Fullscreen";
+            } else {
+                document.exitFullscreen();
+                document.getElementById('fs-btn').innerText = "⛶ Fullscreen";
+            }
+        }
+
+        document.addEventListener('fullscreenchange', (event) => {
+             if (!document.fullscreenElement) {
+                 document.getElementById('fs-btn').innerText = "⛶ Fullscreen";
+             }
+        });
+
+        // --- Theme Logic ---
+        function setTheme(themeName) {
+            if (themeName === 'light') {
+                document.documentElement.removeAttribute('data-theme');
+            } else {
+                document.documentElement.setAttribute('data-theme', themeName);
+            }
+        }
+
+        // --- Tab Logic ---
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-button').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        function switchCode(langId) {
+            document.querySelectorAll('.code-panel').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.code-tab').forEach(el => el.classList.remove('active'));
+            document.getElementById('code-' + langId).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // --- Simulator Logic ---
+        const MAX_TIME = 20;
+        const NUM_ACTIVITIES = 8;
+        let activities = [];
+        let currentIndex = -1;
+        let lastSelectedEndTime = -1;
+        let selectedCount = 0;
+
+        function renderAxis() {
+            const axis = document.getElementById('axis');
+            const grid = document.getElementById('grid');
+            axis.innerHTML = ''; grid.innerHTML = '';
+            for(let i = 1; i <= MAX_TIME; i++) {
+                axis.innerHTML += `<div class="time-mark">${i}</div>`;
+                grid.innerHTML += `<div class="grid-line"></div>`;
+            }
+        }
+
+        function initSimulation() {
+            activities = [];
+            currentIndex = -1;
+            lastSelectedEndTime = 0;
+            selectedCount = 0;
+            
+            for(let i=0; i<NUM_ACTIVITIES; i++) {
+                let start = Math.floor(Math.random() * (MAX_TIME - 3));
+                let duration = Math.floor(Math.random() * 4) + 2; // Duration 2 to 5
+                let end = start + duration;
+                if(end > MAX_TIME) end = MAX_TIME;
+                activities.push({ id: i+1, start: start, end: end, status: 'status-default' });
+            }
+
+            document.getElementById('btn-sort').disabled = false;
+            document.getElementById('btn-step').disabled = true;
+            updateDashboard("Activities generated. Click 'Sort by End Time' to begin.", 0);
+            drawBars();
+        }
+
+        function sortData() {
+            activities.sort((a, b) => a.end - b.end);
+            document.getElementById('btn-sort').disabled = true;
+            document.getElementById('btn-step').disabled = false;
+            currentIndex = 0;
+            updateDashboard("Activities sorted! Ready to evaluate the first activity.", 0);
+            drawBars();
+        }
+
+        function stepForward() {
+            if (currentIndex >= activities.length) {
+                updateDashboard("Algorithm Complete!", selectedCount);
+                document.getElementById('btn-step').disabled = true;
+                return;
+            }
+
+            // Reset previous evaluation highlight
+            if (currentIndex > 0 && activities[currentIndex-1].status === 'status-evaluating') {
+                activities[currentIndex-1].status = 'status-discarded';
+            }
+
+            let act = activities[currentIndex];
+            
+            // Highlight current for 500ms before making decision
+            act.status = 'status-evaluating';
+            drawBars();
+            document.getElementById('btn-step').disabled = true;
+
+            let condition = (act.start >= lastSelectedEndTime);
+            let msg = `Evaluating A${act.id} (Starts: ${act.start}, Ends: ${act.end}). Last selected ended at ${lastSelectedEndTime}. `;
+
+            setTimeout(() => {
+                if (condition) {
+                    act.status = 'status-selected';
+                    lastSelectedEndTime = act.end;
+                    selectedCount++;
+                    msg += `<span style="color:var(--success)">Valid!</span> Selected.`;
+                } else {
+                    act.status = 'status-discarded';
+                    msg += `<span style="color:var(--danger)">Overlaps!</span> Discarded.`;
+                }
+                
+                currentIndex++;
+                updateDashboard(msg, selectedCount);
+                drawBars();
+                
+                if(currentIndex < activities.length) {
+                    document.getElementById('btn-step').disabled = false;
+                } else {
+                    updateDashboard(`Done! Selected ${selectedCount} maximum activities.`, selectedCount);
+                }
+            }, 800);
+        }
+
+        function drawBars() {
+            const container = document.getElementById('bars-container');
+            container.innerHTML = '';
+            
+            activities.forEach((act, index) => {
+                const bar = document.createElement('div');
+                bar.className = `activity-bar ${act.status}`;
+                bar.innerText = `A${act.id}`;
+                
+                // Calculate position percentages
+                const leftPercent = (act.start / MAX_TIME) * 100;
+                const widthPercent = ((act.end - act.start) / MAX_TIME) * 100;
+                
+                bar.style.left = `${leftPercent}%`;
+                bar.style.width = `${widthPercent}%`;
+                bar.style.top = `${40 + (index * 40)}px`; // Spacing rows
+                
+                container.appendChild(bar);
+            });
+        }
+
+        function updateDashboard(msg, count) {
+            document.getElementById('dash-info').innerHTML = msg;
+            document.getElementById('dash-count').innerText = count;
+        }
+
+        // Initialize on load
+        window.onload = () => {
+            renderAxis();
+            initSimulation();
+        }
+    </script>
+</body>
+</html>
