@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Algorithmic Strategies Lab Pro</title>
+    
+    <script>
+        MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] }, svg: { fontCache: 'global' } };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <style>
+        :root {
+            --bg-main: #0f172a; --bg-card: #1e293b; --text-main: #f8fafc; --text-muted: #94a3b8;
+            --border: #334155; --accent: #3b82f6; --success: #10b981; --warning: #f59e0b; --danger: #ef4444;
+            --highlight: rgba(59, 130, 246, 0.2); --tab-bg: #0f172a;
+        }
+
+        body.light-mode {
+            --bg-main: #f8fafc; --bg-card: #ffffff; --text-main: #0f172a; --text-muted: #64748b;
+            --border: #e2e8f0; --highlight: #eff6ff; --tab-bg: #f1f5f9;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Roboto, sans-serif; }
+        body { display: flex; height: 100vh; background: var(--bg-main); color: var(--text-main); overflow: hidden; transition: 0.3s; }
+
+        .sidebar { width: 300px; background: var(--bg-card); border-right: 1px solid var(--border); display: flex; flex-direction: column; z-index: 10; }
+        .sidebar-header { padding: 25px 20px; font-size: 1.2rem; font-weight: bold; border-bottom: 1px solid var(--border); color: var(--accent); display: flex; align-items: center; gap: 10px; }
+        .nav-links { list-style: none; padding: 15px 10px; flex-grow: 1; overflow-y: auto; }
+        .nav-links a { display: block; padding: 12px 16px; color: var(--text-muted); cursor: pointer; border-radius: 6px; margin-bottom: 5px; font-weight: 500; transition: 0.2s; }
+        .nav-links a.active, .nav-links a:hover { background: var(--accent); color: #fff; }
+
+        .main-wrapper { flex-grow: 1; display: flex; flex-direction: column; position: relative; }
+        .top-controls { position: absolute; top: 20px; right: 40px; z-index: 20; display: flex; gap: 15px; }
+        .btn { background: var(--bg-card); border: 1px solid var(--border); color: var(--text-main); padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+        .btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+        .btn:hover { filter: brightness(1.1); transform: translateY(-1px); }
+
+        .main-content { padding: 60px; overflow-y: auto; flex-grow: 1; scroll-behavior: smooth; }
+        .content-section { display: none; max-width: 1200px; margin: 0 auto; animation: fadeIn 0.4s; }
+        .content-section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        h1 { font-size: 2.2rem; border-bottom: 2px solid var(--border); padding-bottom: 10px; margin-bottom: 20px; display: flex; align-items: center; gap: 15px; }
+        p { line-height: 1.7; margin-bottom: 15px; font-size: 1.05rem; }
+        .strategy-overview { background: var(--highlight); border-left: 4px solid var(--accent); padding: 20px; border-radius: 0 8px 8px 0; margin-bottom: 25px; }
+        
+        .hero-svg { width: 40px; height: 40px; fill: var(--accent); }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-top: 20px; }
+
+        .uc-tabs { display: flex; background: var(--tab-bg); padding: 5px; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 20px; gap: 5px; flex-wrap: wrap; }
+        .uc-tab { flex-grow: 1; text-align: center; background: transparent; border: none; color: var(--text-muted); padding: 12px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.95rem; transition: 0.2s; }
+        .uc-tab.active { background: var(--bg-card); color: var(--accent); box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .uc-tab:hover:not(.active) { color: var(--text-main); background: rgba(255,255,255,0.05); }
+        
+        .uc-content { display: none; animation: fadeIn 0.3s; }
+        .uc-content.active { display: block; }
+
+        details.uc-accordion { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; margin-bottom: 20px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        details.uc-accordion summary { padding: 15px 20px; font-weight: bold; cursor: pointer; list-style: none; display: flex; justify-content: space-between; align-items: center; color: var(--text-main); background: var(--bg-main); transition: 0.2s; }
+        details.uc-accordion summary:hover { background: var(--highlight); color: var(--accent); }
+        details.uc-accordion summary::-webkit-details-marker { display: none; }
+        details.uc-accordion summary::after { content: '+'; font-size: 1.4rem; color: var(--accent); }
+        details[open].uc-accordion summary::after { content: '−'; }
+        details[open].uc-accordion summary { border-bottom: 1px solid var(--border); }
+        .uc-accordion-content { padding: 20px; color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; }
+        
+        .complexity-tag { display: inline-block; background: var(--bg-main); border: 1px solid var(--border); padding: 6px 12px; border-radius: 6px; font-weight: bold; margin-right: 15px; font-family: monospace; color: var(--accent); margin-bottom: 15px; }
+        .comp-box { display: flex; gap: 15px; margin-bottom: 15px; }
+        .comp-panel { background: var(--bg-main); border: 1px solid var(--border); padding: 15px; border-radius: 8px; flex: 1; }
+
+        .code-window { background: #0f172a; border-radius: 8px; border: 1px solid #334155; overflow: hidden; height: 100%; display: flex; flex-direction: column; }
+        .code-header { background: #1e293b; padding: 10px 15px; border-bottom: 1px solid #334155; color: #94a3b8; font-family: monospace; font-size: 0.9rem; }
+        pre { color: #e2e8f0; padding: 15px; overflow-x: auto; font-family: monospace; font-size: 0.85rem; margin: 0; flex-grow: 1; }
+
+        .debugger-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.1); height: 100%; display: flex; flex-direction: column; }
+        .debug-header { background: rgba(0,0,0,0.2); padding: 15px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+        .debug-controls { display: flex; gap: 10px; }
+        .debug-body { padding: 20px; flex-grow: 1; display: flex; flex-direction: column; }
+        .log-window { background: #000; color: #10b981; font-family: monospace; padding: 15px; border-radius: 6px; height: 130px; overflow-y: auto; margin-top: auto; border: 1px solid #333; font-size: 0.85rem; }
+        
+        .array-container { display: flex; gap: 10px; margin: 15px 0; flex-wrap: wrap; }
+        .array-box { width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; background: var(--bg-main); border: 2px solid var(--border); border-radius: 8px; font-weight: bold; font-size: 1.1rem; transition: 0.3s; position: relative;}
+        .array-box.active { border-color: var(--warning); background: rgba(245, 158, 11, 0.2); transform: scale(1.1); z-index: 5;}
+        .array-box.success { border-color: var(--success); background: rgba(16, 185, 129, 0.2); color: var(--success); }
+        .array-box.fail { border-color: var(--danger); background: rgba(239, 68, 68, 0.2); color: var(--danger); }
+        
+        /* 2D Matrix Grids */
+        .dp-matrix { display: grid; gap: 4px; margin-bottom: 15px; justify-content: center; }
+        .matrix-cell { width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; background: var(--bg-main); border: 1px solid var(--border); font-weight: bold; border-radius: 4px; position: relative; font-size: 0.95rem; transition: 0.2s;}
+        .matrix-cell.header { background: var(--highlight); color: var(--accent); border: none; font-size: 0.8rem; }
+        .matrix-cell.active { border: 2px solid var(--warning); background: rgba(245, 158, 11, 0.2); transform: scale(1.1); z-index: 10; box-shadow: 0 0 10px var(--warning);}
+        .matrix-cell.lookup-leave { border: 2px solid var(--danger); background: rgba(239, 68, 68, 0.15); }
+        .matrix-cell.lookup-take { border: 2px solid var(--success); background: rgba(16, 185, 129, 0.15); }
+
+        .status-pill { padding: 5px 12px; border-radius: 20px; font-size: 0.9rem; font-weight: bold; background: var(--highlight); color: var(--accent); display: inline-block; }
+    </style>
+</head>
+<body>
+
+    <nav class="sidebar">
+        <div class="sidebar-header">
+            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
+            Algorithm Lab
+        </div>
+        <ul class="nav-links">
+            <li><a class="nav-btn active" onclick="jumpTo(0)">1. Brute-Force</a></li>
+            <li><a class="nav-btn" onclick="jumpTo(1)">2. Greedy Paradigm</a></li>
+            <li><a class="nav-btn" onclick="jumpTo(2)">3. Dynamic Prog.</a></li>
+        </ul>
+        <div style="padding: 15px; text-align: center; font-size: 0.85rem; color: var(--text-muted); border-top: 1px solid var(--border);">
+            Ideal College of Engineering<br>Instructor: Soham Sengupta
+        </div>
+    </nav>
+
+    <div class="main-wrapper">
+        <div class="top-controls">
+            <button class="btn" onclick="toggleTheme()" id="themeBtn">&#127762; Theme</button>
+            <button class="btn btn-primary" onclick="toggleFullScreen()" id="fsBtn">&#128241; Full Screen</button>
+        </div>
+
+        <main class="main-content">
+            
+            <section id="sec0" class="content-section active">
+                <h1>
+                    <svg class="hero-svg" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                    Brute-Force Methodologies
+                </h1>
+                <div class="strategy-overview">
+                    <strong>The Strategy:</strong> Systematically enumerates all possible candidates and checks if they satisfy the problem. Guarantees a correct answer by leaving no stone unturned, but often scales terribly at $O(n^2)$, $O(2^n)$, or $O(n!)$.
+                </div>
+                <div class="uc-tabs">
+                    <button class="uc-tab active" onclick="switchTab('bf', 0)">1. Linear Search</button>
+                </div>
+                <div id="bf-0" class="uc-content active">
+                    <div class="grid-2">
+                        <div class="code-window"><div class="code-header">Java: Linear Search</div><pre><code>public int linearSearch(int[] arr, int target) {
+    for (int i = 0; i < arr.length; i++) {
+        if (arr[i] == target) return i;
+    }
+    return -1;
+}</code></pre></div>
+                        <div class="debugger-card">
+                            <div class="debug-header">
+                                <span class="status-pill">Target: Find 89</span>
+                                <div class="debug-controls">
+                                    <button class="btn btn-primary" onclick="bfStep()">&#8620; Step</button>
+                                    <button class="btn" onclick="bfReset()">&#8634; Reset</button>
+                                </div>
+                            </div>
+                            <div class="debug-body">
+                                <div class="array-container" id="bfArray"></div>
+                                <div class="log-window" id="bfLog">> Debugger initialized. Ready to step...</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="sec1" class="content-section">
+                <h1>
+                    <svg class="hero-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"></path><line x1="12" y1="18" x2="12" y2="22"></line><line x1="12" y1="2" x2="12" y2="6"></line></svg>
+                    Greedy Paradigm
+                </h1>
+                <div class="strategy-overview">
+                    <strong>The Strategy:</strong> Makes the locally optimal choice ("taking the biggest bite") without looking back. Fast $O(n \log n)$, but fails if the problem lacks the mathematical "Greedy Choice Property."
+                </div>
+                <div class="uc-tabs">
+                    <button class="uc-tab active" onclick="switchTab('greedy', 0)">1. Coin Change</button>
+                </div>
+                <div id="greedy-0" class="uc-content active">
+                    <div class="grid-2">
+                        <div class="code-window"><div class="code-header">Java: Greedy Coin Change</div><pre><code>public void greedyChange(int[] coins, int amount) {
+    for (int coin : coins) {
+        while (amount >= coin) {
+            amount -= coin;
+            System.out.print(coin + " ");
+        }
+    }
+}</code></pre></div>
+                        <div class="debugger-card">
+                            <div class="debug-header">
+                                <span class="status-pill" id="greedyStatus">Remaining Target: 85</span>
+                                <div class="debug-controls">
+                                    <button class="btn btn-primary" onclick="greedyStep()">&#8620; Step</button>
+                                    <button class="btn" onclick="greedyReset()">&#8634; Reset</button>
+                                </div>
+                            </div>
+                            <div class="debug-body">
+                                <div class="array-container" id="greedyArray"></div>
+                                <div class="log-window" id="greedyLog">> Ready. Target is 85.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="sec2" class="content-section">
+                <h1>
+                    <svg class="hero-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+                    Dynamic Programming (DP)
+                </h1>
+
+                <div class="strategy-overview">
+                    <strong>The Strategy:</strong> DP breaks problems into simpler, overlapping subproblems. By storing intermediate results in a matrix (Memoization/Tabulation), it avoids redundant recursion. This guarantees perfect global optimums and drops exponential complexities down to linear/polynomial bounds.
+                </div>
+                
+                <div class="uc-tabs">
+                    <button class="uc-tab active" onclick="switchTab('dp', 0)">1. Climbing Stairs</button>
+                    <button class="uc-tab" onclick="switchTab('dp', 1)">2. Knapsack (2D Matrix)</button>
+                    <button class="uc-tab" onclick="switchTab('dp', 2)">3. Knapsack (1D Optimized)</button>
+                </div>
+
+                <div id="dp-0" class="uc-content active">
+                    <details class="uc-accordion">
+                        <summary>Use Case Breakdown: Climbing Stairs</summary>
+                        <div class="uc-accordion-content">
+                            <p><strong>What it says:</strong> Find distinct ways to climb $N$ steps by summing the ways to reach the previous two steps.</p>
+                        </div>
+                    </details>
+                    <div class="grid-2">
+                        <div class="code-window"><div class="code-header">Java: DP 1D Array</div><pre><code>public int climbStairs(int n) {
+    int[] dp = new int[n + 1];
+    dp[1] = 1; dp[2] = 2; 
+    for (int i = 3; i <= n; i++) {
+        dp[i] = dp[i - 1] + dp[i - 2];
+    }
+    return dp[n];
+}</code></pre></div>
+                        <div class="debugger-card">
+                            <div class="debug-header">
+                                <span class="status-pill">Calculate Step 5</span>
+                                <div class="debug-controls">
+                                    <button class="btn btn-primary" onclick="csStep()">&#8620; Step</button>
+                                    <button class="btn" onclick="csReset()">&#8634; Reset</button>
+                                </div>
+                            </div>
+                            <div class="debug-body">
+                                <div class="array-container" id="csArray"></div>
+                                <div class="log-window" id="csLog">> Base cases loaded: dp[1]=1, dp[2]=2.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="dp-1" class="uc-content">
+                    <details class="uc-accordion">
+                        <summary>Use Case Breakdown: 0/1 Knapsack (Standard 2D Matrix)</summary>
+                        <div class="uc-accordion-content">
+                            <div class="comp-box">
+                                <div class="comp-panel"><strong>Time Complexity:</strong> $O(n \times W)$<br><span style="color:var(--text-muted); font-size:0.85rem;">Calculates every cell in the 2D grid.</span></div>
+                                <div class="comp-panel" style="border-color:var(--danger);"><strong>Space Complexity:</strong> $O(n \times W)$<br><span style="color:var(--text-muted); font-size:0.85rem;">Stores the entire matrix in RAM.</span></div>
+                            </div>
+                            <p><strong>The Matrix Logic:</strong> Each cell <code>dp[i][w]</code> represents a universe where only the first <code>i</code> items exist, and the bag holds <code>w</code> kg. To calculate the current cell, we look at the row directly above us to compare the "Take It" vs "Leave It" branches.</p>
+                        </div>
+                    </details>
+                    <div class="grid-2">
+                        <div class="code-window"><div class="code-header">Java: 2D Matrix Approach</div><pre><code>public int knapsack2D(int W, int[] wt, int[] val, int n) {
+    int[][] dp = new int[n + 1][W + 1];
+    for (int i = 1; i <= n; i++) {
+        for (int w = 1; w <= W; w++) {
+            if (wt[i - 1] <= w) {
+                // max( Leave It, Take It )
+                dp[i][w] = Math.max(
+                    dp[i - 1][w], 
+                    val[i - 1] + dp[i - 1][w - wt[i - 1]]
+                );
+            } else {
+                dp[i][w] = dp[i - 1][w]; // Forced Leave
+            }
+        }
+    }
+    return dp[n][W];
+}</code></pre></div>
+                        <div class="debugger-card">
+                            <div class="debug-header">
+                                <span class="status-pill">Target W=5 | Items: A(2kg,$3), B(3kg,$4), C(4kg,$5)</span>
+                                <div class="debug-controls">
+                                    <button class="btn btn-primary" onclick="ks2Step()">&#8620; Step Loop</button>
+                                    <button class="btn" onclick="ks2Reset()">&#8634; Reset</button>
+                                </div>
+                            </div>
+                            <div class="debug-body" style="padding:10px;">
+                                <div class="dp-matrix" id="ks2Grid" style="grid-template-columns: repeat(7, 1fr);">
+                                    </div>
+                                <div class="log-window" id="ks2Log">> 2D Array dp[4][6] initialized.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="dp-2" class="uc-content">
+                    <details class="uc-accordion" open>
+                        <summary>Use Case Breakdown: 0/1 Knapsack (1D Space Optimization)</summary>
+                        <div class="uc-accordion-content">
+                            <div class="comp-box">
+                                <div class="comp-panel"><strong>Time Complexity:</strong> $O(n \times W)$<br><span style="color:var(--text-muted); font-size:0.85rem;">Still loops through all items and weights.</span></div>
+                                <div class="comp-panel" style="border-color:var(--success); background:rgba(16,185,129,0.05);"><strong>Space Complexity:</strong> $O(W)$<br><span style="color:var(--text-muted); font-size:0.85rem;">Drops the 'n' dimension! Massive RAM savings.</span></div>
+                            </div>
+                            <p><strong>The Optimization Secret:</strong> In the 2D code, <code>dp[i][w]</code> only ever relies on values from <code>dp[i - 1]</code> (the previous row). We don't need the whole matrix! We can just use a single 1D array of size <code>W + 1</code>.</p>
+                            <p><strong>The Trap (Traversing Backwards):</strong> If we loop forwards (left to right), we might overwrite a small weight index, and then use that *new* value to calculate a larger weight index in the same row. This means we'd accidentally put the same item in the bag twice! By traversing <strong>Backwards</strong> (from W down to the item's weight), we guarantee that any lookup to <code>dp[w - wt[i]]</code> accesses the untampered value from the previous item's loop.</p>
+                        </div>
+                    </details>
+                    <div class="grid-2">
+                        <div class="code-window"><div class="code-header">Java: 1D Space Optimized Approach</div><pre><code>public int knapsack1D(int W, int[] wt, int[] val, int n) {
+    int[] dp = new int[W + 1];
+    
+    // Iterate through items
+    for (int i = 0; i < n; i++) {
+        // TRAP: MUST traverse Backwards (W down to wt)
+        for (int w = W; w >= wt[i]; w--) {
+            // dp[w] acts as 'Leave It' (old value)
+            // val[i] + dp[w - wt[i]] acts as 'Take It'
+            dp[w] = Math.max(dp[w], val[i] + dp[w - wt[i]]);
+        }
+    }
+    return dp[W];
+}</code></pre></div>
+                        <div class="debugger-card">
+                            <div class="debug-header">
+                                <span class="status-pill">Target W=5 | Items: A(2kg,$3), B(3kg,$4), C(4kg,$5)</span>
+                                <div class="debug-controls">
+                                    <button class="btn btn-primary" onclick="ks1Step()">&#8620; Step Loop</button>
+                                    <button class="btn" onclick="ks1Reset()">&#8634; Reset</button>
+                                </div>
+                            </div>
+                            <div class="debug-body">
+                                <div style="display:flex; justify-content:space-between; margin-bottom:5px; color:var(--text-muted); font-size:0.8rem; font-weight:bold;">
+                                    <span>Col 0</span><span>Col 5 (Target)</span>
+                                </div>
+                                <div class="array-container" id="ks1Array" style="margin-top:0; flex-wrap:nowrap;">
+                                    </div>
+                                <div style="margin-top:15px; font-size:0.9rem; color:var(--accent);" id="ks1Status">Processing Item...</div>
+                                <div class="log-window" id="ks1Log" style="height:140px;">> 1D Array dp[6] initialized to 0.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </section>
+        </main>
+    </div>
+
+    <script>
+        function jumpTo(idx) {
+            document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(`sec${idx}`).classList.add('active');
+            document.querySelectorAll('.nav-btn')[idx].classList.add('active');
+        }
+
+        function switchTab(section, index) {
+            const tabs = document.querySelectorAll(`#sec${section === 'bf' ? 0 : section === 'greedy' ? 1 : 2} .uc-tab`);
+            tabs.forEach(t => t.classList.remove('active'));
+            tabs[index].classList.add('active');
+            
+            const contents = document.querySelectorAll(`[id^="${section}-"]`);
+            contents.forEach(c => c.classList.remove('active'));
+            document.getElementById(`${section}-${index}`).classList.add('active');
+        }
+
+        function toggleTheme() { document.body.classList.toggle('light-mode'); }
+        function toggleFullScreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+                document.getElementById('fsBtn').innerHTML = '&#10006; Exit Full Screen';
+            } else {
+                if (document.exitFullscreen) document.exitFullscreen();
+                document.getElementById('fsBtn').innerHTML = '&#128241; Full Screen';
+            }
+        }
+        function log(windowId, msg) {
+            const el = document.getElementById(windowId);
+            el.innerHTML += `<div class="log-line">> ${msg}</div>`;
+            el.scrollTop = el.scrollHeight;
+        }
+
+        // --- BF & GREEDY & CLIMBING STAIRS (Basic mocks for demo completeness) ---
+        function bfReset() {} function bfStep() {}
+        function greedyReset() {} function greedyStep() {}
+        function csReset() { document.getElementById('csArray').innerHTML = '<div class="array-box">1</div><div class="array-box">2</div><div class="array-box">3</div><div class="array-box">5</div><div class="array-box active">8</div>';} function csStep() {}
+        csReset();
+
+        // --- SHARED KNAPSACK DATA ---
+        const W = 5;
+        const items = [
+            { id: 'A', w: 2, v: 3 },
+            { id: 'B', w: 3, v: 4 },
+            { id: 'C', w: 4, v: 5 }
+        ];
+
+        // --- 2D KNAPSACK SIMULATOR ---
+        let ks2_dp = [];
+        let ks2_i = 1; let ks2_w = 1; let ks2_done = false;
+
+        function ks2Render() {
+            const grid = document.getElementById('ks2Grid');
+            grid.innerHTML = '';
+            
+            // Header Row
+            grid.appendChild(createCell('Wt\u2192', 'header'));
+            for(let c=0; c<=W; c++) grid.appendChild(createCell(c, 'header'));
+
+            for(let r=0; r<=items.length; r++) {
+                // Row Label
+                let label = r === 0 ? '0' : `${items[r-1].id}(${items[r-1].w}kg,$${items[r-1].v})`;
+                grid.appendChild(createCell(label, 'header'));
+
+                for(let c=0; c<=W; c++) {
+                    let cell = createCell(ks2_dp[r][c], '');
+                    
+                    if(!ks2_done && r === ks2_i && c === ks2_w) {
+                        cell.classList.add('active'); // Current cell
+                    }
+                    if(!ks2_done && r === ks2_i && c === ks2_w) {
+                        // Highlight 'Leave It' cell (red edge)
+                        if(document.getElementById(`cell_${r-1}_${c}`)) {
+                             document.getElementById(`cell_${r-1}_${c}`).classList.add('lookup-leave');
+                        }
+                    }
+                    cell.id = `cell_${r}_${c}`;
+                    grid.appendChild(cell);
+                }
+            }
+            
+            // Apply secondary highlights post-render
+            if(!ks2_done) {
+                let wt = items[ks2_i-1].w;
+                if(wt <= ks2_w) {
+                    let takeCell = document.getElementById(`cell_${ks2_i-1}_${ks2_w - wt}`);
+                    if(takeCell) takeCell.classList.add('lookup-take');
+                }
+            } else {
+                document.getElementById(`cell_${items.length}_${W}`).classList.add('active');
+            }
+        }
+
+        function createCell(text, className) {
+            let d = document.createElement('div');
+            d.className = `matrix-cell ${className}`;
+            d.innerText = text;
+            return d;
+        }
+
+        function ks2Step() {
+            if(ks2_done) return;
+            
+            let item = items[ks2_i-1];
+            let val = item.v;
+            let wt = item.w;
+
+            let leave = ks2_dp[ks2_i-1][ks2_w];
+            
+            if(wt <= ks2_w) {
+                let take = val + ks2_dp[ks2_i-1][ks2_w - wt];
+                ks2_dp[ks2_i][ks2_w] = Math.max(leave, take);
+                log('ks2Log', `dp[${ks2_i}][${ks2_w}] = max( Leave: <span style="color:var(--danger)">${leave}</span>, Take: ${val} + <span style="color:var(--success)">${ks2_dp[ks2_i-1][ks2_w - wt]}</span> ) = <strong>${ks2_dp[ks2_i][ks2_w]}</strong>`);
+            } else {
+                ks2_dp[ks2_i][ks2_w] = leave;
+                log('ks2Log', `<span style="color:var(--text-muted)">Item too heavy (${wt} > ${ks2_w}). Forced Leave.</span> dp[${ks2_i}][${ks2_w}] = <span style="color:var(--danger)">${leave}</span>`);
+            }
+
+            // Advance Loop
+            ks2_w++;
+            if(ks2_w > W) {
+                ks2_w = 1;
+                ks2_i++;
+                if(ks2_i > items.length) {
+                    ks2_done = true;
+                    log('ks2Log', `<span style="color:var(--success)">Complete! Global Optimum is $${ks2_dp[items.length][W]}.</span>`);
+                }
+            }
+            ks2Render();
+        }
+
+        function ks2Reset() {
+            ks2_dp = Array(items.length + 1).fill().map(() => Array(W + 1).fill(0));
+            ks2_i = 1; ks2_w = 1; ks2_done = false;
+            document.getElementById('ks2Log').innerHTML = "> 2D Array dp[4][6] initialized. Base cases are 0.";
+            ks2Render();
+        }
+
+        // --- 1D KNAPSACK SIMULATOR ---
+        let ks1_dp = [];
+        let ks1_i = 0; let ks1_w = W; let ks1_done = false;
+
+        function ks1Render() {
+            const container = document.getElementById('ks1Array');
+            container.innerHTML = '';
+
+            for(let w=0; w<=W; w++) {
+                let box = document.createElement('div');
+                let st = '';
+                if(!ks1_done && w === ks1_w) st = 'active'; // Current target cell
+                
+                box.className = `array-box ${st}`;
+                box.style.flex = "1";
+                box.innerHTML = `<span style="font-size:0.55rem; position:absolute; top:-14px; color:var(--text-muted);">w=${w}</span>${ks1_dp[w]}`;
+                box.id = `1dcell_${w}`;
+                container.appendChild(box);
+            }
+            
+            // Highlight lookup 'Take' cell
+            if(!ks1_done) {
+                let item = items[ks1_i];
+                if(ks1_w >= item.w) {
+                    let lookup = document.getElementById(`1dcell_${ks1_w - item.w}`);
+                    if(lookup && ks1_w !== (ks1_w - item.w)) lookup.style.borderColor = 'var(--success)';
+                }
+            } else {
+                 document.getElementById(`1dcell_${W}`).classList.add('success');
+            }
+
+            // Status Text
+            let stat = document.getElementById('ks1Status');
+            if(!ks1_done) {
+                stat.innerHTML = `Active Loop: Item ${items[ks1_i].id} (Wt: ${items[ks1_i].w}, Val: $${items[ks1_i].v}). Traversing Backwards.`;
+            } else {
+                stat.innerHTML = `<span style="color:var(--success)">Traversal Complete.</span>`;
+            }
+        }
+
+        function ks1Step() {
+            if(ks1_done) return;
+
+            let item = items[ks1_i];
+            
+            if(ks1_w >= item.w) {
+                let leave = ks1_dp[ks1_w]; // Existing value in array
+                let take = item.v + ks1_dp[ks1_w - item.w]; // Item val + value at index (w - item.w)
+                let best = Math.max(leave, take);
+                ks1_dp[ks1_w] = best;
+                
+                log('ks1Log', `dp[${ks1_w}] = max( Leave: ${leave}, Take: ${item.v} + <span style="color:var(--success)">dp[${ks1_w - item.w}]</span> (${ks1_dp[ks1_w - item.w]}) ) = <strong>${best}</strong>`);
+                
+                ks1_w--; // Backwards traversal
+            } else {
+                // If w < wt[i], the inner loop ends for this item!
+                log('ks1Log', `<span style="color:var(--text-muted)">Remaining columns (w < ${item.w}) cannot fit item. Moving to next item.</span>`);
+                ks1_w = -1; // Force next item logic
+            }
+
+            // Next Item Logic
+            if(ks1_w < item.w) {
+                ks1_i++;
+                ks1_w = W; // Reset to top capacity for next item
+                if(ks1_i >= items.length) {
+                    ks1_done = true;
+                    log('ks1Log', `<span style="color:var(--success)">Complete! Space-optimized global optimum is $${ks1_dp[W]}.</span>`);
+                } else {
+                    if(!ks1_done) log('ks1Log', `--- Starting Item ${items[ks1_i].id} ---`);
+                }
+            }
+            ks1Render();
+        }
+
+        function ks1Reset() {
+            ks1_dp = Array(W + 1).fill(0);
+            ks1_i = 0; ks1_w = W; ks1_done = false;
+            document.getElementById('ks1Log').innerHTML = "> 1D Array dp[6] initialized to 0.<br>> --- Starting Item A ---";
+            ks1Render();
+        }
+
+        // Initialize All
+        ks2Reset();
+        ks1Reset();
+
+    </script>
+</body>
+</html>
