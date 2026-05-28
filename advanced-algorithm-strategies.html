@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Algorithmic Paradigms</title>
+    
+    <script>
+        MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] }, svg: { fontCache: 'global' } };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <style>
+        :root {
+            --bg-main: #0f172a; --bg-card: #1e293b; --text-main: #f8fafc; --text-muted: #94a3b8;
+            --border: #334155; --accent: #3b82f6; --success: #10b981; --warning: #f59e0b; --danger: #ef4444;
+            --highlight: rgba(59, 130, 246, 0.2); --tab-bg: #0f172a;
+        }
+
+        body.light-mode {
+            --bg-main: #f8fafc; --bg-card: #ffffff; --text-main: #0f172a; --text-muted: #64748b;
+            --border: #e2e8f0; --highlight: #eff6ff; --tab-bg: #f1f5f9;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Roboto, sans-serif; }
+        body { display: flex; height: 100vh; background: var(--bg-main); color: var(--text-main); overflow: hidden; transition: 0.3s; }
+
+        /* Sidebar Navigation */
+        .sidebar { width: 300px; background: var(--bg-card); border-right: 1px solid var(--border); display: flex; flex-direction: column; z-index: 10; }
+        .sidebar-header { padding: 25px 20px; font-size: 1.2rem; font-weight: bold; border-bottom: 1px solid var(--border); color: var(--accent); display: flex; align-items: center; gap: 10px; }
+        .nav-links { list-style: none; padding: 15px 10px; flex-grow: 1; overflow-y: auto; }
+        .nav-links a { display: block; padding: 12px 16px; color: var(--text-muted); cursor: pointer; border-radius: 6px; margin-bottom: 5px; font-weight: 500; transition: 0.2s; }
+        .nav-links a.active, .nav-links a:hover { background: var(--accent); color: #fff; }
+
+        /* Main Content Layout */
+        .main-wrapper { flex-grow: 1; display: flex; flex-direction: column; position: relative; }
+        .top-controls { position: absolute; top: 20px; right: 40px; z-index: 20; display: flex; gap: 15px; }
+        .btn { background: var(--bg-card); border: 1px solid var(--border); color: var(--text-main); padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+        .btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+        .btn:hover { filter: brightness(1.1); transform: translateY(-1px); }
+
+        .main-content { padding: 60px; overflow-y: auto; flex-grow: 1; scroll-behavior: smooth; }
+        
+        h1 { font-size: 2.2rem; border-bottom: 2px solid var(--border); padding-bottom: 10px; margin-bottom: 20px; display: flex; align-items: center; gap: 15px; }
+        h2 { color: var(--accent); margin: 25px 0 15px 0; font-size: 1.5rem; }
+        h3 { color: var(--text-main); margin: 20px 0 10px 0; font-size: 1.2rem; }
+        p, li { line-height: 1.7; margin-bottom: 15px; font-size: 1.05rem; }
+        ul { padding-left: 20px; margin-bottom: 20px; }
+        
+        .hero-svg { width: 40px; height: 40px; fill: var(--accent); }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-top: 20px; }
+        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-top: 20px; margin-bottom: 25px; }
+
+        .content-section { display: none; max-width: 1200px; margin: 0 auto; animation: fadeIn 0.4s; }
+        .content-section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Strategy Boxes */
+        .strategy-overview { background: var(--highlight); border-left: 4px solid var(--accent); padding: 25px; border-radius: 0 8px 8px 0; margin-bottom: 25px; }
+        .comp-panel { background: var(--bg-card); border: 1px solid var(--border); padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        
+        .tag { display: inline-block; padding: 4px 10px; border-radius: 4px; font-size: 0.85rem; font-weight: bold; margin-bottom: 10px; }
+        .tag-pro { background: rgba(16, 185, 129, 0.15); color: var(--success); border: 1px solid var(--success); }
+        .tag-con { background: rgba(239, 68, 68, 0.15); color: var(--danger); border: 1px solid var(--danger); }
+        .tag-info { background: rgba(59, 130, 246, 0.15); color: var(--accent); border: 1px solid var(--accent); font-family: monospace; }
+
+        /* Code Window */
+        .code-window { background: #0f172a; border-radius: 8px; border: 1px solid #334155; overflow: hidden; margin-bottom: 25px; }
+        .code-header { background: #1e293b; padding: 10px 15px; border-bottom: 1px solid #334155; color: #94a3b8; font-family: monospace; font-size: 0.9rem; }
+        pre { color: #e2e8f0; padding: 20px; overflow-x: auto; font-family: monospace; font-size: 0.95rem; margin: 0; line-height: 1.5; }
+
+        /* Custom Visuals */
+        .vis-container { text-align: center; padding: 30px; background: var(--bg-main); border-radius: 8px; border: 1px dashed var(--border); margin: 20px 0; }
+        
+        /* D&C Diagram */
+        .dc-node { display: inline-block; padding: 10px 20px; background: var(--bg-card); border: 2px solid var(--accent); border-radius: 8px; font-weight: bold; margin: 5px; position: relative; }
+        .dc-arrow { color: var(--text-muted); font-size: 1.5rem; margin: 10px 0; }
+        
+        /* Backtrack Diagram */
+        .bt-node { display: inline-flex; width: 40px; height: 40px; align-items: center; justify-content: center; border-radius: 50%; font-weight: bold; background: var(--bg-card); border: 2px solid var(--border); position: relative; }
+        .bt-node.good { border-color: var(--success); }
+        .bt-node.bad { border-color: var(--danger); background: rgba(239,68,68,0.1); }
+        .bt-line { position: absolute; background: var(--border); }
+        
+    </style>
+</head>
+<body>
+
+    <nav class="sidebar">
+        <div class="sidebar-header">
+            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 17 22 12"></polyline></svg>
+            Algorithm Lab
+        </div>
+        <ul class="nav-links">
+            <li><a class="nav-btn active" onclick="jumpTo(0)">1. Divide & Conquer</a></li>
+            <li><a class="nav-btn" onclick="jumpTo(1)">2. Backtracking</a></li>
+            <li><a class="nav-btn" onclick="jumpTo(2)">3. Branch & Bound</a></li>
+            <li><a class="nav-btn" onclick="jumpTo(3)">4. Randomized</a></li>
+        </ul>
+        <div style="padding: 15px; text-align: center; font-size: 0.85rem; color: var(--text-muted); border-top: 1px solid var(--border); margin-top: auto;">
+            Ideal College of Engineering<br>Instructor: Soham Sengupta
+        </div>
+    </nav>
+
+    <div class="main-wrapper">
+        <div class="top-controls">
+            <button class="btn" onclick="toggleTheme()" id="themeBtn">&#127762; Theme</button>
+            <button class="btn btn-primary" onclick="toggleFullScreen()" id="fsBtn">&#128241; Full Screen</button>
+        </div>
+
+        <main class="main-content">
+            
+            <section id="sec0" class="content-section active">
+                <h1>
+                    <svg class="hero-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v18"></path><path d="M3 12h18"></path></svg>
+                    Divide and Conquer (D&C)
+                </h1>
+
+                <div class="strategy-overview">
+                    <strong>The Philosophy:</strong> "Smart Delegation." When a problem is too massive to solve in one go, recursively break it down into two or more equal, completely independent subproblems. Keep breaking them down until they are trivial (e.g., an array of size 1). Then, solve the small pieces and recursively merge their answers back together.
+                </div>
+
+                <div class="comp-panel" style="margin-bottom: 20px;">
+                    <h3>Crucial Distinction vs. Dynamic Programming</h3>
+                    <p>Students frequently confuse D&C with DP because both break problems into subproblems. 
+                    <br><br>
+                    <strong>The Rule:</strong> DP is used when subproblems <strong>overlap</strong> (e.g., calculating Fibonacci(5) requires calculating Fibonacci(3) multiple times). D&C is used when subproblems are <strong>completely independent</strong> (e.g., sorting the left half of an array has zero effect on sorting the right half). DP uses memory to cache overlapping answers; D&C does not need to cache anything.</p>
+                </div>
+
+                <h2>The 3-Step Process</h2>
+                <div class="vis-container" style="padding-top: 10px;">
+                    <div style="font-size: 1.2rem; margin-bottom: 10px;"><strong>1. Divide</strong></div>
+                    <div class="dc-node">[ 38, 27, 43, 3, 9, 82, 10 ]</div>
+                    <div class="dc-arrow">↓</div>
+                    <div class="dc-node">[ 38, 27, 43 ]</div> <div class="dc-node">[ 3, 9, 82, 10 ]</div>
+                    
+                    <div style="font-size: 1.2rem; margin-top: 20px; margin-bottom: 10px;"><strong>2. Conquer (Base Cases)</strong></div>
+                    <div class="dc-node">[38]</div> <div class="dc-node">[27]</div> <div class="dc-node">[43]</div> &nbsp;&nbsp;&nbsp; <div class="dc-node">[3]</div> <div class="dc-node">[9]</div> <div class="dc-node">[82]</div> <div class="dc-node">[10]</div>
+                    
+                    <div style="font-size: 1.2rem; margin-top: 20px; margin-bottom: 10px;"><strong>3. Combine (Merge)</strong></div>
+                    <div class="dc-node">[ 27, 38, 43 ]</div> <div class="dc-node">[ 3, 9, 10, 82 ]</div>
+                    <div class="dc-arrow">↓</div>
+                    <div class="dc-node" style="border-color: var(--success); color: var(--success);">[ 3, 9, 10, 27, 38, 43, 82 ]</div>
+                </div>
+
+                <div class="grid-2">
+                    <div class="comp-panel">
+                        <h3 style="margin-top: 0;">When to Use</h3>
+                        <ul>
+                            <li>The problem can be split into independent pieces.</li>
+                            <li>The combination of sub-answers is mathematically straightforward.</li>
+                            <li>Sorting, Searching in sorted data, Matrix mathematics.</li>
+                        </ul>
+                    </div>
+                    <div class="comp-panel">
+                        <h3 style="margin-top: 0;">Pros & Cons</h3>
+                        <div><span class="tag tag-pro">Pro</span> Allows parallel execution (multithreading).</div>
+                        <div><span class="tag tag-pro">Pro</span> Often breaks $O(N^2)$ barriers down to $O(N \log N)$.</div>
+                        <div><span class="tag tag-con">Con</span> Deep recursion overhead can cause Stack Overflow.</div>
+                        <div><span class="tag tag-con">Con</span> Not suitable if subproblems overlap heavily.</div>
+                    </div>
+                </div>
+
+                <h2>Classic Syllabus Examples</h2>
+                <ul>
+                    <li><strong>Merge Sort:</strong> $O(N \log N)$ sorting.</li>
+                    <li><strong>Quick Sort:</strong> Picks a pivot, divides elements smaller/larger.</li>
+                    <li><strong>Binary Search:</strong> Divides search space in half repeatedly $O(\log N)$.</li>
+                    <li><strong>Strassen’s Matrix Multiplication:</strong> Reduces standard $O(N^3)$ to $O(N^{2.81})$.</li>
+                </ul>
+
+            </section>
+
+            <section id="sec1" class="content-section">
+                <h1>
+                    <svg class="hero-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                    Backtracking
+                </h1>
+
+                <div class="strategy-overview">
+                    <strong>The Philosophy:</strong> Backtracking is highly disciplined Brute Force. It systematically builds a solution step-by-step using a decision tree. However, the moment it detects that the current partial solution violates the rules and cannot possibly succeed, it stops, abandons that path entirely (pruning), reverses its last decision, and tries the next available option.
+                </div>
+
+                <h2>The Pruned Decision Tree</h2>
+                <div class="vis-container">
+                    <svg width="400" height="200" style="margin: 0 auto; display: block; overflow: visible;">
+                        <circle cx="200" cy="20" r="15" fill="var(--bg-card)" stroke="var(--border)" stroke-width="3"/>
+                        
+                        <line x1="200" y1="35" x2="100" y2="85" stroke="var(--border)" stroke-width="2"/>
+                        <circle cx="100" cy="100" r="15" fill="var(--bg-card)" stroke="var(--border)" stroke-width="3"/>
+                        <line x1="100" y1="115" x2="50" y2="165" stroke="var(--border)" stroke-width="2"/>
+                        <circle cx="50" cy="180" r="15" fill="var(--bg-main)" stroke="var(--success)" stroke-width="3"/>
+                        
+                        <line x1="200" y1="35" x2="200" y2="85" stroke="var(--border)" stroke-width="2"/>
+                        <circle cx="200" cy="100" r="15" fill="rgba(239,68,68,0.1)" stroke="var(--danger)" stroke-width="3"/>
+                        <text x="200" y="105" text-anchor="middle" fill="var(--danger)" font-weight="bold">X</text>
+                        <path d="M 215 90 Q 240 50 215 30" fill="none" stroke="var(--warning)" stroke-width="2" marker-end="url(#arrow)"/>
+                        <text x="245" y="70" fill="var(--warning)" font-size="0.8rem" font-weight="bold">Backtrack</text>
+                        
+                        <defs>
+                            <marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                              <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--warning)" />
+                            </marker>
+                        </defs>
+                    </svg>
+                    <p style="margin-top: 20px; font-size: 0.95rem;">When the middle path violates constraints, the algorithm immediately stops exploring deeper and rewinds to the parent node.</p>
+                </div>
+
+                <div class="grid-2">
+                    <div class="comp-panel">
+                        <h3 style="margin-top: 0;">When to Use</h3>
+                        <ul>
+                            <li>Finding <strong>any</strong> valid solution, or <strong>all</strong> valid solutions.</li>
+                            <li>Combinatorial puzzles with strict constraint rules.</li>
+                            <li>When the state space is huge, but constraints are tight enough to allow massive pruning.</li>
+                        </ul>
+                    </div>
+                    <div class="comp-panel">
+                        <h3 style="margin-top: 0;">Pros & Cons</h3>
+                        <div><span class="tag tag-pro">Pro</span> Vastly faster than pure Brute Force.</div>
+                        <div><span class="tag tag-pro">Pro</span> Elegant, easy-to-read recursive code structure.</div>
+                        <div><span class="tag tag-con">Con</span> Worst-case time complexity is still often exponential $O(2^N)$ or factorial $O(N!)$.</div>
+                    </div>
+                </div>
+
+                <h2>Classic Syllabus Examples</h2>
+                <ul>
+                    <li><strong>N-Queens Problem:</strong> Placing $N$ queens on a board so none attack each other.</li>
+                    <li><strong>Sudoku Solver:</strong> Try 1-9; if invalid, erase and try the next.</li>
+                    <li><strong>Rat in a Maze:</strong> Finding a path. Hits a dead end? Rewind.</li>
+                    <li><strong>Graph Coloring:</strong> Assigning colors to nodes ensuring adjacent nodes are different.</li>
+                </ul>
+
+            </section>
+
+            <section id="sec2" class="content-section">
+                <h1>
+                    <svg class="hero-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20V10"></path><path d="M18 20V4"></path><path d="M6 20v-4"></path></svg>
+                    Branch and Bound (B&B)
+                </h1>
+
+                <div class="strategy-overview">
+                    <strong>The Philosophy:</strong> If Backtracking is for finding <em>any</em> valid solution, Branch and Bound is for finding the <em>absolute optimal</em> solution. It maintains a running score of the "Best Answer Found So Far". Before exploring a new branch, it calculates an optimistic mathematical "Bound" (a best-case scenario estimate). If that best-case estimate is still worse than the current safe score, it ruthlessly chops off the entire branch.
+                </div>
+
+                <div class="comp-panel" style="margin-bottom: 20px;">
+                    <h3>The Traversal Difference</h3>
+                    <p>While Backtracking usually dives deep into a tree (Depth-First Search), Branch & Bound frequently uses a Priority Queue to perform <strong>Best-First Search (Least Cost Search)</strong>. It always prioritizes exploring the branch with the most promising mathematical bound first, increasing the chances of finding a great "Best Score" early, which allows it to prune even more branches later.</p>
+                </div>
+
+                <div class="grid-2">
+                    <div class="comp-panel">
+                        <h3 style="margin-top: 0;">When to Use</h3>
+                        <ul>
+                            <li><strong>Optimization</strong> problems where you need the absolute maximum or minimum.</li>
+                            <li>When Dynamic Programming fails because the numbers are too massive (crashing the Pseudo-Polynomial memory limits).</li>
+                        </ul>
+                    </div>
+                    <div class="comp-panel">
+                        <h3 style="margin-top: 0;">Pros & Cons</h3>
+                        <div><span class="tag tag-pro">Pro</span> Guarantees the absolute perfect optimal answer.</div>
+                        <div><span class="tag tag-con">Con</span> Developing a mathematically flawless bounding function is difficult.</div>
+                        <div><span class="tag tag-con">Con</span> If the bound is poor, it degrades into factorial Brute Force.</div>
+                    </div>
+                </div>
+
+                <h2>Classic Syllabus Examples</h2>
+                <ul>
+                    <li><strong>0/1 Knapsack (Exact Solver):</strong> Used when DP arrays cannot fit in RAM. The "Bound" is calculated using the Greedy Fractional Knapsack logic.</li>
+                    <li><strong>Travelling Salesperson Problem (TSP):</strong> To find the exact minimum route without memory exhaustion.</li>
+                    <li><strong>15-Puzzle Solver:</strong> Uses heuristics (like Manhattan Distance) to bound the search.</li>
+                </ul>
+            </section>
+
+            <section id="sec3" class="content-section">
+                <h1>
+                    <svg class="hero-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"></path><path d="M22 12A10 10 0 0 0 12 2v10z"></path></svg>
+                    Randomized Algorithms
+                </h1>
+
+                <div class="strategy-overview">
+                    <strong>The Philosophy:</strong> When dealing with massive datasets, hacking defenses, or NP-Hard complexities, deterministic logic takes too long. Randomized algorithms introduce controlled chaos, utilizing a Random Number Generator (RNG) to dictate logic paths. They trade absolute mathematical certainty for blistering speed.
+                </div>
+
+                <div class="grid-2" style="margin-bottom: 25px;">
+                    <div class="comp-panel" style="border-top: 4px solid var(--success);">
+                        <h3 style="margin-top: 0;">1. Las Vegas Algorithms</h3>
+                        <p><strong>The Guarantee:</strong> The answer is 100% correct.<br>
+                        <strong>The Chaos:</strong> The execution time is random.</p>
+                        <p style="font-size: 0.95rem; color: var(--text-muted);">You will always win, but you don't know exactly how long the game will take. Mostly fast, occasionally slow based on luck.</p>
+                        <span class="tag tag-info">Example: Randomized Quick Sort</span>
+                    </div>
+                    
+                    <div class="comp-panel" style="border-top: 4px solid var(--danger);">
+                        <h3 style="margin-top: 0;">2. Monte Carlo Algorithms</h3>
+                        <p><strong>The Guarantee:</strong> The execution is 100% fast.<br>
+                        <strong>The Chaos:</strong> The answer might be wrong.</p>
+                        <p style="font-size: 0.95rem; color: var(--text-muted);">You know exactly when it will finish, but there is a small mathematical probability it yields an incorrect result.</p>
+                        <span class="tag tag-info">Example: Miller-Rabin Primality Test</span>
+                    </div>
+                </div>
+
+                <div class="grid-2">
+                    <div class="comp-panel">
+                        <h3 style="margin-top: 0;">When to Use</h3>
+                        <ul>
+                            <li>Cryptographic key generation and testing.</li>
+                            <li>Defending against adversarial inputs (hackers exploiting worst-case scenarios).</li>
+                            <li>Machine Learning (Stochastic Gradient Descent).</li>
+                        </ul>
+                    </div>
+                    <div class="comp-panel">
+                        <h3 style="margin-top: 0;">Pros & Cons</h3>
+                        <div><span class="tag tag-pro">Pro</span> Exceedingly simple to implement.</div>
+                        <div><span class="tag tag-pro">Pro</span> Breaks predictable bottlenecks in deterministic code.</div>
+                        <div><span class="tag tag-con">Con</span> Monte Carlo requires running multiple times to statistically guarantee safety.</div>
+                    </div>
+                </div>
+
+                <h2>Classic Syllabus Examples</h2>
+                <ul>
+                    <li><strong>Randomized Quick Sort:</strong> Picking a random pivot physically guarantees we rarely hit the $O(N^2)$ worst-case.</li>
+                    <li><strong>Fisher-Yates Shuffle:</strong> An $O(N)$ perfect array shuffling algorithm (Las Vegas).</li>
+                    <li><strong>Skip Lists:</strong> A randomized data structure alternative to balanced trees.</li>
+                </ul>
+            </section>
+
+        </main>
+    </div>
+
+    <script>
+        function jumpTo(idx) {
+            document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(`sec${idx}`).classList.add('active');
+            document.querySelectorAll('.nav-btn')[idx].classList.add('active');
+        }
+
+        function toggleTheme() { document.body.classList.toggle('light-mode'); }
+        function toggleFullScreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+                document.getElementById('fsBtn').innerHTML = '&#10006; Exit Full Screen';
+            } else {
+                if (document.exitFullscreen) document.exitFullscreen();
+                document.getElementById('fsBtn').innerHTML = '&#128241; Full Screen';
+            }
+        }
+    </script>
+</body>
+</html>
