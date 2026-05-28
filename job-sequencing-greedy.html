@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Algorithmic Strategies Lab: Job Sequencing</title>
+    
+    <script>
+        MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] }, svg: { fontCache: 'global' } };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <style>
+        :root {
+            --bg-main: #0f172a; --bg-card: #1e293b; --text-main: #f8fafc; --text-muted: #94a3b8;
+            --border: #334155; --accent: #3b82f6; --success: #10b981; --warning: #f59e0b; --danger: #ef4444;
+            --highlight: rgba(59, 130, 246, 0.2); --tab-bg: #0f172a;
+        }
+
+        body.light-mode {
+            --bg-main: #f8fafc; --bg-card: #ffffff; --text-main: #0f172a; --text-muted: #64748b;
+            --border: #e2e8f0; --highlight: #eff6ff; --tab-bg: #f1f5f9;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Roboto, sans-serif; }
+        body { display: flex; height: 100vh; background: var(--bg-main); color: var(--text-main); overflow: hidden; transition: 0.3s; }
+
+        /* Sidebar Navigation */
+        .sidebar { width: 300px; background: var(--bg-card); border-right: 1px solid var(--border); display: flex; flex-direction: column; z-index: 10; }
+        .sidebar-header { padding: 25px 20px; font-size: 1.2rem; font-weight: bold; border-bottom: 1px solid var(--border); color: var(--accent); display: flex; align-items: center; gap: 10px; }
+        .nav-links { list-style: none; padding: 15px 10px; flex-grow: 1; overflow-y: auto; }
+        .nav-links a { display: block; padding: 12px 16px; color: var(--text-muted); cursor: pointer; border-radius: 6px; margin-bottom: 5px; font-weight: 500; transition: 0.2s; }
+        .nav-links a.active, .nav-links a:hover { background: var(--accent); color: #fff; }
+
+        /* Main Content Layout */
+        .main-wrapper { flex-grow: 1; display: flex; flex-direction: column; position: relative; }
+        .top-controls { position: absolute; top: 20px; right: 40px; z-index: 20; display: flex; gap: 15px; }
+        .btn { background: var(--bg-card); border: 1px solid var(--border); color: var(--text-main); padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+        .btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+        .btn:hover { filter: brightness(1.1); transform: translateY(-1px); }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .main-content { padding: 60px; overflow-y: auto; flex-grow: 1; scroll-behavior: smooth; }
+        
+        h1 { font-size: 2.2rem; border-bottom: 2px solid var(--border); padding-bottom: 10px; margin-bottom: 20px; display: flex; align-items: center; gap: 15px; }
+        p { line-height: 1.7; margin-bottom: 15px; font-size: 1.05rem; }
+        .hero-svg { width: 40px; height: 40px; fill: var(--accent); }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-top: 20px; }
+
+        /* Strategy & Complexity Boxes */
+        .strategy-overview { background: var(--highlight); border-left: 4px solid var(--accent); padding: 20px; border-radius: 0 8px 8px 0; margin-bottom: 25px; }
+        .comp-box { display: flex; gap: 15px; margin-bottom: 25px; }
+        .comp-panel { background: var(--bg-card); border: 1px solid var(--border); padding: 15px; border-radius: 8px; flex: 1; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .complexity-tag { display: inline-block; font-weight: bold; font-family: monospace; color: var(--accent); font-size: 1.1rem; margin-bottom: 5px;}
+
+        /* Multi-Language Code Editor */
+        .code-window { background: #0f172a; border-radius: 8px; border: 1px solid #334155; overflow: hidden; height: 100%; display: flex; flex-direction: column; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        .code-tabs { display: flex; background: #1e293b; border-bottom: 1px solid #334155; }
+        .code-tab { padding: 12px 20px; color: #94a3b8; cursor: pointer; font-family: monospace; font-size: 0.95rem; border-right: 1px solid #334155; transition: 0.2s; font-weight: bold; background: transparent; border-top: 3px solid transparent; border-left:none; border-bottom:none;}
+        .code-tab:hover { color: #f8fafc; background: rgba(255,255,255,0.05); }
+        .code-tab.active { background: #0f172a; color: var(--accent); border-top-color: var(--accent); }
+        .code-content { display: none; color: #e2e8f0; padding: 20px; overflow-x: auto; font-family: monospace; font-size: 0.9rem; margin: 0; flex-grow: 1; line-height: 1.5; }
+        .code-content.active { display: block; animation: fadeIn 0.3s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* Simulator UI */
+        .debugger-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.1); height: 100%; display: flex; flex-direction: column; }
+        .debug-header { background: rgba(0,0,0,0.2); padding: 15px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+        .debug-controls { display: flex; gap: 10px; }
+        .debug-body { padding: 20px; flex-grow: 1; display: flex; flex-direction: column; }
+        .log-window { background: #000; color: #10b981; font-family: monospace; padding: 15px; border-radius: 6px; height: 150px; overflow-y: auto; margin-top: auto; border: 1px solid #333; font-size: 0.9rem; }
+        
+        .status-pill { padding: 6px 15px; border-radius: 20px; font-size: 0.9rem; font-weight: bold; background: var(--highlight); color: var(--accent); display: inline-block; border: 1px solid var(--accent); }
+
+        /* Custom Visuals for Job Sequencing */
+        .queue-container { display: flex; gap: 10px; margin-bottom: 25px; flex-wrap: nowrap; overflow-x: auto; padding-bottom: 10px;}
+        .job-card { min-width: 80px; background: var(--bg-main); border: 2px solid var(--border); border-radius: 8px; padding: 8px; text-align: center; transition: 0.3s; position: relative;}
+        .job-card.active { border-color: var(--warning); transform: translateY(-5px); box-shadow: 0 5px 15px rgba(245, 158, 11, 0.2); }
+        .job-card.placed { border-color: var(--success); opacity: 0.7; }
+        .job-card.discarded { border-color: var(--danger); opacity: 0.4; }
+        .job-id { font-size: 1.2rem; font-weight: bold; color: var(--text-main); }
+        .job-detail { font-size: 0.75rem; color: var(--text-muted); margin-top: 4px; }
+        
+        .slots-wrapper { display: flex; gap: 15px; justify-content: center; margin-bottom: 20px; }
+        .time-slot { width: 90px; height: 90px; border: 2px dashed var(--border); border-radius: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; transition: 0.3s; background: var(--bg-main); }
+        .time-slot.checking { border-color: var(--warning); border-style: solid; box-shadow: 0 0 15px rgba(245, 158, 11, 0.3); }
+        .time-slot.filled { border-color: var(--success); border-style: solid; background: rgba(16, 185, 129, 0.1); }
+        .slot-header { position: absolute; top: 5px; font-size: 0.75rem; color: var(--text-muted); font-weight: bold;}
+        .slot-content { font-size: 1.5rem; font-weight: bold; color: var(--success); }
+        
+        .profit-counter { text-align: center; font-size: 1.2rem; font-weight: bold; color: var(--text-main); margin-bottom: 15px; padding: 10px; background: rgba(255,255,255,0.02); border-radius: 8px;}
+        .profit-val { color: var(--success); font-size: 1.4rem; }
+    </style>
+</head>
+<body>
+
+    <nav class="sidebar">
+        <div class="sidebar-header">
+            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
+            Algorithm Lab
+        </div>
+        <ul class="nav-links">
+            <li><a class="nav-btn active">1. Job Sequencing (Greedy)</a></li>
+        </ul>
+        <div style="padding: 15px; text-align: center; font-size: 0.85rem; color: var(--text-muted); border-top: 1px solid var(--border); margin-top: auto;">
+            Ideal College of Engineering<br>Instructor: Soham Sengupta
+        </div>
+    </nav>
+
+    <div class="main-wrapper">
+        <div class="top-controls">
+            <button class="btn" onclick="toggleTheme()" id="themeBtn">&#127762; Theme</button>
+            <button class="btn btn-primary" onclick="toggleFullScreen()" id="fsBtn">&#128241; Full Screen</button>
+        </div>
+
+        <main class="main-content">
+            
+            <h1>
+                <svg class="hero-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                Job Sequencing with Deadlines
+            </h1>
+
+            <div class="strategy-overview">
+                <strong>The Greedy Strategy:</strong> The objective is to maximize total profit when you are given a set of jobs, each taking 1 unit of time, but restricted by strict deadlines. The Greedy paradigm dictates that we must prioritize the highest paying jobs. By sorting jobs by profit in descending order, we guarantee maximum revenue. Crucially, when placing a high-value job, we always assign it to the <strong>latest possible free time slot</strong> before its deadline, leaving early time slots open for subsequent jobs.
+            </div>
+
+            <div class="comp-box">
+                <div class="comp-panel">
+                    <div class="complexity-tag">Time Complexity: $O(N^2)$</div>
+                    <p style="font-size: 0.9rem; color: var(--text-muted); margin: 0;">Sorting takes $O(N \log N)$. In the worst case, searching backwards for an empty slot for each job takes $O(N^2)$. <em>(Can be optimized to $O(N \log N)$ using Disjoint Set Union).</em></p>
+                </div>
+                <div class="comp-panel">
+                    <div class="complexity-tag">Space Complexity: $O(N)$</div>
+                    <p style="font-size: 0.9rem; color: var(--text-muted); margin: 0;">Requires an array to keep track of which time slots have been filled, sized to the maximum deadline present in the dataset.</p>
+                </div>
+            </div>
+
+            <div class="grid-2">
+                
+                <div class="code-window">
+                    <div class="code-tabs">
+                        <button class="code-tab active" onclick="switchLang('java')">Java Implementation</button>
+                        <button class="code-tab" onclick="switchLang('python')">Python Implementation</button>
+                    </div>
+                    
+                    <pre id="code-java" class="code-content active"><code>class Job {
+    char id;
+    int deadline, profit;
+    
+    public Job(char id, int deadline, int profit) {
+        this.id = id;
+        this.deadline = deadline;
+        this.profit = profit;
+    }
+}
+
+public void printJobScheduling(ArrayList&lt;Job&gt; arr, int maxDeadline) {
+    // 1. Sort jobs by profit in descending order (Greedy Choice)
+    Collections.sort(arr, (a, b) -> b.profit - a.profit);
+    
+    boolean[] slotFilled = new boolean[maxDeadline];
+    char[] result = new char[maxDeadline];
+    int totalProfit = 0;
+
+    // 2. Iterate through the sorted jobs
+    for (int i = 0; i < arr.size(); i++) {
+        
+        // 3. Search backwards from the job's deadline
+        // (Convert 1-based deadline to 0-based index)
+        int startSlot = Math.min(maxDeadline - 1, arr.get(i).deadline - 1);
+        
+        for (int j = startSlot; j >= 0; j--) {
+            // If the slot is empty, place the job!
+            if (!slotFilled[j]) {
+                slotFilled[j] = true;
+                result[j] = arr.get(i).id;
+                totalProfit += arr.get(i).profit;
+                break; // Job assigned, break the inner loop
+            }
+        }
+    }
+    
+    System.out.println("Max Profit: " + totalProfit);
+}</code></pre>
+
+                    <pre id="code-python" class="code-content"><code>def printJobScheduling(jobs, max_deadline):
+    
+    # 1. Sort jobs by profit in descending order (Greedy Choice)
+    jobs.sort(key=lambda x: x['profit'], reverse=True)
+    
+    slot_filled = [False] * max_deadline
+    result = ['-1'] * max_deadline
+    total_profit = 0
+
+    # 2. Iterate through the sorted jobs
+    for i in range(len(jobs)):
+        
+        # 3. Search backwards from the job's deadline
+        # (Convert 1-based deadline to 0-based index)
+        start_slot = min(max_deadline - 1, jobs[i]['deadline'] - 1)
+        
+        for j in range(start_slot, -1, -1):
+            # If the slot is empty, place the job!
+            if not slot_filled[j]:
+                slot_filled[j] = True
+                result[j] = jobs[i]['id']
+                total_profit += jobs[i]['profit']
+                break # Job assigned, break the inner loop
+                
+    print(f"Max Profit: {total_profit}")
+    return result</code></pre>
+                </div>
+
+                <div class="debugger-card">
+                    <div class="debug-header">
+                        <span class="status-pill" id="simStatus">Status: Ready</span>
+                        <div class="debug-controls">
+                            <button class="btn btn-primary" onclick="simStep()" id="stepBtn">&#8620; Micro-Step</button>
+                            <button class="btn" onclick="simReset()">&#8634; Reset</button>
+                        </div>
+                    </div>
+                    <div class="debug-body">
+                        
+                        <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 5px; font-weight: bold;">Queue (Sorted by Profit Descending):</div>
+                        <div class="queue-container" id="jobQueue">
+                            </div>
+
+                        <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 10px; font-weight: bold; text-align: center;">Timeline / Scheduling Slots:</div>
+                        <div class="slots-wrapper" id="timeSlots">
+                            </div>
+                        
+                        <div class="profit-counter">Total Profit: <span class="profit-val" id="profitTotal">$0</span></div>
+
+                        <div class="log-window" id="simLog">> System initialized. Jobs sorted by profit. Ready to evaluate.</div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // --- Theme & Fullscreen Controls ---
+        function toggleTheme() { document.body.classList.toggle('light-mode'); }
+        function toggleFullScreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+                document.getElementById('fsBtn').innerHTML = '&#10006; Exit Full Screen';
+            } else {
+                if (document.exitFullscreen) document.exitFullscreen();
+                document.getElementById('fsBtn').innerHTML = '&#128241; Full Screen';
+            }
+        }
+
+        // --- Code Editor Language Switcher ---
+        function switchLang(lang) {
+            // Update tabs
+            document.querySelectorAll('.code-tab').forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Update code content
+            document.querySelectorAll('.code-content').forEach(code => code.classList.remove('active'));
+            document.getElementById(`code-${lang}`).classList.add('active');
+        }
+
+        function log(msg) {
+            const el = document.getElementById('simLog');
+            el.innerHTML += `<div style="margin-bottom:4px;">> ${msg}</div>`;
+            el.scrollTop = el.scrollHeight;
+        }
+
+        // --- SIMULATOR DATA & STATE ---
+        // Raw data: A(D:2, P:100), B(D:1, P:19), C(D:2, P:27), D(D:1, P:25), E(D:3, P:15)
+        // Sorted data below:
+        const jobsData = [
+            { id: 'A', dl: 2, p: 100 },
+            { id: 'C', dl: 2, p: 27 },
+            { id: 'D', dl: 1, p: 25 },
+            { id: 'B', dl: 1, p: 19 },
+            { id: 'E', dl: 3, p: 15 }
+        ];
+        const MAX_DEADLINE = 3;
+
+        let state = {
+            jobIdx: 0,
+            slotCheckIdx: -1, // 0-based index for slots
+            slots: [null, null, null],
+            profit: 0,
+            phase: 'IDLE', // IDLE, PICK_JOB, CHECK_SLOT, DONE
+            activeJob: null
+        };
+
+        // --- RENDER FUNCTIONS ---
+        function renderQueue() {
+            const container = document.getElementById('jobQueue');
+            container.innerHTML = '';
+            jobsData.forEach((job, idx) => {
+                let statusClass = '';
+                if (idx === state.jobIdx && state.phase !== 'DONE') statusClass = 'active';
+                else if (idx < state.jobIdx) {
+                    // Check if placed or discarded
+                    let placed = state.slots.includes(job.id);
+                    statusClass = placed ? 'placed' : 'discarded';
+                }
+
+                let card = document.createElement('div');
+                card.className = `job-card ${statusClass}`;
+                card.innerHTML = `
+                    <div class="job-id">Job ${job.id}</div>
+                    <div class="job-detail" style="color:var(--success)">$${job.p}</div>
+                    <div class="job-detail">DL: t=${job.dl}</div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function renderSlots() {
+            const container = document.getElementById('timeSlots');
+            container.innerHTML = '';
+            for (let i = 0; i < MAX_DEADLINE; i++) {
+                let slot = document.createElement('div');
+                let stClass = '';
+                
+                if (state.slots[i] !== null) stClass = 'filled';
+                if (state.phase === 'CHECK_SLOT' && state.slotCheckIdx === i) stClass += ' checking';
+
+                slot.className = `time-slot ${stClass}`;
+                
+                let content = state.slots[i] ? state.slots[i] : '-';
+                slot.innerHTML = `
+                    <div class="slot-header">t = ${i+1}</div>
+                    <div class="slot-content">${content}</div>
+                `;
+                container.appendChild(slot);
+            }
+            document.getElementById('profitTotal').innerText = `$${state.profit}`;
+        }
+
+        // --- MICRO-STEP LOGIC ---
+        function simStep() {
+            if (state.phase === 'IDLE' || state.phase === 'DONE') {
+                if(state.jobIdx >= jobsData.length) {
+                    state.phase = 'DONE';
+                    log(`<strong style="color:var(--success)">Algorithm Complete! Max Profit is $${state.profit}</strong>`);
+                    document.getElementById('stepBtn').disabled = true;
+                    document.getElementById('simStatus').innerText = "Status: Complete";
+                    renderQueue();
+                    return;
+                }
+                state.phase = 'PICK_JOB';
+            }
+
+            if (state.phase === 'PICK_JOB') {
+                state.activeJob = jobsData[state.jobIdx];
+                // Start checking from minimum of (max_deadline - 1) or (job.deadline - 1)
+                state.slotCheckIdx = Math.min(MAX_DEADLINE - 1, state.activeJob.dl - 1);
+                
+                log(`<span style="color:var(--accent)">Selecting Job ${state.activeJob.id}</span> (Profit: $${state.activeJob.p}, Deadline: t=${state.activeJob.dl})`);
+                log(`Looking for latest empty slot starting from t=${state.slotCheckIdx + 1}...`);
+                
+                state.phase = 'CHECK_SLOT';
+                document.getElementById('simStatus').innerText = `Checking Slots for Job ${state.activeJob.id}`;
+                
+                renderQueue();
+                renderSlots();
+                return; // Wait for next click
+            }
+
+            if (state.phase === 'CHECK_SLOT') {
+                log(`Checking Slot t=${state.slotCheckIdx + 1}...`);
+                
+                if (state.slots[state.slotCheckIdx] === null) {
+                    // Empty! Place job.
+                    state.slots[state.slotCheckIdx] = state.activeJob.id;
+                    state.profit += state.activeJob.p;
+                    log(`<strong style="color:var(--success)">Slot t=${state.slotCheckIdx + 1} is empty! Placed Job ${state.activeJob.id}.</strong>`);
+                    
+                    // Move to next job
+                    state.jobIdx++;
+                    state.phase = 'IDLE';
+                    document.getElementById('simStatus').innerText = `Job ${state.activeJob.id} Scheduled`;
+                } else {
+                    // Full! Move backward
+                    let occupyingJob = state.slots[state.slotCheckIdx];
+                    log(`<span style="color:var(--danger)">Slot t=${state.slotCheckIdx + 1} is occupied by Job ${occupyingJob}.</span> Decrementing time slot.`);
+                    
+                    state.slotCheckIdx--;
+                    
+                    if (state.slotCheckIdx < 0) {
+                        // Reached 0 without finding a slot
+                        log(`<span style="color:var(--danger)">No available slots before deadline. Discarding Job ${state.activeJob.id}.</span>`);
+                        state.jobIdx++;
+                        state.phase = 'IDLE';
+                        document.getElementById('simStatus').innerText = `Job ${state.activeJob.id} Discarded`;
+                    }
+                }
+                
+                renderQueue();
+                renderSlots();
+            }
+        }
+
+        function simReset() {
+            state = {
+                jobIdx: 0,
+                slotCheckIdx: -1,
+                slots: [null, null, null],
+                profit: 0,
+                phase: 'IDLE',
+                activeJob: null
+            };
+            document.getElementById('simLog').innerHTML = "> System initialized. Jobs sorted by profit. Ready to evaluate.";
+            document.getElementById('simStatus').innerText = "Status: Ready";
+            document.getElementById('stepBtn').disabled = false;
+            renderQueue();
+            renderSlots();
+        }
+
+        // Initialize Simulator
+        simReset();
+    </script>
+</body>
+</html>
