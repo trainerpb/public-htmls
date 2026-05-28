@@ -11,27 +11,81 @@
             box-sizing: border-box;
         }
         
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --primary-color: #667eea;
+            --secondary-color: #764ba2;
+            --bg-color: #ffffff;
+            --text-color: #333333;
+            --card-bg: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            --card-border: #667eea;
+            --header-bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --footer-bg: #f8f9fa;
+        }
+        
+        body.dark-theme {
+            --bg-color: #1e1e1e;
+            --text-color: #e0e0e0;
+            --card-bg: linear-gradient(135deg, #2d2d2d 0%, #3a3a3a 100%);
+            --card-border: #8a7db5;
+            --header-bg: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            --footer-bg: #2d2d2d;
+        }
+        
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: var(--primary-gradient);
             min-height: 100vh;
             padding: 20px;
+            color: var(--text-color);
         }
         
         .container {
             max-width: 1200px;
             margin: 0 auto;
-            background: white;
+            background: var(--bg-color);
             border-radius: 10px;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
             overflow: hidden;
         }
         
         .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: var(--header-bg);
             color: white;
             padding: 40px 20px;
             text-align: center;
+            position: relative;
+        }
+        
+        .theme-switcher {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .theme-toggle {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+        
+        .theme-toggle:hover {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: white;
+        }
+        
+        .theme-toggle.active {
+            background: white;
+            color: #667eea;
         }
         
         .header h1 {
@@ -54,10 +108,10 @@
         
         .section-title {
             font-size: 1.8em;
-            color: #667eea;
+            color: var(--primary-color);
             margin-bottom: 20px;
             padding-bottom: 10px;
-            border-bottom: 3px solid #667eea;
+            border-bottom: 3px solid var(--primary-color);
             display: flex;
             align-items: center;
             gap: 10px;
@@ -76,8 +130,8 @@
         }
         
         .link-card {
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            border: 2px solid #667eea;
+            background: var(--card-bg);
+            border: 2px solid var(--card-border);
             border-radius: 8px;
             padding: 20px;
             transition: all 0.3s ease;
@@ -86,29 +140,31 @@
             display: flex;
             flex-direction: column;
             justify-content: space-between;
+            cursor: pointer;
         }
         
         .link-card:hover {
             transform: translateY(-5px);
             box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
-            border-color: #764ba2;
+            border-color: var(--secondary-color);
         }
         
         .link-card h3 {
-            color: #667eea;
+            color: var(--primary-color);
             margin-bottom: 8px;
             font-size: 1.1em;
         }
         
         .link-card p {
-            color: #555;
+            color: var(--text-color);
             font-size: 0.9em;
             margin-bottom: 12px;
             flex-grow: 1;
+            opacity: 0.85;
         }
         
         .link-card-button {
-            background: #667eea;
+            background: var(--primary-color);
             color: white;
             padding: 10px 15px;
             border-radius: 5px;
@@ -119,7 +175,7 @@
         }
         
         .link-card:hover .link-card-button {
-            background: #764ba2;
+            background: var(--secondary-color);
         }
         
         .fundamentals {
@@ -143,16 +199,16 @@
         }
         
         .footer {
-            background: #f8f9fa;
+            background: var(--footer-bg);
             padding: 20px;
             text-align: center;
-            color: #666;
-            border-top: 1px solid #eee;
+            color: var(--text-color);
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
         }
         
         .back-button {
             display: inline-block;
-            background: #667eea;
+            background: var(--primary-color);
             color: white;
             padding: 10px 20px;
             border-radius: 5px;
@@ -162,7 +218,7 @@
         }
         
         .back-button:hover {
-            background: #764ba2;
+            background: var(--secondary-color);
         }
         
         @media (max-width: 768px) {
@@ -177,53 +233,64 @@
             .links-grid {
                 grid-template-columns: 1fr;
             }
+            
+            .theme-switcher {
+                position: static;
+                justify-content: center;
+                margin-top: 15px;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
+            <div class="theme-switcher">
+                <span style="font-size: 0.9em; opacity: 0.9;">Theme:</span>
+                <button class="theme-toggle active" onclick="setTheme('light')" id="light-btn">☀️ Light</button>
+                <button class="theme-toggle" onclick="setTheme('dark')" id="dark-btn">🌙 Dark</button>
+            </div>
             <h1>📚 Design & Analysis of Algorithms</h1>
             <p>Comprehensive Navigation Index for DAA Learning Resources</p>
         </div>
         
         <div class="content">
-            <a href="https://trainerpb.github.io/public-htmls/" class="back-button">← Back to Main</a>
+            <a href="https://trainerpb.github.io/public-htmls/" class="back-button" target="_blank">← Back to Main</a>
             
             <!-- FUNDAMENTALS SECTION -->
             <div class="section">
                 <div class="section-title fundamentals">Algorithm Fundamentals</div>
                 <div class="links-grid">
-                    <a href="https://trainerpb.github.io/public-htmls/DAA-CS404-Unit1_L6_L10.html" class="link-card">
+                    <a href="https://trainerpb.github.io/public-htmls/DAA-CS404-Unit1_L6_L10.html" class="link-card" target="_blank">
                         <div>
                             <h3>📖 CS404 Unit 1 - Lessons 6-10</h3>
                             <p>Core concepts and foundational principles of algorithm design and analysis. Introduction to algorithmic problem-solving.</p>
                         </div>
-                        <div class="link-card-button">View Content</div>
+                        <div class="link-card-button">View Content ↗</div>
                     </a>
                     
-                    <a href="https://trainerpb.github.io/public-htmls/DAA-CS404-Unit1_L6_L10_PreviousVersionWithQuiz.html" class="link-card">
+                    <a href="https://trainerpb.github.io/public-htmls/DAA-CS404-Unit1_L6_L10_PreviousVersionWithQuiz.html" class="link-card" target="_blank">
                         <div>
                             <h3>📝 CS404 Unit 1 - With Quiz</h3>
                             <p>Previous version of Unit 1 lessons with integrated quiz questions for self-assessment.</p>
                         </div>
-                        <div class="link-card-button">View Content</div>
+                        <div class="link-card-button">View Content ↗</div>
                     </a>
                     
-                    <a href="https://trainerpb.github.io/public-htmls/DAA_CSS404_Big_O.html" class="link-card">
+                    <a href="https://trainerpb.github.io/public-htmls/DAA_CSS404_Big_O.html" class="link-card" target="_blank">
                         <div>
                             <h3>⏱️ Big O Notation Analysis</h3>
                             <p>Understanding time complexity, space complexity, and asymptotic analysis using Big O notation.</p>
                         </div>
-                        <div class="link-card-button">View Content</div>
+                        <div class="link-card-button">View Content ↗</div>
                     </a>
                     
-                    <a href="https://trainerpb.github.io/public-htmls/DAA_GCD_Algorithms.html" class="link-card">
+                    <a href="https://trainerpb.github.io/public-htmls/DAA_GCD_Algorithms.html" class="link-card" target="_blank">
                         <div>
                             <h3>🔢 GCD & Euclidean Algorithms</h3>
                             <p>Explore the Greatest Common Divisor problem and Euclidean algorithm implementations and analysis.</p>
                         </div>
-                        <div class="link-card-button">View Content</div>
+                        <div class="link-card-button">View Content ↗</div>
                     </a>
                 </div>
             </div>
@@ -232,28 +299,28 @@
             <div class="section">
                 <div class="section-title strategies">Algorithm Design Strategies</div>
                 <div class="links-grid">
-                    <a href="https://trainerpb.github.io/public-htmls/algorithm-strategies-bruteforce-greedy-dp.html" class="link-card">
+                    <a href="https://trainerpb.github.io/public-htmls/algorithm-strategies-bruteforce-greedy-dp.html" class="link-card" target="_blank">
                         <div>
                             <h3>🎯 Algorithm Strategies Overview</h3>
                             <p>Comprehensive comparison of Brute Force, Greedy, and Dynamic Programming approaches with examples.</p>
                         </div>
-                        <div class="link-card-button">View Content</div>
+                        <div class="link-card-button">View Content ↗</div>
                     </a>
                     
-                    <a href="https://trainerpb.github.io/public-htmls/advanced-algorithm-strategies.html" class="link-card">
+                    <a href="https://trainerpb.github.io/public-htmls/advanced-algorithm-strategies.html" class="link-card" target="_blank">
                         <div>
                             <h3>🚀 Advanced Algorithm Strategies</h3>
                             <p>Deep dive into sophisticated algorithm design techniques and optimization strategies.</p>
                         </div>
-                        <div class="link-card-button">View Content</div>
+                        <div class="link-card-button">View Content ↗</div>
                     </a>
                     
-                    <a href="https://trainerpb.github.io/public-htmls/Unit-2_ButeForce_L11.html" class="link-card">
+                    <a href="https://trainerpb.github.io/public-htmls/Unit-2_ButeForce_L11.html" class="link-card" target="_blank">
                         <div>
                             <h3>💪 Brute Force Algorithms - Unit 2</h3>
                             <p>Lesson 11: Comprehensive study of brute force approach, exhaustive search, and its complexity analysis.</p>
                         </div>
-                        <div class="link-card-button">View Content</div>
+                        <div class="link-card-button">View Content ↗</div>
                     </a>
                 </div>
             </div>
@@ -262,36 +329,36 @@
             <div class="section">
                 <div class="section-title dp">Dynamic Programming</div>
                 <div class="links-grid">
-                    <a href="https://trainerpb.github.io/public-htmls/fibonacci-series-architecure-guide.html" class="link-card">
+                    <a href="https://trainerpb.github.io/public-htmls/fibonacci-series-architecure-guide.html" class="link-card" target="_blank">
                         <div>
                             <h3>🔄 Fibonacci Series Architecture</h3>
                             <p>Complete guide to Fibonacci implementation using DP: recursive, memoization, and tabulation approaches.</p>
                         </div>
-                        <div class="link-card-button">View Content</div>
+                        <div class="link-card-button">View Content ↗</div>
                     </a>
                     
-                    <a href="https://trainerpb.github.io/public-htmls/dp-knpasack-0_1.html" class="link-card">
+                    <a href="https://trainerpb.github.io/public-htmls/dp-knpasack-0_1.html" class="link-card" target="_blank">
                         <div>
                             <h3>🎒 0/1 Knapsack Problem</h3>
                             <p>Dynamic programming solution to the classic 0/1 Knapsack problem with table construction and optimization.</p>
                         </div>
-                        <div class="link-card-button">View Content</div>
+                        <div class="link-card-button">View Content ↗</div>
                     </a>
                     
-                    <a href="https://trainerpb.github.io/public-htmls/LCS.html" class="link-card">
+                    <a href="https://trainerpb.github.io/public-htmls/LCS.html" class="link-card" target="_blank">
                         <div>
                             <h3>📝 Longest Common Subsequence (LCS)</h3>
                             <p>DP-based solution to find LCS with step-by-step table construction and backtracking.</p>
                         </div>
-                        <div class="link-card-button">View Content</div>
+                        <div class="link-card-button">View Content ↗</div>
                     </a>
                     
-                    <a href="https://trainerpb.github.io/public-htmls/Staircase.html" class="link-card">
+                    <a href="https://trainerpb.github.io/public-htmls/Staircase.html" class="link-card" target="_blank">
                         <div>
                             <h3>🪜 Staircase Climbing Problem</h3>
                             <p>Classic DP problem: find number of ways to climb stairs with variable step sizes.</p>
                         </div>
-                        <div class="link-card-button">View Content</div>
+                        <div class="link-card-button">View Content ↗</div>
                     </a>
                 </div>
             </div>
@@ -300,52 +367,52 @@
             <div class="section">
                 <div class="section-title greedy">Greedy Algorithms</div>
                 <div class="links-grid">
-                    <a href="https://trainerpb.github.io/public-htmls/Greedy-Coin-1.html" class="link-card">
+                    <a href="https://trainerpb.github.io/public-htmls/Greedy-Coin-1.html" class="link-card" target="_blank">
                         <div>
                             <h3>💰 Coin Change Problem</h3>
                             <p>Greedy approach to minimize coins for a given amount with analysis and counter-examples.</p>
                         </div>
-                        <div class="link-card-button">View Content</div>
+                        <div class="link-card-button">View Content ↗</div>
                     </a>
                     
-                    <a href="https://trainerpb.github.io/public-htmls/coin-change-greedy.html" class="link-card">
+                    <a href="https://trainerpb.github.io/public-htmls/coin-change-greedy.html" class="link-card" target="_blank">
                         <div>
                             <h3>💳 Coin Change - Greedy Strategy</h3>
                             <p>Detailed greedy approach to coin change with optimality conditions and practical examples.</p>
                         </div>
-                        <div class="link-card-button">View Content</div>
+                        <div class="link-card-button">View Content ↗</div>
                     </a>
                     
-                    <a href="https://trainerpb.github.io/public-htmls/greedy-activity-selection.html" class="link-card">
+                    <a href="https://trainerpb.github.io/public-htmls/greedy-activity-selection.html" class="link-card" target="_blank">
                         <div>
                             <h3>📅 Activity Selection Problem</h3>
                             <p>Greedy solution to maximize non-overlapping activities using time-based sorting.</p>
                         </div>
-                        <div class="link-card-button">View Content</div>
+                        <div class="link-card-button">View Content ↗</div>
                     </a>
                     
-                    <a href="https://trainerpb.github.io/public-htmls/greedy-fractional-knpaasack.html" class="link-card">
+                    <a href="https://trainerpb.github.io/public-htmls/greedy-fractional-knpaasack.html" class="link-card" target="_blank">
                         <div>
                             <h3>🥛 Fractional Knapsack Problem</h3>
                             <p>Greedy solution allowing fractional items with value-to-weight ratio optimization.</p>
                         </div>
-                        <div class="link-card-button">View Content</div>
+                        <div class="link-card-button">View Content ↗</div>
                     </a>
                     
-                    <a href="https://trainerpb.github.io/public-htmls/job-sequencing-greedy.html" class="link-card">
+                    <a href="https://trainerpb.github.io/public-htmls/job-sequencing-greedy.html" class="link-card" target="_blank">
                         <div>
                             <h3>📋 Job Sequencing with Deadlines</h3>
                             <p>Greedy algorithm to schedule jobs with deadlines maximizing total profit.</p>
                         </div>
-                        <div class="link-card-button">View Content</div>
+                        <div class="link-card-button">View Content ↗</div>
                     </a>
                     
-                    <a href="https://trainerpb.github.io/public-htmls/bin-Packing-greedy.html" class="link-card">
+                    <a href="https://trainerpb.github.io/public-htmls/bin-Packing-greedy.html" class="link-card" target="_blank">
                         <div>
                             <h3>📦 Bin Packing Problem</h3>
                             <p>Greedy heuristics for bin packing including First Fit and Best Fit algorithms.</p>
                         </div>
-                        <div class="link-card-button">View Content</div>
+                        <div class="link-card-button">View Content ↗</div>
                     </a>
                 </div>
             </div>
@@ -354,36 +421,36 @@
             <div class="section">
                 <div class="section-title problems">Classic Algorithm Problems</div>
                 <div class="links-grid">
-                    <a href="https://trainerpb.github.io/public-htmls/knapsack_1_0_brute-force.html" class="link-card">
+                    <a href="https://trainerpb.github.io/public-htmls/knapsack_1_0_brute-force.html" class="link-card" target="_blank">
                         <div>
                             <h3>🎒 0/1 Knapsack - Brute Force</h3>
                             <p>Exhaustive approach to 0/1 Knapsack problem with complexity analysis and optimization insights.</p>
                         </div>
-                        <div class="link-card-button">View Content</div>
+                        <div class="link-card-button">View Content ↗</div>
                     </a>
                     
-                    <a href="https://trainerpb.github.io/public-htmls/knapsack_1_0_brute-force_part_2.html" class="link-card">
+                    <a href="https://trainerpb.github.io/public-htmls/knapsack_1_0_brute-force_part_2.html" class="link-card" target="_blank">
                         <div>
                             <h3>🎒 0/1 Knapsack - Brute Force Part 2</h3>
                             <p>Continuation of brute force 0/1 Knapsack with advanced techniques and comparisons.</p>
                         </div>
-                        <div class="link-card-button">View Content</div>
+                        <div class="link-card-button">View Content ↗</div>
                     </a>
                     
-                    <a href="https://trainerpb.github.io/public-htmls/Permutation.html" class="link-card">
+                    <a href="https://trainerpb.github.io/public-htmls/Permutation.html" class="link-card" target="_blank">
                         <div>
                             <h3>🔀 Permutation Generation</h3>
                             <p>Algorithms for generating permutations of elements with complexity analysis.</p>
                         </div>
-                        <div class="link-card-button">View Content</div>
+                        <div class="link-card-button">View Content ↗</div>
                     </a>
                     
-                    <a href="https://trainerpb.github.io/public-htmls/PossibleSets.html" class="link-card">
+                    <a href="https://trainerpb.github.io/public-htmls/PossibleSets.html" class="link-card" target="_blank">
                         <div>
                             <h3>🎯 Power Set Generation</h3>
                             <p>Generating all possible subsets (power set) with recursive and iterative approaches.</p>
                         </div>
-                        <div class="link-card-button">View Content</div>
+                        <div class="link-card-button">View Content ↗</div>
                     </a>
                 </div>
             </div>
@@ -414,9 +481,34 @@
         <div class="footer">
             <p>Design & Analysis of Algorithms Navigation Index | Last Updated: 2026</p>
             <p style="margin-top: 10px; font-size: 0.9em;">
-                <a href="https://trainerpb.github.io/public-htmls/" style="color: #667eea; text-decoration: none;">← Back to Main Repository</a>
+                <a href="https://trainerpb.github.io/public-htmls/" style="color: var(--primary-color); text-decoration: none;" target="_blank">← Back to Main Repository</a>
             </p>
         </div>
     </div>
+    
+    <script>
+        // Load theme preference from localStorage
+        function loadTheme() {
+            const savedTheme = localStorage.getItem('daa-theme') || 'light';
+            setTheme(savedTheme);
+        }
+        
+        // Set theme and update UI
+        function setTheme(theme) {
+            if (theme === 'dark') {
+                document.body.classList.add('dark-theme');
+                document.getElementById('dark-btn').classList.add('active');
+                document.getElementById('light-btn').classList.remove('active');
+            } else {
+                document.body.classList.remove('dark-theme');
+                document.getElementById('light-btn').classList.add('active');
+                document.getElementById('dark-btn').classList.remove('active');
+            }
+            localStorage.setItem('daa-theme', theme);
+        }
+        
+        // Initialize theme on page load
+        document.addEventListener('DOMContentLoaded', loadTheme);
+    </script>
 </body>
 </html>
