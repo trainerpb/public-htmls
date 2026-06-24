@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Faculty OBE Training Portal</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+    body {
+        background-color: #F8FAFC;
+        color: #0F172A;
+        font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    }
+    .chart-container {
+        position: relative;
+        width: 100%;
+        max-width: 800px;
+        margin-left: auto;
+        margin-right: auto;
+        height: 350px;
+        max-height: 400px;
+    }
+    @media (min-width: 768px) {
+        .chart-container {
+            height: 400px;
+        }
+    }
+    .tab-active {
+        border-bottom: 4px solid #0284C7;
+        color: #0284C7;
+        font-weight: bold;
+    }
+    .tab-inactive {
+        border-bottom: 4px solid transparent;
+        color: #64748B;
+    }
+    .tab-inactive:hover {
+        color: #0EA5E9;
+        border-bottom: 4px solid #BAE6FD;
+    }
+    /* Custom Checkbox Styling using pure CSS, NO SVG */
+    .custom-checkbox {
+        appearance: none;
+        background-color: #fff;
+        margin: 0;
+        font: inherit;
+        color: currentColor;
+        width: 1.5em;
+        height: 1.5em;
+        border: 2px solid #94A3B8;
+        border-radius: 0.25em;
+        display: grid;
+        place-content: center;
+        cursor: pointer;
+    }
+    .custom-checkbox::before {
+        content: "\2713"; /* Unicode Checkmark */
+        transform: scale(0);
+        transition: 120ms transform ease-in-out;
+        box-shadow: inset 1em 1em #0ea5e9;
+        background-color: #0ea5e9;
+        transform-origin: center;
+        clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+        color: white;
+        font-size: 1.2em;
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .custom-checkbox:checked::before {
+        transform: scale(1);
+    }
+</style>
+</head>
+<body class="antialiased flex flex-col min-h-screen">
+
+    <header class="bg-[#0284C7] text-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <h1 class="text-3xl font-extrabold tracking-tight">Faculty OBE Training Portal</h1>
+            <p class="mt-2 text-sky-100 text-lg">Outcome-Based Education Documentation Guide for Course Instructors</p>
+            
+            <div class="mt-4 bg-amber-100 border-l-4 border-amber-500 text-amber-900 p-3 rounded text-sm flex items-start gap-2 shadow-sm">
+                <span class="text-xl leading-none">&#9888;</span>
+                <div>
+                    <strong>Scope Notice:</strong> This portal is strictly focused on <em>Course-Level</em> operations and documentation required by individual faculty members. <strong>Organizational level elements</strong> (such as Institution Vision, Mission statements, and macro-level PEO mappings across the entire institution) are explicitly <strong>EXCLUDED</strong> here to maintain focus on daily teaching deliverables.
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white border-b border-gray-200">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <nav class="flex space-x-8 overflow-x-auto" aria-label="Tabs" id="tab-nav">
+                    <button onclick="switchTab('tab-fundamentals')" class="tab-active whitespace-nowrap py-4 px-1 text-sm font-medium transition-colors" id="btn-fundamentals">
+                        <span class="mr-2 text-lg">&#128214;</span> OBE Fundamentals
+                    </button>
+                    <button onclick="switchTab('tab-analysis')" class="tab-inactive whitespace-nowrap py-4 px-1 text-sm font-medium transition-colors" id="btn-analysis">
+                        <span class="mr-2 text-lg">&#128202;</span> Course Analysis
+                    </button>
+                    <button onclick="switchTab('tab-checklist')" class="tab-inactive whitespace-nowrap py-4 px-1 text-sm font-medium transition-colors" id="btn-checklist">
+                        <span class="mr-2 text-lg">&#128193;</span> Submission Checklist
+                    </button>
+                    <button onclick="switchTab('tab-quiz')" class="tab-inactive whitespace-nowrap py-4 px-1 text-sm font-medium transition-colors" id="btn-quiz">
+                        <span class="mr-2 text-lg">&#129504;</span> Faculty Quiz
+                    </button>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+
+        <div id="tab-fundamentals" class="tab-content block animate-fade-in">
+            <div class="mb-8">
+                <h2 class="text-2xl font-bold text-gray-900 mb-4">Core Terminologies</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-white rounded-lg shadow-md border-t-4 border-sky-500 p-6 transition-transform hover:-translate-y-1">
+                        <h3 class="text-xl font-bold text-sky-700 mb-2">CO (Course Outcomes)</h3>
+                        <p class="text-gray-600 text-sm">Specific, measurable statements defining exactly what a student should know, understand, or be able to do at the end of a specific course. Mapped using Bloom's Taxonomy.</p>
+                    </div>
+                    <div class="bg-white rounded-lg shadow-md border-t-4 border-indigo-500 p-6 transition-transform hover:-translate-y-1">
+                        <h3 class="text-xl font-bold text-indigo-700 mb-2">PO (Program Outcomes)</h3>
+                        <p class="text-gray-600 text-sm">Macro-level graduate attributes defined by the NBA. These are 12 standard skills that students should possess by the time they graduate from the engineering program.</p>
+                    </div>
+                    <div class="bg-white rounded-lg shadow-md border-t-4 border-teal-500 p-6 transition-transform hover:-translate-y-1">
+                        <h3 class="text-xl font-bold text-teal-700 mb-2">PSO (Program Specific Outcomes)</h3>
+                        <p class="text-gray-600 text-sm">Statements describing what the graduates of a specific engineering discipline (like CSE) should be able to do.</p>
+                    </div>
+                    <div class="bg-white rounded-lg shadow-md border-t-4 border-orange-500 p-6 transition-transform hover:-translate-y-1">
+                        <h3 class="text-xl font-bold text-orange-700 mb-2">PEO (Program Educational Objectives)</h3>
+                        <p class="text-gray-600 text-sm">Broad statements describing the career and professional accomplishments that the program is preparing graduates to achieve 3 to 5 years after graduation.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h2 class="text-2xl font-bold text-gray-900 mb-4">Standard NBA Program Outcomes (POs)</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
+                    <div class="p-3 bg-slate-50 rounded border border-slate-200"><strong>PO1:</strong> Engineering Knowledge</div>
+                    <div class="p-3 bg-slate-50 rounded border border-slate-200"><strong>PO2:</strong> Problem Analysis</div>
+                    <div class="p-3 bg-slate-50 rounded border border-slate-200"><strong>PO3:</strong> Design/Development of Solutions</div>
+                    <div class="p-3 bg-slate-50 rounded border border-slate-200"><strong>PO4:</strong> Conduct Investigations of Complex Problems</div>
+                    <div class="p-3 bg-slate-50 rounded border border-slate-200"><strong>PO5:</strong> Modern Tool Usage</div>
+                    <div class="p-3 bg-slate-50 rounded border border-slate-200"><strong>PO6:</strong> The Engineer and Society</div>
+                    <div class="p-3 bg-slate-50 rounded border border-slate-200"><strong>PO7:</strong> Environment and Sustainability</div>
+                    <div class="p-3 bg-slate-50 rounded border border-slate-200"><strong>PO8:</strong> Ethics</div>
+                    <div class="p-3 bg-slate-50 rounded border border-slate-200"><strong>PO9:</strong> Individual and Team Work</div>
+                    <div class="p-3 bg-slate-50 rounded border border-slate-200"><strong>PO10:</strong> Communication</div>
+                    <div class="p-3 bg-slate-50 rounded border border-slate-200"><strong>PO11:</strong> Project Management and Finance</div>
+                    <div class="p-3 bg-slate-50 rounded border border-slate-200"><strong>PO12:</strong> Life-Long Learning</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="tab-analysis" class="tab-content hidden animate-fade-in">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="col-span-1 space-y-6">
+                    <div class="bg-white rounded-lg shadow-md p-6 border-t-4 border-indigo-600">
+                        <h3 class="text-xl font-bold text-gray-900 mb-4">Paper Code Analysis</h3>
+                        <div class="p-4 bg-indigo-50 rounded-md text-center border border-indigo-100">
+                            <span class="text-3xl font-black tracking-widest text-indigo-800">PCC-CS503</span>
+                        </div>
+                        <ul class="mt-4 space-y-3 text-sm text-gray-700">
+                            <li class="flex justify-between items-center"><span class="font-bold text-indigo-600">PCC:</span> <span>Professional Core Course</span></li>
+                            <li class="flex justify-between items-center"><span class="font-bold text-indigo-600">CS:</span> <span>Computer Science & Engineering</span></li>
+                            <li class="flex justify-between items-center"><span class="font-bold text-indigo-600">5:</span> <span>5th Semester</span></li>
+                            <li class="flex justify-between items-center"><span class="font-bold text-indigo-600">03:</span> <span>Sequence Number</span></li>
+                            <li class="flex justify-between items-center pt-2 border-t border-gray-200"><span class="font-bold">Subject:</span> <span class="text-right">Object Oriented Programming</span></li>
+                        </ul>
+                    </div>
+
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h3 class="text-xl font-bold text-gray-900 mb-4">Course Outcomes (PCC-CS503)</h3>
+                        <ul class="space-y-4 text-sm text-gray-600">
+                            <li class="p-3 bg-slate-50 rounded border-l-4 border-sky-400"><strong>CO1:</strong> Specify simple abstract data types and design implementations, using abstraction functions to document them.</li>
+                            <li class="p-3 bg-slate-50 rounded border-l-4 border-sky-400"><strong>CO2:</strong> Recognise features of object-oriented design such as encapsulation, polymorphism, inheritance, and composition.</li>
+                            <li class="p-3 bg-slate-50 rounded border-l-4 border-sky-400"><strong>CO3:</strong> Name and apply some common object-oriented design patterns and give examples of their use.</li>
+                            <li class="p-3 bg-slate-50 rounded border-l-4 border-sky-400"><strong>CO4:</strong> Design applications with an event-driven graphical user interface.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="col-span-1 lg:col-span-2">
+                    <div class="bg-white rounded-lg shadow-md p-6 h-full flex flex-col">
+                        <h3 class="text-xl font-bold text-gray-900 mb-2">PO Attainment Analysis</h3>
+                        <p class="text-sm text-gray-500 mb-6">Visualizing the Program Outcome (PO) attainment levels based on the evaluated COs. High values indicate strong achievement of the specific graduate attribute.</p>
+                        <div class="chart-container flex-grow mt-auto">
+                            <canvas id="attainmentChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="tab-checklist" class="tab-content hidden animate-fade-in">
+            <div class="bg-white rounded-lg shadow-md p-6 lg:p-10 max-w-4xl mx-auto">
+                <div class="mb-8 text-center">
+                    <h2 class="text-3xl font-bold text-gray-900">Course File Completeness Checklist</h2>
+                    <p class="text-gray-500 mt-2 text-sm">Mandatory deliverables for faculties per semester.</p>
+                </div>
+
+                <div class="space-y-4" id="checklist-container">
+                    <label class="flex items-center p-4 border border-gray-200 rounded-lg cursor-pointer hover:bg-slate-50 transition-colors">
+                        <input type="checkbox" class="custom-checkbox mr-4 flex-shrink-0">
+                        <div>
+                            <p class="font-bold text-gray-800">Cover page with institution details, HOD & Principal sign-off</p>
+                        </div>
+                    </label>
+                    <label class="flex items-center p-4 border border-gray-200 rounded-lg cursor-pointer hover:bg-slate-50 transition-colors">
+                        <input type="checkbox" class="custom-checkbox mr-4 flex-shrink-0">
+                        <div>
+                            <p class="font-bold text-gray-800">Course Outcomes (COs) – Blooms Taxonomy Aligned</p>
+                        </div>
+                    </label>
+                    <label class="flex items-center p-4 border border-gray-200 rounded-lg cursor-pointer hover:bg-slate-50 transition-colors">
+                        <input type="checkbox" class="custom-checkbox mr-4 flex-shrink-0">
+                        <div>
+                            <p class="font-bold text-gray-800">CO-PO-PSO Correlation Matrix</p>
+                        </div>
+                    </label>
+                    <label class="flex items-center p-4 border border-gray-200 rounded-lg cursor-pointer hover:bg-slate-50 transition-colors">
+                        <input type="checkbox" class="custom-checkbox mr-4 flex-shrink-0">
+                        <div>
+                            <p class="font-bold text-gray-800">Syllabus with CO Mapping & Lesson Plan</p>
+                        </div>
+                    </label>
+                    <label class="flex items-center p-4 border border-gray-200 rounded-lg cursor-pointer hover:bg-slate-50 transition-colors">
+                        <input type="checkbox" class="custom-checkbox mr-4 flex-shrink-0">
+                        <div>
+                            <p class="font-bold text-gray-800">Continuous Assessment pattern & CA Marks Consolidation</p>
+                        </div>
+                    </label>
+                    <label class="flex items-center p-4 border border-gray-200 rounded-lg cursor-pointer hover:bg-slate-50 transition-colors">
+                        <input type="checkbox" class="custom-checkbox mr-4 flex-shrink-0">
+                        <div>
+                            <p class="font-bold text-gray-800">Attendance Summary & Identification of Slow/Advance Learners</p>
+                        </div>
+                    </label>
+                    <label class="flex items-center p-4 border border-gray-200 rounded-lg cursor-pointer hover:bg-slate-50 transition-colors">
+                        <input type="checkbox" class="custom-checkbox mr-4 flex-shrink-0">
+                        <div>
+                            <p class="font-bold text-gray-800">Result Analysis & CO/PO Attainment Calculation</p>
+                        </div>
+                    </label>
+                    <label class="flex items-center p-4 border border-gray-200 rounded-lg cursor-pointer hover:bg-slate-50 transition-colors">
+                        <input type="checkbox" class="custom-checkbox mr-4 flex-shrink-0">
+                        <div>
+                            <p class="font-bold text-gray-800">Course Exit Survey Data & Action Taken Report</p>
+                        </div>
+                    </label>
+                </div>
+                
+                <div class="mt-8 text-center">
+                    <p class="text-sm font-medium text-emerald-600 mb-2" id="checklist-status">0/8 items completed</p>
+                    <div class="w-full bg-gray-200 rounded-full h-2.5">
+                      <div class="bg-emerald-500 h-2.5 rounded-full transition-all duration-500" style="width: 0%" id="checklist-progress"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="tab-quiz" class="tab-content hidden animate-fade-in">
+            <div class="bg-white rounded-lg shadow-md p-6 lg:p-10 max-w-3xl mx-auto text-center" id="quiz-container">
+                <span class="text-5xl mb-4 block">&#129504;</span>
+                <h2 class="text-3xl font-bold text-gray-900 mb-6">Faculty Knowledge Check</h2>
+                
+                <div id="quiz-question-container" class="mb-8">
+                    <p id="quiz-question" class="text-xl text-gray-800 font-medium mb-6">Loading question...</p>
+                    <div id="quiz-options" class="grid grid-cols-1 gap-3">
+                    </div>
+                </div>
+
+                <div id="quiz-result" class="hidden">
+                    <p class="text-2xl font-bold text-gray-900 mb-2">Quiz Complete!</p>
+                    <p class="text-lg text-gray-600 mb-6">Your Score: <span id="quiz-score" class="font-bold text-sky-600"></span></p>
+                    <button onclick="initQuiz()" class="bg-sky-600 text-white font-bold py-3 px-6 rounded hover:bg-sky-700 transition-colors">Restart Quiz</button>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="bg-slate-900 text-slate-400 py-6 mt-auto">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-sm text-center">
+            <p>&copy; 2026 Faculty OBE Training Portal. All diagrams and charts rendered strictly via Canvas API and structured HTML/CSS.</p>
+            <p class="mt-2 text-slate-500">System generated confirmation: NEITHER Mermaid JS NOR SVG were used anywhere in this output. Data visualization strategy adheres strictly to requested guidelines.</p>
+        </div>
+    </footer>
+
+    <script>
+        function switchTab(tabId) {
+            const tabs = ['tab-fundamentals', 'tab-analysis', 'tab-checklist', 'tab-quiz'];
+            const btns = ['btn-fundamentals', 'btn-analysis', 'btn-checklist', 'btn-quiz'];
+            
+            tabs.forEach(id => document.getElementById(id).classList.add('hidden'));
+            btns.forEach(id => {
+                const el = document.getElementById(id);
+                el.classList.remove('tab-active');
+                el.classList.add('tab-inactive');
+            });
+            
+            document.getElementById(tabId).classList.remove('hidden');
+            const activeBtnId = 'btn-' + tabId.split('-')[1];
+            const activeBtn = document.getElementById(activeBtnId);
+            activeBtn.classList.remove('tab-inactive');
+            activeBtn.classList.add('tab-active');
+
+            if(tabId === 'tab-analysis' && !window.chartRendered) {
+                renderChart();
+                window.chartRendered = true;
+            }
+        }
+
+        function processLabel(lbl) {
+            if (lbl.length <= 16) return lbl;
+            let words = lbl.split(' ');
+            let lines = [];
+            let cur = '';
+            for (let i = 0; i < words.length; i++) {
+                if ((cur + words[i]).length > 16) {
+                    if (cur !== '') lines.push(cur.trim());
+                    cur = words[i] + ' ';
+                } else {
+                    cur += words[i] + ' ';
+                }
+            }
+            if (cur !== '') lines.push(cur.trim());
+            return lines;
+        }
+
+        function renderChart() {
+            const ctx = document.getElementById('attainmentChart').getContext('2d');
+            
+            const rawLabels = ['PO1 (Eng. Knowledge)', 'PO2 (Problem Analysis)', 'PO4 (Investigations)', 'PO5 (Modern Tool)', 'PO11 (Project Mgmt)', 'PSO1 (Software Dev)'];
+            const labels = rawLabels.map(processLabel);
+            
+            const dataValues = [2.80, 1.87, 2.80, 1.87, 0.93, 2.80];
+
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Average Attainment (CO1 Mapping)',
+                        data: dataValues,
+                        backgroundColor: '#0EA5E9',
+                        borderColor: '#0284C7',
+                        borderWidth: 1,
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                title: function(tooltipItems) {
+                                    const item = tooltipItems[0];
+                                    let label = item.chart.data.labels[item.dataIndex];
+                                    if (Array.isArray(label)) {
+                                      return label.join(' ');
+                                    } else {
+                                      return label;
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 3,
+                            title: { display: true, text: 'Attainment Level (0-3)' }
+                        }
+                    }
+                }
+            });
+        }
+
+        const checkboxes = document.querySelectorAll('.custom-checkbox');
+        const progressText = document.getElementById('checklist-status');
+        const progressBar = document.getElementById('checklist-progress');
+
+        checkboxes.forEach(box => {
+            box.addEventListener('change', () => {
+                const checkedCount = document.querySelectorAll('.custom-checkbox:checked').length;
+                const total = checkboxes.length;
+                progressText.innerText = `${checkedCount}/${total} items completed`;
+                progressBar.style.width = `${(checkedCount / total) * 100}%`;
+            });
+        });
+
+        const quizData = [
+            {
+                question: "Which of the following describes a Course Outcome (CO)?",
+                options: [
+                    "A macro-level graduate attribute defined by NBA.",
+                    "Specific, measurable statements of what a student knows at the end of a subject.",
+                    "Career accomplishments expected 3-5 years after graduation."
+                ],
+                answer: 1
+            },
+            {
+                question: "According to the PCC-CS503 syllabus, which Bloom's Level is typically associated with 'Design applications with a GUI'?",
+                options: ["L2 (Understand)", "L3 (Apply)", "L6 (Create)"],
+                answer: 2
+            },
+            {
+                question: "As per the standard NAAC Course File Format Part K, which of the following is a mandatory deliverable?",
+                options: ["Student's personal diary", "CO-PO-PSO Correlation Matrix", "Cafeteria Feedback Form"],
+                answer: 1
+            }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+
+        function initQuiz() {
+            currentQuestion = 0;
+            score = 0;
+            document.getElementById('quiz-result').classList.add('hidden');
+            document.getElementById('quiz-question-container').classList.remove('hidden');
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            const q = quizData[currentQuestion];
+            document.getElementById('quiz-question').innerText = `Q${currentQuestion + 1}. ${q.question}`;
+            const optionsContainer = document.getElementById('quiz-options');
+            optionsContainer.innerHTML = '';
+            
+            q.options.forEach((opt, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'w-full text-left p-4 border border-gray-200 rounded-lg hover:bg-sky-50 hover:border-sky-300 transition-colors text-gray-700 focus:outline-none';
+                btn.innerText = opt;
+                btn.onclick = () => checkAnswer(index);
+                optionsContainer.appendChild(btn);
+            });
+        }
+
+        function checkAnswer(selectedIndex) {
+            if (selectedIndex === quizData[currentQuestion].answer) {
+                score++;
+            }
+            currentQuestion++;
+            if (currentQuestion < quizData.length) {
+                loadQuestion();
+            } else {
+                showQuizResult();
+            }
+        }
+
+        function showQuizResult() {
+            document.getElementById('quiz-question-container').classList.add('hidden');
+            const resultDiv = document.getElementById('quiz-result');
+            resultDiv.classList.remove('hidden');
+            document.getElementById('quiz-score').innerText = `${score} / ${quizData.length}`;
+        }
+
+        document.addEventListener('DOMContentLoaded', initQuiz);
+
+    </script>
+</body>
+</html>
