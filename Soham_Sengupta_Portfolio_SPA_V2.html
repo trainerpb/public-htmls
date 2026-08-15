@@ -1,0 +1,990 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Soham Sengupta - Interactive Portfolio</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-bg: #1A2F4C;
+            --primary-text: #ffffff;
+            --secondary-bg: #f8f9fa;
+            --accent-color: #3498db;
+            --text-dark: #2c3e50;
+            --text-muted: #7f8c8d;
+            --border-color: #e0e6ed;
+            --card-bg: #ffffff;
+            --sidebar-width: 320px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            height: 100vh;
+            background-color: var(--secondary-bg);
+            color: var(--text-dark);
+            overflow: hidden;
+        }
+
+        /* Scrollbar customization */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 4px;
+        }
+        .sidebar::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: var(--sidebar-width);
+            min-width: 260px;
+            max-width: 500px;
+            background: linear-gradient(180deg, #1A2F4C 0%, #112036 100%);
+            color: var(--primary-text);
+            display: flex;
+            flex-direction: column;
+            padding: 2.5rem 1.5rem;
+            overflow-y: auto;
+            box-shadow: 4px 0 15px rgba(0,0,0,0.05);
+            z-index: 10;
+            flex-shrink: 0;
+        }
+
+        /* Resizer Handle */
+        .resizer {
+            width: 6px;
+            background-color: transparent;
+            cursor: col-resize;
+            flex-shrink: 0;
+            z-index: 100;
+            position: relative;
+            transition: background-color 0.2s;
+        }
+        .resizer::after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            height: 40px;
+            width: 2px;
+            background-color: rgba(0,0,0,0.1);
+            border-radius: 2px;
+            transition: background-color 0.2s;
+        }
+        .resizer:hover, .resizer.resizing {
+            background-color: rgba(52, 152, 219, 0.1);
+        }
+        .resizer:hover::after, .resizer.resizing::after {
+            background-color: var(--accent-color);
+        }
+
+        .profile-wrapper {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .profile-pic {
+            width: 130px;
+            height: 130px;
+            border-radius: 50%;
+            border: 3px solid rgba(255,255,255,0.15);
+            object-fit: cover;
+            margin-bottom: 1rem;
+            background-color: rgba(255,255,255,0.05);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: white;
+            margin-left: auto;
+            margin-right: auto;
+            transition: transform 0.3s ease;
+        }
+        .profile-pic:hover {
+            transform: scale(1.05);
+            border-color: rgba(255,255,255,0.3);
+        }
+
+        .profile-name {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            letter-spacing: 0.5px;
+        }
+
+        .profile-title {
+            font-size: 0.85rem;
+            color: #a0aec0;
+            font-weight: 300;
+            line-height: 1.5;
+        }
+
+        /* Navigation */
+        .nav-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 0.3rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .nav-link {
+            background: transparent;
+            border: none;
+            color: rgba(255,255,255,0.6);
+            text-align: left;
+            padding: 0.9rem 1.2rem;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-family: 'Inter', sans-serif;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-link::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 3px;
+            background-color: var(--accent-color);
+            transform: scaleY(0);
+            transition: transform 0.3s ease;
+            transform-origin: center;
+            border-radius: 0 4px 4px 0;
+        }
+
+        .nav-link:hover {
+            background: rgba(255,255,255,0.05);
+            color: #ffffff;
+            padding-left: 1.5rem;
+        }
+        
+        .nav-link.active {
+            background: rgba(52, 152, 219, 0.1);
+            color: #ffffff;
+        }
+
+        .nav-link.active::before {
+            transform: scaleY(1);
+        }
+
+        .nav-link i {
+            width: 20px;
+            text-align: center;
+            font-size: 1.1rem;
+            transition: color 0.3s ease;
+        }
+        .nav-link.active i {
+            color: var(--accent-color);
+        }
+
+        /* Contact Info */
+        .contact-info {
+            margin-top: auto;
+            font-size: 0.8rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            background: rgba(0,0,0,0.15);
+            padding: 1.2rem;
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            color: #a0aec0;
+            line-height: 1.4;
+            word-break: break-word;
+        }
+
+        .contact-item a {
+            color: #a0aec0;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        
+        .contact-item a:hover {
+            color: #ffffff;
+        }
+
+        .contact-item i {
+            color: var(--accent-color);
+            margin-top: 3px;
+            width: 14px;
+            text-align: center;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex-grow: 1;
+            padding: 3rem 4rem;
+            overflow-y: auto;
+            position: relative;
+            background-color: var(--secondary-bg);
+            scroll-behavior: smooth;
+        }
+
+        .content-section {
+            display: none;
+            animation: fadeIn 0.5s ease forwards;
+            opacity: 0;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .section-header {
+            font-family: 'Poppins', sans-serif;
+            font-size: 2rem;
+            color: var(--text-dark);
+            margin-bottom: 2rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .section-header i {
+            color: var(--accent-color);
+        }
+
+        /* Profile Section */
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 2rem;
+        }
+
+        .hero-title {
+            font-family: 'Poppins', sans-serif;
+            font-size: 2.8rem;
+            color: var(--primary-bg);
+            margin-bottom: 0.5rem;
+            line-height: 1.1;
+        }
+
+        .hero-subtitle {
+            font-size: 1.1rem;
+            color: var(--accent-color);
+            font-weight: 500;
+            margin-bottom: 1.5rem;
+        }
+
+        .qr-placeholder {
+            width: 120px;
+            height: 120px;
+            background: #fff;
+            border: 2px dashed #cbd5e1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            color: #94a3b8;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+        .qr-placeholder:hover {
+            border-color: var(--accent-color);
+            color: var(--accent-color);
+            background: #f0f9ff;
+        }
+
+        .summary-card {
+            background: var(--card-bg);
+            padding: 2.5rem;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.03);
+            line-height: 1.8;
+            font-size: 1.05rem;
+            color: #475569;
+            border-left: 4px solid var(--accent-color);
+            position: relative;
+        }
+
+        .summary-card::before {
+            content: '\201C';
+            font-size: 5rem;
+            color: rgba(52, 152, 219, 0.1);
+            font-family: Georgia, serif;
+            position: absolute;
+            top: 10px;
+            left: 20px;
+            line-height: 1;
+        }
+
+        /* Experience Section */
+        .timeline {
+            position: relative;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .experience-card {
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+            margin-bottom: 2rem;
+            border: 1px solid var(--border-color);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .experience-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 20px rgba(0,0,0,0.06);
+            border-color: #cbd5e1;
+        }
+
+        .exp-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1.2rem;
+            flex-wrap: wrap;
+            gap: 10px;
+            border-bottom: 1px solid #f1f5f9;
+            padding-bottom: 1rem;
+        }
+
+        .exp-title {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.25rem;
+            color: var(--primary-bg);
+            font-weight: 600;
+        }
+
+        .exp-company {
+            color: var(--accent-color);
+            font-weight: 500;
+            font-size: 1rem;
+            margin-top: 0.2rem;
+        }
+
+        .exp-date {
+            background: #f8fafc;
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            color: #64748b;
+            font-weight: 600;
+            border: 1px solid #e2e8f0;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .exp-body {
+            line-height: 1.7;
+            color: #475569;
+            font-size: 0.95rem;
+        }
+        
+        .exp-body p {
+            margin-bottom: 0.8rem;
+        }
+
+        .exp-body ul {
+            padding-left: 1.5rem;
+            margin-top: 0.8rem;
+        }
+        
+        .exp-body li {
+            margin-bottom: 0.8rem;
+        }
+
+        .tech-stack-tag {
+            background: #f1f5f9;
+            color: #334155;
+            padding: 0.4rem 0.8rem;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            display: inline-block;
+            margin-top: 0.8rem;
+            border: 1px solid #e2e8f0;
+        }
+
+        /* Skills Section */
+        .skills-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .skill-category {
+            background: var(--card-bg);
+            padding: 1.8rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+            border: 1px solid var(--border-color);
+            transition: all 0.2s;
+        }
+        .skill-category:hover {
+            border-color: #cbd5e1;
+            box-shadow: 0 8px 15px rgba(0,0,0,0.05);
+        }
+
+        .skill-title {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.1rem;
+            color: var(--primary-bg);
+            margin-bottom: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+        }
+        
+        .skill-title i {
+            color: var(--accent-color);
+            background: #f0f9ff;
+            padding: 8px;
+            border-radius: 8px;
+        }
+
+        .skill-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.6rem;
+        }
+
+        .skill-tag {
+            background: #f8fafc;
+            color: #475569;
+            padding: 0.4rem 0.9rem;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            border: 1px solid #e2e8f0;
+            transition: all 0.2s;
+        }
+        .skill-tag:hover {
+            background: #f0f9ff;
+            color: var(--accent-color);
+            border-color: #bae6fd;
+        }
+
+        /* Education & Awards Section */
+        .grid-2col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        .edu-card {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 12px;
+            border-left: 4px solid var(--accent-color);
+            margin-bottom: 1.2rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+            border-top: 1px solid var(--border-color);
+            border-right: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .edu-degree {
+            font-weight: 600;
+            font-size: 1.05rem;
+            color: var(--primary-bg);
+        }
+
+        .edu-school {
+            color: #64748b;
+            margin: 0.4rem 0;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .edu-desc {
+            font-size: 0.9rem;
+            color: #475569;
+            margin-top: 0.8rem;
+            line-height: 1.5;
+        }
+
+        .list-card {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+            border: 1px solid var(--border-color);
+            margin-bottom: 1.5rem;
+        }
+
+        .list-card ul {
+            list-style: none;
+        }
+
+        .list-card li {
+            padding: 0.8rem 0;
+            border-bottom: 1px dashed #e2e8f0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 0.95rem;
+            color: #475569;
+        }
+
+        .list-card li:last-child {
+            border-bottom: none;
+        }
+        
+        .list-card li i.fa-award {
+            color: #f59e0b;
+            font-size: 1.1rem;
+        }
+        
+        .list-card li i.fa-check-circle {
+            color: #10b981;
+            font-size: 1.1rem;
+        }
+
+        @media (max-width: 900px) {
+            body {
+                flex-direction: column;
+                overflow-y: auto;
+            }
+            .sidebar {
+                width: 100% !important;
+                max-width: none;
+                box-shadow: none;
+                border-bottom: 1px solid rgba(255,255,255,0.1);
+            }
+            .resizer {
+                display: none;
+            }
+            .main-content {
+                padding: 2rem;
+                overflow-y: visible;
+            }
+            .grid-2col {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="profile-wrapper">
+            <div class="profile-pic">
+               <img src="./soham.jpg" width="99.88%">
+            </div>
+            <h1 class="profile-name">Soham Sengupta</h1>
+            <p class="profile-title">Solution Architect &<br>Backend Engineer</p>
+        </div>
+
+        <nav class="nav-menu">
+            <button class="nav-link" data-target="profile" onclick="showSection('profile', this)">
+                <i class="fa-solid fa-user"></i> Overview
+            </button>
+            <button class="nav-link" data-target="experience" onclick="showSection('experience', this)">
+                <i class="fa-solid fa-briefcase"></i> Experience
+            </button>
+            <button class="nav-link" data-target="skills" onclick="showSection('skills', this)">
+                <i class="fa-solid fa-code"></i> Tech Arsenal
+            </button>
+            <button class="nav-link" data-target="education" onclick="showSection('education', this)">
+                <i class="fa-solid fa-graduation-cap"></i> Edu & Awards
+            </button>
+        </nav>
+
+        <div class="contact-info">
+            <div class="contact-item">
+                <i class="fa-solid fa-location-dot"></i>
+                <span>Kolkata, West Bengal, India</span>
+            </div>
+            <div class="contact-item">
+                <i class="fa-solid fa-phone"></i>
+                <span>+91-9073353760<br>+91-9681825881</span>
+            </div>
+            <div class="contact-item">
+                <i class="fa-solid fa-envelope"></i>
+                <a href="mailto:soham.sengupta.java@gmail.com">soham.sengupta.java@gmail.com</a>
+            </div>
+            <div class="contact-item">
+                <i class="fa-brands fa-linkedin"></i>
+                <a href="https://in.linkedin.com/in/soham-sengupta-37279825" target="_blank">LinkedIn Profile</a>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Resizer Handle -->
+    <div class="resizer" id="dragMe"></div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        
+        <!-- Section: Profile -->
+        <section id="profile" class="content-section">
+            <div class="header-content">
+                <div>
+                    <h1 class="hero-title">SOHAM SENGUPTA</h1>
+                    <h3 class="hero-subtitle">Java Software Engineer | Solution Architect | Backend Engineer | AI Integration | Multi-faceted Stack</h3>
+                </div>
+                <div class="qr-placeholder">
+                    <i class="fa-solid fa-qrcode fa-3x" style="color:#cbd5e1; margin-bottom:8px;"></i>
+                    <span>Scan Profile</span>
+                </div>
+            </div>
+            
+            <div class="summary-card">
+                Java Stack-neutral Software Engineer and Architect with a proven track record of ahead-of-time intuitive and innovative ideas. Possesses a deep-seated ability to design high-scale and high-throughput systems, balancing architectural rigor with pragmatic execution. Driven by innovation and intuition, recently transitioned an extensive, enterprise expertise into the Generative AI era. Pioneering modern architectures utilizing Java, Retrieval-Augmented Generation (RAG), and advanced messaging systems. A strong advocate for "foundation-first" engineering, bridging the gap between core computer science principles and cutting-edge decentralized solutions. Proven track records of envisaging, designing, and developing products and safely deliver them, phase wise, from incubation to Operations.
+            </div>
+        </section>
+
+        <!-- Section: Experience -->
+        <section id="experience" class="content-section">
+            <h2 class="section-header"><i class="fa-solid fa-briefcase"></i> Work Experience</h2>
+            <div class="timeline">
+                
+                <!-- Job 1 -->
+                <div class="experience-card">
+                    <div class="exp-header">
+                        <div>
+                            <h3 class="exp-title">Senior Specialist Software Engineering</h3>
+                            <div class="exp-company">LTIMINDTREE India</div>
+                        </div>
+                        <div class="exp-date"><i class="fa-regular fa-calendar"></i> FEB 2022 – FEB 2026</div>
+                    </div>
+                    <div class="exp-body">
+                        <p>Initiated a sabbatical to take care of parents and kid during an emergency, ultimately deciding to temporarily live on an as independent engineering practitioner, trainer and educator.</p>
+                        <p><strong>Citi US/CA (Project):</strong> Served as an independent Technical Architect and Software Development Engineer (SDE). Guided the team through complex legacy migrations, successfully migrating systems from Java 8 to 17, and actively paved the architectural runway for Java 17 adoption. Conducted rigorous code reviews, successfully pinpointing and resolving critical architectural flaws within the ecosystem. Developed several custom tools for in-house consumption utilizing JOLT (JSON to JSON Transformation) and OAuth to secure and streamline internal workflows.</p>
+                        <div class="tech-stack-tag"><i class="fa-solid fa-layer-group"></i> <strong>Tech Stack:</strong> Java, PostgreSQL, JOLT, Microservices, Design patterns, annotation-based factory framework, Java records, Pattern matching, Java 17+.</div>
+                        <br><br>
+                        <p><strong>Staples Enterprise Architecture (Project):</strong> Operated as a solution architect and individual contributor. Contributed heavily to supply chain business solutions, internal developer accelerators, and in-house tooling.</p>
+                        <div class="tech-stack-tag"><i class="fa-solid fa-layer-group"></i> <strong>Tech Stack:</strong> Java 8-11, Spring Microservices, Spring Cloud, Cache, Spring Admin Dashboard, Couchbase, Redis, DB2, MySQL, PostgreSQL, Elastic Search, Splunk, Azure Vault, Kafka, IBM MQ, Hazelcast, DBeaver, Maven, Git, Docker.</div>
+                    </div>
+                </div>
+
+                <!-- Job 2 -->
+                <div class="experience-card">
+                    <div class="exp-header">
+                        <div>
+                            <h3 class="exp-title">Lead Developer - Principal Architect</h3>
+                            <div class="exp-company">PAYBACK INDIA</div>
+                        </div>
+                        <div class="exp-date"><i class="fa-regular fa-calendar"></i> MAR 2018 – FEB 2022</div>
+                    </div>
+                    <div class="exp-body">
+                        <p>Formulated robust architectures for new product lines, led stack modernization, and mentored development teams.</p>
+                        <ul>
+                            <li><strong>ICICI Mobile Platform Integration:</strong> Acted as Chief Architect, Individual Contributor, and Lead for backend, mobile, and web applications. Managed product lifecycle from scratch to operations, decoupling legacy Java systems into a modernized Spring Boot microservices architecture.
+                                <br><div class="tech-stack-tag">Stack: Java, Spring Boot Microservices, Oracle, MySQL, MongoDB, Kafka, ELK, Linux, Mule ESB, Android, ZK framework, Docker</div>
+                            </li>
+                            <li><strong>Future Group Digital Platform Integration:</strong> Led the digital transformation of the customer onboarding and loyalty platform integration.
+                                <br><div class="tech-stack-tag">Stack: Java, Spring Boot Microservices, AngularJS, ZK, Android, Mule ESB.</div>
+                            </li>
+                            <li><strong>Apollo Pharmacy Loyalty Platform Integration:</strong> Architected high-throughput microservices exposed for Apollo Pharmacy POS systems utilizing Spring Boot Microservices, Mule ESB, MongoDB, and Redis Cache.</li>
+                            <li><strong>Scan & Pay Product:</strong> Solution Architect integrating PAYBACK's multi-program loyalty system with UPI payments via BharatPe merchant QR codes.</li>
+                            <li><strong>In-house Rule Engine:</strong> A lightweight rule engine supporting multi-languages.
+                                <br><div class="tech-stack-tag">Stack: Java, Spring Boot Microservices, MongoDB, Kafka, ELK</div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Job 3 -->
+                <div class="experience-card">
+                    <div class="exp-header">
+                        <div>
+                            <h3 class="exp-title">Software Architect, R&D</h3>
+                            <div class="exp-company">KRYOTECH – A start up</div>
+                        </div>
+                        <div class="exp-date"><i class="fa-regular fa-calendar"></i> June 2017 – Mar 2018</div>
+                    </div>
+                    <div class="exp-body">
+                        <ul>
+                            <li>Closely worked with innovation team of a proprietary cryptographic algorithm suite, implemented those as artifacts, integrated them in cryptographic standards like AES.</li>
+                            <li>Developed Multi-tenant SaaS (Security as-a Service) backend and frontend modules.</li>
+                            <li>Plugin for Google Chrome Integration in Gmail Inbox SDK.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Job 4 -->
+                <div class="experience-card">
+                    <div class="exp-header">
+                        <div>
+                            <h3 class="exp-title">Software Architect</h3>
+                            <div class="exp-company">PROPHECY SENSORLYTICS</div>
+                        </div>
+                        <div class="exp-date"><i class="fa-regular fa-calendar"></i> Apr 2016 – June 2017</div>
+                    </div>
+                    <div class="exp-body">
+                        <p><strong>Crystall-ball:</strong> developed a 360-degree, multi-tenant, B2B IoT portal and all backend services.</p>
+                        <div class="tech-stack-tag"><i class="fa-solid fa-layer-group"></i> <strong>Tech Stack:</strong> Java, MySQL, Express, MongoDB, ZK.</div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- Section: Skills -->
+        <section id="skills" class="content-section">
+            <h2 class="section-header"><i class="fa-solid fa-code"></i> Technical Arsenal</h2>
+            
+            <div class="skills-grid">
+                <div class="skill-category">
+                    <div class="skill-title"><i class="fa-brands fa-java"></i> Languages</div>
+                    <div class="skill-tags">
+                        <span class="skill-tag">Java SE 8-11</span>
+                        <span class="skill-tag">Java 25</span>
+                        <span class="skill-tag">JavaScript</span>
+                        <span class="skill-tag">Python</span>
+                    </div>
+                </div>
+
+                <div class="skill-category">
+                    <div class="skill-title"><i class="fa-solid fa-microchip"></i> AI Integration</div>
+                    <div class="skill-tags">
+                        <span class="skill-tag">Generative AI</span>
+                        <span class="skill-tag">RAG</span>
+                        <span class="skill-tag">MCP (Stateless/Stateful)</span>
+                        <span class="skill-tag">Spring AI</span>
+                        <span class="skill-tag">LLM Handlers</span>
+                    </div>
+                </div>
+
+                <div class="skill-category">
+                    <div class="skill-title"><i class="fa-solid fa-sitemap"></i> Architecture & Design</div>
+                    <div class="skill-tags">
+                        <span class="skill-tag">Microservices</span>
+                        <span class="skill-tag">EDA</span>
+                        <span class="skill-tag">System Design</span>
+                        <span class="skill-tag">SRS</span>
+                        <span class="skill-tag">Decoupled Architectures</span>
+                    </div>
+                </div>
+
+                <div class="skill-category">
+                    <div class="skill-title"><i class="fa-solid fa-globe"></i> Frameworks & Web</div>
+                    <div class="skill-tags">
+                        <span class="skill-tag">Spring Boot</span>
+                        <span class="skill-tag">Spring Cloud</span>
+                        <span class="skill-tag">JPA</span>
+                        <span class="skill-tag">REST APIs</span>
+                        <span class="skill-tag">OAuth</span>
+                    </div>
+                </div>
+
+                <div class="skill-category">
+                    <div class="skill-title"><i class="fa-solid fa-network-wired"></i> Messaging & Integration</div>
+                    <div class="skill-tags">
+                        <span class="skill-tag">Kafka</span>
+                        <span class="skill-tag">Mule ESB</span>
+                        <span class="skill-tag">MQTT (Mosquitto)</span>
+                        <span class="skill-tag">RabbitMQ</span>
+                        <span class="skill-tag">ActiveMQ</span>
+                        <span class="skill-tag">JOLT</span>
+                    </div>
+                </div>
+
+                <div class="skill-category">
+                    <div class="skill-title"><i class="fa-solid fa-database"></i> Databases & Caching</div>
+                    <div class="skill-tags">
+                        <span class="skill-tag">PostgreSQL</span>
+                        <span class="skill-tag">MySQL</span>
+                        <span class="skill-tag">Oracle</span>
+                        <span class="skill-tag">DB2</span>
+                        <span class="skill-tag">MongoDB</span>
+                        <span class="skill-tag">Couchbase</span>
+                        <span class="skill-tag">Redis</span>
+                        <span class="skill-tag">Hazelcast</span>
+                    </div>
+                </div>
+
+                <div class="skill-category">
+                    <div class="skill-title"><i class="fa-solid fa-cloud"></i> DevOps & Cloud</div>
+                    <div class="skill-tags">
+                        <span class="skill-tag">Maven</span>
+                        <span class="skill-tag">Git</span>
+                        <span class="skill-tag">Docker</span>
+                        <span class="skill-tag">Linux</span>
+                        <span class="skill-tag">Basic K8s</span>
+                        <span class="skill-tag">AWS/Azure/GCP</span>
+                        <span class="skill-tag">Java SDK / CLI</span>
+                    </div>
+                </div>
+                
+                <div class="skill-category">
+                    <div class="skill-title"><i class="fa-solid fa-chart-line"></i> Observability</div>
+                    <div class="skill-tags">
+                        <span class="skill-tag">OpenTelemetry</span>
+                        <span class="skill-tag">Prometheus/Grafana</span>
+                        <span class="skill-tag">ELK Stack</span>
+                        <span class="skill-tag">Splunk</span>
+                        <span class="skill-tag">Azure Vault</span>
+                        <span class="skill-tag">Zipkin</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section: Education -->
+        <section id="education" class="content-section">
+            <h2 class="section-header"><i class="fa-solid fa-graduation-cap"></i> Education & Awards</h2>
+            
+            <div class="grid-2col">
+                <div>
+                    <h3 class="exp-title" style="margin-bottom: 1.2rem;"><i class="fa-solid fa-book"></i> Academic Background</h3>
+                    
+                    <div class="edu-card">
+                        <div class="edu-degree">M. Tech: Mobile Computing and Network Technology</div>
+                        <div class="edu-school">West Bengal University of Technology | DGPA: 8.92 (3rd rank)</div>
+                        <div class="edu-desc">Specializes in Java ME mobile application development, Network protocols and JSR-82 for Bluetooth based automation systems.</div>
+                    </div>
+
+                    <div class="edu-card">
+                        <div class="edu-degree">B. Tech: Information Technology (Hons.)</div>
+                        <div class="edu-school">University of Kalyani | 80.38%</div>
+                        <div class="edu-desc">Specializes in Java, Web Applications, Simulation based interactive study materials STEM.</div>
+                    </div>
+
+                    <div class="edu-card">
+                        <div class="edu-degree">12th Standard</div>
+                        <div class="edu-school">West Bengal Council of Higher Secondary Education | 94% (8th rank in State Board)</div>
+                    </div>
+                    
+                    <div class="edu-card">
+                        <div class="edu-degree">10th Standard</div>
+                        <div class="edu-school">West Bengal Board | ~90% (38th rank in State Board)</div>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="exp-title" style="margin-bottom: 1.2rem;"><i class="fa-solid fa-trophy"></i> Recognitions & Publications</h3>
+                    <div class="list-card">
+                        <ul>
+                            <li><i class="fa-solid fa-award"></i> <span>Business Excellence | PAYBACK | 2019-20</span></li>
+                            <li><i class="fa-solid fa-award"></i> <span>Prophecy Best Employee Award | 2016</span></li>
+                            <li><i class="fa-solid fa-award"></i> <span>National winner | CSI Young IT Professional Award | 2008</span></li>
+                            <li><i class="fa-solid fa-award"></i> <span>National winner | CSI Young IT Professional Award | 2009</span></li>
+                            <li><i class="fa-solid fa-award"></i> <span>IBM Drona Award | 2009</span></li>
+                        </ul>
+                    </div>
+
+                    <h3 class="exp-title" style="margin-bottom: 1.2rem; margin-top: 2rem;"><i class="fa-solid fa-certificate"></i> Certifications</h3>
+                    <div class="list-card">
+                        <ul>
+                            <li><i class="fa-solid fa-check-circle"></i> <span>Oracle Certified Java Programmer</span></li>
+                            <li><i class="fa-solid fa-check-circle"></i> <span>IBM Certified Developer RAD255</span></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Interactive Scripts -->
+    <script>
+        // --- Tab Navigation Logic ---
+        function showSection(sectionId, element) {
+            // Hide all sections
+            document.querySelectorAll('.content-section').forEach(sec => {
+                sec.classList.remove('active');
+            });
+            
+            // Remove active class from all links
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            
+            // Show target section
+            const targetSection = document.getElementById(sectionId);
+            if(targetSection) {
+                targetSection.classList.add('active');
+            }
+            
+            // Add active class to clicked link
+            if(element) {
+                element.classList.add('active');
+            }
+            
+            // Scroll back to top on change
+            document.querySelector('.main-content').scrollTop = 0;
+        }
+
+        // Initialize first view explicitly on page load to prevent "blank slate" bugs
+        document.addEventListener('DOMContentLoaded', () => {
+            const defaultNav = document.querySelector('.nav-link[data-target="profile"]');
+            showSection('profile', defaultNav);
+        });
+
+        // --- Sidebar Resizing Logic ---
+        const resizer = document.getElementById('dragMe');
+        const sidebar = document.getElementById('sidebar');
+
+        let isResizing = false;
+
+        resizer.addEventListener('mousedown', (e) => {
+            isResizing = true;
+            document.body.style.cursor = 'col-resize';
+            resizer.classList.add('resizing');
+            // Prevent text selection while dragging
+            document.body.style.userSelect = 'none';
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (!isResizing) return;
+            
+            // Get the new width based on mouse X position
+            let newWidth = e.clientX;
+            
+            // Apply min and max constraints (260px - 500px)
+            if (newWidth >= 260 && newWidth <= 500) {
+                sidebar.style.width = newWidth + 'px';
+            }
+        });
+
+        document.addEventListener('mouseup', () => {
+            if (isResizing) {
+                isResizing = false;
+                document.body.style.cursor = 'default';
+                resizer.classList.remove('resizing');
+                document.body.style.userSelect = 'auto';
+            }
+        });
+    </script>
+</body>
+</html>
