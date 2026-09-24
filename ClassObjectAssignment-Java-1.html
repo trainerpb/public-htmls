@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Java Classes & Objects</title>
+    <style>
+        :root {
+            --bg-color: #f4f7f6;
+            --text-color: #333;
+            --nav-bg: #2c3e50;
+            --nav-text: #fff;
+            --accent: #3498db;
+            --coding-accent: #e67e22;
+            --card-bg: #fff;
+            --border: #ddd;
+            --hint-bg: #fff3cd;
+            --hint-text: #856404;
+            --copo-bg: #e2e3e5;
+            --copo-text: #383d41;
+            --code-bg: #282c34;
+            --code-text: #abb2bf;
+            --base-font-size: 16px;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #1a1a1a;
+            --text-color: #e0e0e0;
+            --nav-bg: #111;
+            --card-bg: #2d2d2d;
+            --border: #444;
+            --hint-bg: #3d3113;
+            --hint-text: #ffda6a;
+            --copo-bg: #3a3b3c;
+            --copo-text: #e4e6eb;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-size: var(--base-font-size);
+            margin: 0;
+            padding: 0;
+            transition: all 0.3s ease;
+        }
+
+        header {
+            background-color: var(--nav-bg);
+            color: var(--nav-text);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .controls button {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            margin-left: 0.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .controls button:hover {
+            opacity: 0.9;
+        }
+
+        nav {
+            display: flex;
+            background: var(--card-bg);
+            padding: 0 2rem;
+            border-bottom: 2px solid var(--border);
+            overflow-x: auto;
+        }
+
+        nav button {
+            background: none;
+            border: none;
+            padding: 1rem;
+            color: var(--text-color);
+            font-size: 1rem;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            white-space: nowrap;
+        }
+
+        nav button.active {
+            border-bottom: 3px solid var(--accent);
+            color: var(--accent);
+            font-weight: bold;
+        }
+
+        main {
+            padding: 2rem;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .tab-content {
+            display: none;
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        pre {
+            background: var(--code-bg);
+            color: var(--code-text);
+            padding: 1rem;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        /* Accordion Styles */
+        details {
+            background: var(--bg-color);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            margin-bottom: 1rem;
+            padding: 0.5rem;
+        }
+
+        summary {
+            font-weight: bold;
+            cursor: pointer;
+            padding: 0.5rem;
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .question-text {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .meta-tags {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            font-size: 0.75em;
+            padding: 0.3em 0.6em;
+            border-radius: 12px;
+            font-weight: bold;
+        }
+
+        .co-po {
+            background: var(--copo-bg);
+            color: var(--copo-text);
+            border: 1px solid var(--border);
+        }
+
+        .hint {
+            background: var(--hint-bg);
+            color: var(--hint-text);
+        }
+
+        .answer-content {
+            padding: 1rem;
+            border-top: 1px solid var(--border);
+            margin-top: 0.5rem;
+        }
+
+        .answer-content pre {
+            margin: 0.5rem 0;
+            font-size: 0.9em;
+        }
+
+        footer {
+            text-align: center;
+            padding: 2rem;
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+        
+        footer a {
+            color: var(--text-color);
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        footer a:hover {
+            color: var(--accent);
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div>
+            <h2 style="margin: 0;">Java Fundamentals: Classes & Objects</h2>
+            <small>Foundation-First Engineering Curriculum</small>
+        </div>
+        <div class="controls">
+            <button onclick="changeFontSize(-1)">A-</button>
+            <button onclick="changeFontSize(1)">A+</button>
+            <button onclick="toggleTheme()">🌓 Toggle Theme</button>
+        </div>
+    </header>
+
+    <nav id="navbar">
+        <button class="tab-btn active" onclick="openTab('topic1')">1. Fields</button>
+        <button class="tab-btn" onclick="openTab('topic2')">2. Methods</button>
+        <button class="tab-btn" onclick="openTab('topic3')">3. Encapsulation</button>
+        <button class="tab-btn" onclick="openTab('topic4')">4. Passing & Returning</button>
+        <button class="tab-btn" onclick="openTab('topic5')">5. Object Mutability</button>
+        <button class="tab-btn" onclick="openTab('assignment')" style="color: var(--accent);">📝 Theory (30 Qs)</button>
+        <button class="tab-btn" onclick="openTab('codingTab')" style="color: var(--coding-accent);">💻 Coding (20 Qs)</button>
+    </nav>
+
+    <main>
+        <!-- Topic 1 -->
+        <div id="topic1" class="tab-content active">
+            <h2>Fields: Static vs Non-Static</h2>
+            <p>Fields represent the state of an object. <strong>Instance variables</strong> (non-static) belong to a specific object. <strong>Static variables</strong> belong to the class itself and are shared across all instances.</p>
+<pre><code>public class Student {
+    // Instance variable: unique to each student
+    String name; 
+    
+    // Static variable: shared among all students
+    static String university = "Global University"; 
+    
+    public Student(String name) {
+        this.name = name;
+    }
+}
+</code></pre>
+        </div>
+
+        <!-- Topic 2 -->
+        <div id="topic2" class="tab-content">
+            <h2>Methods: Static vs Non-Static</h2>
+            <p><strong>Instance methods</strong> operate on specific objects and can access instance variables using `this`. <strong>Static methods</strong> operate at the class level and cannot access instance variables directly.</p>
+<pre><code>public class MathUtility {
+    int multiplier = 2; // Instance field
+
+    // Instance method: requires an object creation
+    public int multiply(int a) {
+        return a * this.multiplier;
+    }
+
+    // Static method: called via MathUtility.add(5, 3)
+    public static int add(int a, int b) {
+        return a + b;
+    }
+}
+</code></pre>
+        </div>
+
+        <!-- Topic 3 -->
+        <div id="topic3" class="tab-content">
+            <h2>Getters, Setters & Encapsulation</h2>
+            <p>Encapsulation hides the internal state. Fields are declared `private`, and access is granted via public `get` and `set` methods. This allows validation before mutation.</p>
+<pre><code>public class Account {
+    private double balance;
+
+    // Getter
+    public double getBalance() {
+        return this.balance;
+    }
+
+    // Setter with validation
+    public void setBalance(double balance) {
+        if (balance >= 0) {
+            this.balance = balance;
+        }
+    }
+}
+</code></pre>
+        </div>
+
+        <!-- Topic 4 -->
+        <div id="topic4" class="tab-content">
+            <h2>Passing & Returning Objects</h2>
+            <p>Methods can accept objects as parameters and return objects. When you return an object, you are returning the <strong>reference</strong> to that object in memory.</p>
+<pre><code>public class ProfileManager {
+    
+    // Passing an object
+    public void displayProfile(Student s) {
+        System.out.println(s.getName());
+    }
+
+    // Returning an object
+    public Student createStudent(String name) {
+        Student newStudent = new Student(name);
+        return newStudent; 
+    }
+}
+</code></pre>
+        </div>
+
+        <!-- Topic 5 -->
+        <div id="topic5" class="tab-content">
+            <h2>Object Mutability During Method Calls</h2>
+            <p>Java is strictly <strong>pass-by-value</strong>. However, when passing an object, the "value" passed is the <strong>reference</strong> to the object. Modifying the object's state inside the method affects the original object, but reassigning the reference does not.</p>
+<pre><code>public class MutabilityDemo {
+    
+    public void modifyState(Student s) {
+        s.setName("Alice"); // Caller WILL see this change
+    }
+
+    public void reassignReference(Student s) {
+        s = new Student("Bob"); // Caller WILL NOT see this change
+    }
+}
+</code></pre>
+        </div>
+
+        <!-- Theory Assignment Tab -->
+        <div id="assignment" class="tab-content">
+            <h2>Theory Assignment: Classes & Objects (30 Questions)</h2>
+            <p>Click on any question to expand and view the answer.</p>
+            <div id="accordion-container"></div>
+        </div>
+
+        <!-- Coding Assignment Tab -->
+        <div id="codingTab" class="tab-content">
+            <h2 style="color: var(--coding-accent);">Coding Assignment: Classes & Objects (20 Questions)</h2>
+            <p>Click on any question to view the implementation. Focus on structural correctness and encapsulation.</p>
+            <div id="coding-accordion-container"></div>
+        </div>
+    </main>
+
+    <footer>
+        <p>Prepared by Soham Sengupta | <a href="https://in.linkedin.com/in/soham-sengupta-37279825" target="_blank">LinkedIn Profile</a></p>
+    </footer>
+
+    <script>
+        // --- UI Logic ---
+        let currentFontSize = 16;
+        
+        function changeFontSize(step) {
+            currentFontSize += step * 2;
+            document.documentElement.style.setProperty('--base-font-size', currentFontSize + 'px');
+        }
+
+        function toggleTheme() {
+            const body = document.body;
+            if (body.getAttribute('data-theme') === 'dark') {
+                body.removeAttribute('data-theme');
+            } else {
+                body.setAttribute('data-theme', 'dark');
+            }
+        }
+
+        function openTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            event.currentTarget.classList.add('active');
+        }
+
+        // --- Theory Question Data ---
+        const theoryQuestions = [
+            // Fields (1-6)
+            { q: "What is the default value of an uninitialized instance variable of type boolean?", ans: "false", hint: "Check default primitive states.", co: "CO1 (Remember)", po: "PO1" },
+            { q: "Can a static method access an instance variable directly?", ans: "No, because static methods belong to the class, not a specific object instance.", hint: "Think about 'this' keyword.", co: "CO2 (Understand)", po: "PO2" },
+            { q: "Is memory for a static field allocated every time a new object is created?", ans: "No, memory for static fields is allocated only once when the class is loaded.", hint: "Classloader behavior.", co: "CO2 (Understand)", po: "PO1" },
+            { q: "How do you correctly access a static field named 'count' in a class named 'Car'?", ans: "Car.count", hint: "Use the class name.", co: "CO3 (Apply)", po: "PO2" },
+            { q: "What is the scope of an instance variable?", ans: "It exists as long as the object it belongs to exists in memory (until garbage collected).", hint: "Object lifecycle.", co: "CO2 (Understand)", po: "PO1" },
+            { q: "Can two different objects of the same class have different values for a static field?", ans: "No, a static field is shared across all instances of the class.", hint: "Shared memory.", co: "CO2 (Understand)", po: "PO2" },
+            
+            // Methods (7-12)
+            { q: "Do you need to create an object to call a static method?", ans: "No, static methods can be called using the Class name.", hint: "Math.max() is an example.", co: "CO1 (Remember)", po: "PO1" },
+            { q: "Can an instance method call a static method?", ans: "Yes, instance methods have access to both instance and static members.", hint: "Access hierarchy.", co: "CO2 (Understand)", po: "PO3" },
+            { q: "Does a static method have access to the 'this' reference?", ans: "No, 'this' refers to the current object instance, which doesn't exist in a static context.", hint: "Context matters.", co: "CO2 (Understand)", po: "PO2" },
+            { q: "Can we overload static methods in Java?", ans: "Yes, static methods can be overloaded just like instance methods.", hint: "Same name, different parameters.", co: "CO3 (Apply)", po: "PO3" },
+            { q: "If a method does not return any value, what must its return type be?", ans: "void", hint: "Empty return.", co: "CO1 (Remember)", po: "PO1" },
+            { q: "Can a non-static method modify a static variable?", ans: "Yes, any method in the class can modify a static variable.", hint: "Shared state mutation.", co: "CO4 (Analyze)", po: "PO2" },
+
+            // Getters/Setters (13-18)
+            { q: "Why is it recommended to make fields private?", ans: "To enforce encapsulation and prevent unauthorized or invalid modification of an object's state.", hint: "Data hiding.", co: "CO5 (Evaluate)", po: "PO3" },
+            { q: "What is the standard naming convention for a getter method returning a boolean named 'isActive'?", ans: "isActive() or getActive()", hint: "Boolean convention.", co: "CO1 (Remember)", po: "PO1" },
+            { q: "What is the primary role of a setter method?", ans: "To safely mutate the state of a private field, often including validation logic.", hint: "Controlled mutation.", co: "CO2 (Understand)", po: "PO2" },
+            { q: "Can a getter method return a calculated value instead of a direct field?", ans: "Yes, getters can compute and return values based on multiple fields.", hint: "Derived properties.", co: "CO4 (Analyze)", po: "PO3" },
+            { q: "How do you make a class field strictly read-only after initialization?", ans: "Provide a public getter method, but omit the setter method.", hint: "Restrict mutation.", co: "CO6 (Create)", po: "PO3" },
+            { q: "In a setter method, how do you resolve the naming conflict if the parameter name is identical to the field name?", ans: "Use the 'this' keyword (e.g., this.age = age;).", hint: "Shadowing resolution.", co: "CO3 (Apply)", po: "PO2" },
+
+            // Passing & Returning Objects (19-24)
+            { q: "When a method returns an object, what is technically being passed back to the caller?", ans: "A reference to the object in the heap memory.", hint: "Pointers in disguise.", co: "CO2 (Understand)", po: "PO4" },
+            { q: "Can a method return multiple distinct objects natively?", ans: "No, you must wrap them in an array, collection, or a custom wrapper object.", hint: "Single return rule.", co: "CO4 (Analyze)", po: "PO2" },
+            { q: "If a method signature is 'public void process(Student s)', what happens if you pass 'null'?", ans: "It compiles and runs, but accessing 's' inside the method will throw a NullPointerException.", hint: "Absence of object.", co: "CO5 (Evaluate)", po: "PO4" },
+            { q: "Can a class have a method that returns an object of its own type?", ans: "Yes, this is common in Factory methods and the Builder pattern.", hint: "Self-referencing return.", co: "CO4 (Analyze)", po: "PO3" },
+            { q: "How do you instantiate and return an object in a single line?", ans: "return new ClassName();", hint: "Inline instantiation.", co: "CO3 (Apply)", po: "PO1" },
+            { q: "What happens to an object created inside a method if it is not returned or stored globally?", ans: "It becomes eligible for Garbage Collection once the method execution completes.", hint: "Memory management.", co: "CO2 (Understand)", po: "PO4" },
+
+            // Object Mutability (25-30)
+            { q: "If method A passes an object to method B, and method B changes a field in that object, does method A see the change?", ans: "Yes, because both methods hold a reference pointing to the exact same object in memory.", hint: "Pass-by-value of references.", co: "CO4 (Analyze)", po: "PO4" },
+            { q: "If method B reassigns the passed parameter to a new object (e.g., s = new Student()), does method A see the new object?", ans: "No, the reassignment only affects method B's local copy of the reference.", hint: "Reference reassignment.", co: "CO4 (Analyze)", po: "PO4" },
+            { q: "How can you prevent a method from modifying the state of an object you pass to it?", ans: "Pass a copy/clone of the object, or make the object's class entirely immutable.", hint: "Defensive copying.", co: "CO6 (Create)", po: "PO5" },
+            { q: "Are Java String objects mutable when passed to a method?", ans: "No, Strings are immutable in Java. Any modification creates a completely new String object.", hint: "Special class behavior.", co: "CO2 (Understand)", po: "PO3" },
+            { q: "What is the term for a method modifying an object passed to it as an argument?", ans: "A side-effect.", hint: "Functional programming term.", co: "CO1 (Remember)", po: "PO5" },
+            { q: "Why is passing highly mutable objects to external methods sometimes considered poor design?", ans: "It breaks encapsulation and makes tracking state changes across the application very difficult.", hint: "Predictability of code.", co: "CO5 (Evaluate)", po: "PO5" }
+        ];
+
+        // --- Coding Question Data ---
+        const codingQuestions = [
+            { 
+                q: "Write a class `Product` with private fields `price` and `name`. Provide appropriate getters and setters.", 
+                ans: `<pre><code>public class Product {
+    private String name;
+    private double price;
+
+    public String getName() { return this.name; }
+    public void setName(String name) { this.name = name; }
+    
+    public double getPrice() { return this.price; }
+    public void setPrice(double price) { this.price = price; }
+}</code></pre>`, 
+                hint: "Use the 'this' keyword.", co: "CO3 (Apply)", po: "PO1" 
+            },
+            { 
+                q: "Write a `MathUtils` class with a static method `calculateCircleArea` that accepts a radius and returns the area.", 
+                ans: `<pre><code>public class MathUtils {
+    public static double calculateCircleArea(double radius) {
+        return Math.PI * radius * radius;
+    }
+}</code></pre>`, 
+                hint: "Static methods don't need object instantiation.", co: "CO3 (Apply)", po: "PO2" 
+            },
+            { 
+                q: "Create a method `applyDiscount` that takes a `Product` object and reduces its price by 10%. Demonstrate object mutability.", 
+                ans: `<pre><code>public class Store {
+    public void applyDiscount(Product p) {
+        double currentPrice = p.getPrice();
+        p.setPrice(currentPrice * 0.90);
+    }
+}</code></pre>`, 
+                hint: "Modify the object directly via its setter.", co: "CO4 (Analyze)", po: "PO3" 
+            },
+            { 
+                q: "Write a method `createDefaultUser()` that instantiates and returns a new `User` object with the name 'Guest'.", 
+                ans: `<pre><code>public class UserFactory {
+    public User createDefaultUser() {
+        User u = new User();
+        u.setName("Guest");
+        return u;
+    }
+}</code></pre>`, 
+                hint: "Instantiate inside the method and return the reference.", co: "CO6 (Create)", po: "PO2" 
+            },
+            { 
+                q: "Design a `Counter` class with a static field `instanceCount` that increments every time a new object is created.", 
+                ans: `<pre><code>public class Counter {
+    private static int instanceCount = 0;
+
+    public Counter() {
+        instanceCount++;
+    }
+
+    public static int getInstanceCount() {
+        return instanceCount;
+    }
+}</code></pre>`, 
+                hint: "Modify the static variable inside the constructor.", co: "CO4 (Analyze)", po: "PO3" 
+            },
+            { 
+                q: "Write a method `getOlder(Person p1, Person p2)` that takes two `Person` objects and returns the one with the higher age.", 
+                ans: `<pre><code>public class AgeComparator {
+    public Person getOlder(Person p1, Person p2) {
+        if (p1.getAge() >= p2.getAge()) {
+            return p1;
+        }
+        return p2;
+    }
+}</code></pre>`, 
+                hint: "Return a reference to one of the parameters.", co: "CO5 (Evaluate)", po: "PO4" 
+            },
+            { 
+                q: "Add validation to a `setAge(int age)` method so that it ignores negative values and prints an error.", 
+                ans: `<pre><code>public void setAge(int age) {
+    if (age >= 0) {
+        this.age = age;
+    } else {
+        System.out.println("Error: Age cannot be negative.");
+    }
+}</code></pre>`, 
+                hint: "Encapsulation allows state validation.", co: "CO3 (Apply)", po: "PO3" 
+            },
+            { 
+                q: "Create a class `Point` with `x` and `y`. Write a method `copyFrom(Point other)` that copies the state of another object into the current one.", 
+                ans: `<pre><code>public class Point {
+    private int x, y;
+    // getters and setters omitted for brevity
+    
+    public void copyFrom(Point other) {
+        this.x = other.getX();
+        this.y = other.getY();
+    }
+}</code></pre>`, 
+                hint: "Extract fields from 'other' and assign to 'this'.", co: "CO4 (Analyze)", po: "PO2" 
+            },
+            { 
+                q: "Write a method `swapNames(Student s1, Student s2)` that swaps the name fields of two objects.", 
+                ans: `<pre><code>public class Utility {
+    public void swapNames(Student s1, Student s2) {
+        String temp = s1.getName();
+        s1.setName(s2.getName());
+        s2.setName(temp);
+    }
+}</code></pre>`, 
+                hint: "Use a temporary local variable.", co: "CO4 (Analyze)", po: "PO4" 
+            },
+            { 
+                q: "Implement a 'Chained Setter' (Builder style) for a `Car` class setting `color` and returning the current object.", 
+                ans: `<pre><code>public class Car {
+    private String color;
+
+    public Car setColor(String color) {
+        this.color = color;
+        return this; // returns current instance
+    }
+}</code></pre>`, 
+                hint: "Return 'this' at the end of the method.", co: "CO6 (Create)", po: "PO3" 
+            },
+            { 
+                q: "Write a static method `resetSystem()` that sets a static configuration boolean `isReady` to false.", 
+                ans: `<pre><code>public class SystemConfig {
+    private static boolean isReady = true;
+
+    public static void resetSystem() {
+        isReady = false;
+    }
+}</code></pre>`, 
+                hint: "Static methods mutate static fields.", co: "CO3 (Apply)", po: "PO2" 
+            },
+            { 
+                q: "Create a method `cloneUser()` inside a `User` class that creates and returns a new `User` object with the exact same state.", 
+                ans: `<pre><code>public class User {
+    private String username;
+    
+    public User cloneUser() {
+        User copy = new User();
+        copy.setUsername(this.username);
+        return copy;
+    }
+}</code></pre>`, 
+                hint: "Deep copy concept.", co: "CO6 (Create)", po: "PO4" 
+            },
+            { 
+                q: "Write a defensive method `printDetails(Employee e)` that checks if the passed object is null before calling its getters.", 
+                ans: `<pre><code>public void printDetails(Employee e) {
+    if (e == null) {
+        System.out.println("No employee data provided.");
+        return;
+    }
+    System.out.println(e.getName());
+}</code></pre>`, 
+                hint: "Prevent NullPointerException.", co: "CO5 (Evaluate)", po: "PO5" 
+            },
+            { 
+                q: "Create a class `Time` with `hours` and `minutes`. Write a method `add(Time t)` that returns a NEW `Time` object representing the sum.", 
+                ans: `<pre><code>public class Time {
+    private int minutes;
+    
+    public Time add(Time other) {
+        Time result = new Time();
+        result.setMinutes(this.minutes + other.getMinutes());
+        return result;
+    }
+}</code></pre>`, 
+                hint: "Do not modify 'this' or 'other'. Return a third object.", co: "CO6 (Create)", po: "PO4" 
+            },
+            { 
+                q: "Demonstrate a method `destroyLink(Node n)` that attempts to set the passed object reference to null. Explain if it affects the caller.", 
+                ans: `<pre><code>public void destroyLink(Node n) {
+    n = null; 
+    // This only sets the LOCAL reference to null. 
+    // The caller's reference remains unchanged.
+}</code></pre>`, 
+                hint: "Pass-by-value of references.", co: "CO4 (Analyze)", po: "PO5" 
+            },
+            { 
+                q: "Write a static factory method `getInstance()` for a `Database` class that always returns the same single instance (Singleton basic).", 
+                ans: `<pre><code>public class Database {
+    private static Database instance;
+
+    public static Database getInstance() {
+        if (instance == null) {
+            instance = new Database();
+        }
+        return instance;
+    }
+}</code></pre>`, 
+                hint: "Lazy initialization.", co: "CO6 (Create)", po: "PO4" 
+            },
+            { 
+                q: "Create a static method `averageBalance(Account[] accounts)` that calculates the average balance from an array of objects.", 
+                ans: `<pre><code>public static double averageBalance(Account[] accounts) {
+    if (accounts.length == 0) return 0.0;
+    double sum = 0;
+    for (Account acc : accounts) {
+        sum += acc.getBalance();
+    }
+    return sum / accounts.length;
+}</code></pre>`, 
+                hint: "Iterate over objects and call getter.", co: "CO4 (Analyze)", po: "PO3" 
+            },
+            { 
+                q: "Write a method `mergeData(Data d1, Data d2)` that copies state from `d2` into `d1` and returns `d1`.", 
+                ans: `<pre><code>public Data mergeData(Data d1, Data d2) {
+    d1.setValue(d1.getValue() + d2.getValue());
+    return d1; // Returning the modified object
+}</code></pre>`, 
+                hint: "Mutate and return the same reference.", co: "CO3 (Apply)", po: "PO4" 
+            },
+            { 
+                q: "Create a class `Config` with a static final field `VERSION`. Initialize it directly on the same line.", 
+                ans: `<pre><code>public class Config {
+    // Constant shared across all instances
+    public static final String VERSION = "1.0.0";
+}</code></pre>`, 
+                hint: "static + final = constant.", co: "CO2 (Understand)", po: "PO1" 
+            },
+            { 
+                q: "Write an instance method `isSameAs(User other)` that checks if the current object's ID matches the other object's ID.", 
+                ans: `<pre><code>public class User {
+    private int id;
+    
+    public boolean isSameAs(User other) {
+        if (other == null) return false;
+        return this.id == other.getId();
+    }
+}</code></pre>`, 
+                hint: "Compare 'this.id' with 'other.getId()'.", co: "CO5 (Evaluate)", po: "PO4" 
+            }
+        ];
+
+        // Render Theory Questions
+        const theoryContainer = document.getElementById('accordion-container');
+        theoryQuestions.forEach((q, index) => {
+            const details = document.createElement('details');
+            details.innerHTML = `
+                <summary>
+                    <span class="question-text"><strong>Q${index + 1}:</strong> ${q.q}</span>
+                    <div class="meta-tags">
+                        <span class="badge hint">💡 Hint: ${q.hint}</span>
+                        <span class="badge co-po">${q.co} | ${q.po}</span>
+                    </div>
+                </summary>
+                <div class="answer-content">
+                    <strong>Answer:</strong> ${q.ans}
+                </div>
+            `;
+            theoryContainer.appendChild(details);
+        });
+
+        // Render Coding Questions
+        const codingContainer = document.getElementById('coding-accordion-container');
+        codingQuestions.forEach((q, index) => {
+            const details = document.createElement('details');
+            details.innerHTML = `
+                <summary>
+                    <span class="question-text" style="color: var(--coding-accent);"><strong>Code Q${index + 1}:</strong> ${q.q}</span>
+                    <div class="meta-tags">
+                        <span class="badge hint">💡 Hint: ${q.hint}</span>
+                        <span class="badge co-po">${q.co} | ${q.po}</span>
+                    </div>
+                </summary>
+                <div class="answer-content">
+                    ${q.ans}
+                </div>
+            `;
+            codingContainer.appendChild(details);
+        });
+    </script>
+</body>
+</html>
