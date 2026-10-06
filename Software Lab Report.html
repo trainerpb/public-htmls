@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Software, Version & License Audit Report</title>
+    <style>
+        :root {
+            /* Lighter soothing default theme */
+            --primary-color: #5f6c7b;
+            --border-color: #d8e2dc;
+            --bg-color: #f4f7f6;
+            --table-bg: #ffffff;
+            --text-color: #333333;
+            --callout-bg: #e8f0fe;
+            --callout-border: #8ab4f8;
+            --callout-text: #174ea6;
+        }
+
+        [data-theme="dark"] {
+            --primary-color: #8da9c4;
+            --border-color: #2b3a4a;
+            --bg-color: #12181f;
+            --table-bg: #1e2630;
+            --text-color: #e0e6ed;
+            --callout-bg: #1c2b3d;
+            --callout-border: #3b5a7a;
+            --callout-text: #8ab4f8;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.5;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .header-container {
+            border-bottom: 3px solid var(--primary-color);
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            margin: 0 0 10px 0;
+            font-size: 24px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .metadata {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            font-size: 13px;
+            background: var(--table-bg);
+            padding: 15px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+        }
+
+        .metadata div { margin-bottom: 5px; }
+        .metadata strong { color: var(--primary-color); }
+
+        .callout {
+            background-color: var(--callout-bg);
+            border-left: 5px solid var(--callout-border);
+            color: var(--callout-text);
+            padding: 12px 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .controls {
+            margin: 20px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .controls-right {
+            display: flex;
+            gap: 10px;
+        }
+
+        input[type="text"] {
+            padding: 10px;
+            width: 300px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 14px;
+            background-color: var(--table-bg);
+            color: var(--text-color);
+        }
+
+        button {
+            padding: 10px 15px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: opacity 0.2s;
+        }
+
+        button:hover { opacity: 0.9; }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+            page-break-inside: auto;
+            background-color: var(--table-bg);
+        }
+
+        thead { display: table-header-group; }
+        tr { page-break-inside: avoid; page-break-after: auto; }
+        
+        th, td {
+            border: 1px solid var(--border-color);
+            padding: 8px 10px;
+            text-align: left;
+            vertical-align: top;
+        }
+
+        th {
+            background-color: var(--primary-color);
+            color: #ffffff;
+            font-weight: 600;
+        }
+
+        tbody tr:nth-child(even) { background-color: var(--bg-color); }
+        a { color: #3b82f6; text-decoration: none; }
+        
+        .footer {
+            margin-top: 30px;
+            padding-top: 15px;
+            border-top: 1px solid var(--border-color);
+            font-size: 12px;
+            text-align: center;
+            opacity: 0.8;
+        }
+
+        @media print {
+            body { padding: 0; font-size: 10pt; background-color: white; color: black; }
+            .controls { display: none; }
+            .header-container { border-bottom: 2px solid black; }
+            h1 { color: black; font-size: 18pt; }
+            th { background-color: #e2e8f0 !important; color: black !important; -webkit-print-color-adjust: exact; }
+            .metadata, .callout, table { background: transparent !important; color: black !important; border: 1px solid black; }
+            .callout { border-left: 5px solid black !important; }
+            tbody tr:nth-child(even) { background-color: transparent !important; }
+            a { color: black; text-decoration: underline; }
+            @page { margin: 1.5cm; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header-container">
+        <h1>Software, Version & License Audit Report</h1>
+        <div class="metadata">
+            <div>
+                <div><strong>Audit Scope:</strong> Software Infrastructure & Licensing Compliance</div>
+                <div><strong>Subjects Mapped:</strong> 
+                    <br>• Java & Object Technology (PCC-CS503, PCC-CS593)
+                    <br>• Python Workshop (PCC-CS393, PCCAIML 492)
+                    <br>• Add-on / Remedial Industry Incubation
+                </div>
+                <div><strong>Venues:</strong> Lab 1 and Lab-2</div>
+            </div>
+            <div>
+                <div><strong>Prepared By:</strong> Soham Sengupta</div>
+                <div><strong>Profile:</strong> Independent Engineering practitioner and educator</div>
+                <div><strong>Date Generated:</strong> October 6, 2026</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="callout">
+        <strong>Jira free tier used by the Instructor has been used for preparing daily class conduction reports to encourage students involve in Agile Systems and weekly scrums and referring to Confluence for single source of truth.</strong>
+    </div>
+
+    <div class="controls">
+        <input type="text" id="searchInput" placeholder="Filter by software, subject, or tag..." onkeyup="filterTable()">
+        <div class="controls-right">
+            <button onclick="toggleTheme()" id="themeBtn">🌓 Toggle Theme</button>
+            <button onclick="window.print()">🖨️ Print Report</button>
+        </div>
+    </div>
+
+    <table id="auditTable">
+        <thead>
+            <tr>
+                <th style="width: 12%">Software Name</th>
+                <th style="width: 8%">Version</th>
+                <th style="width: 10%">Vendor</th>
+                <th style="width: 12%">Download URL</th>
+                <th style="width: 15%">License & URL</th>
+                <th style="width: 12%">Purchase / Expiry</th>
+                <th style="width: 31%">Justification of Use</th>
+            </tr>
+        </thead>
+        <tbody id="tableBody">
+            <!-- Populated via JavaScript -->
+        </tbody>
+    </table>
+
+    <div class="footer">
+        Generated for Academic & Regulatory Audit (NBA / NAAC / DTE) purposes.
+    </div>
+
+    <script>
+        const softwareData = [
+            // Java & Core IDEs
+            { name: "Java SE 25", version: "25", vendor: "Oracle", url: "https://oracle.com", license: "Oracle NFTC", licenseUrl: "https://oracle.com", date: "N/A (Free)", justification: "Java Lab, Object Oriented programming with stack neutral approach (PCC-CS503, PCC-CS593)" },
+            { name: "Eclipse Temurin", version: "25", vendor: "Adoptium", url: "https://adoptium.net", license: "GPLv2 + Classpath", licenseUrl: "https://adoptium.net", date: "N/A (Open Source)", justification: "Java Lab, Object Oriented programming with stack neutral approach (PCC-CS503, PCC-CS593)" },
+            { name: "Eclipse IDE", version: "2024.x", vendor: "Eclipse Foundation", url: "https://eclipse.org", license: "EPL 2.0", licenseUrl: "https://eclipse.org", date: "N/A (Open Source)", justification: "Java Lab, Industry grooming, Add-on incubation" },
+            { name: "IntelliJ IDEA Comm.", version: "2024.x", vendor: "JetBrains", url: "https://jetbrains.com", license: "Apache 2.0", licenseUrl: "https://jetbrains.com", date: "N/A (Open Source)", justification: "Java Lab, Industry grooming, Add-on incubation" },
+            { name: "VS Code", version: "1.9x", vendor: "Microsoft", url: "https://microsoft.com", license: "MIT / Proprietary", licenseUrl: "https://microsoft.com", date: "N/A (Free)", justification: "Python programming, Web dev industry incubation, DevOps, IoT" },
+            { name: "Notepad++", version: "8.x", vendor: "Don Ho", url: "https://notepad-plus-plus.org", license: "GPL", licenseUrl: "https://notepad-plus-plus.org", date: "N/A (Open Source)", justification: "Remedial industry incubation, lightweight scripting" },
+            
+            // Python & ML
+            { name: "Python", version: "3.15", vendor: "Python Software Found.", url: "https://python.org", license: "PSFL", licenseUrl: "https://python.org", date: "N/A (Open Source)", justification: "Python Workshop (PCC-CS393, PCCAIML 492), ML projects, AI" },
+            { name: "PyCharm Comm.", version: "2024.x", vendor: "JetBrains", url: "https://jetbrains.com", license: "Apache 2.0", licenseUrl: "https://jetbrains.com", date: "N/A (Open Source)", justification: "Python Workshop, Industry grooming" },
+            { name: "DeepLearning4j", version: "1.0.0", vendor: "Eclipse Foundation", url: "https://deeplearning4j.konduit.ai", license: "Apache 2.0", licenseUrl: "https://deeplearning4j.konduit.ai", date: "N/A (Open Source)", justification: "Machine Learning projects, Java based deep learning examples" },
+            { name: "Java Weka", version: "3.8.x", vendor: "Univ. of Waikato", url: "https://cs.waikato.ac.nz", license: "GPLv3", licenseUrl: "https://cs.waikato.ac.nz", date: "N/A (Open Source)", justification: "Machine Learning projects, predictive modeling, Java ML" },
+            { name: "Python ML Libs (NumPy, Pandas, Scikit)", version: "Latest", vendor: "Open Source", url: "https://pypi.org", license: "BSD / NumFOCUS", licenseUrl: "https://pypi.org", date: "N/A (Open Source)", justification: "Python Workshop, ML projects for simple, real life examples" },
+
+            // Databases
+            { name: "MySQL", version: "8.x", vendor: "Oracle", url: "https://mysql.com", license: "GPL", licenseUrl: "https://mysql.com", date: "N/A (Open Source)", justification: "Database Tools, Industry grooming, Backend integration" },
+            { name: "PostgreSQL", version: "16.x / 17.x", vendor: "PostgreSQL Global", url: "https://postgresql.org", license: "PostgreSQL License", licenseUrl: "https://postgresql.org", date: "N/A (Open Source)", justification: "Database Tools, Relational data modeling" },
+            { name: "pgVector", version: "0.x", vendor: "pgVector Community", url: "https://github.com", license: "PostgreSQL License", licenseUrl: "https://github.com", date: "N/A (Open Source)", justification: "RAG vector db, AI project data persistence" },
+            { name: "MongoDB", version: "7.x", vendor: "MongoDB Inc.", url: "https://mongodb.com", license: "SSPL", licenseUrl: "https://mongodb.com", date: "N/A (Open Source)", justification: "NoSQL database for web development industry incubation" },
+            { name: "DBeaver Comm.", version: "24.x", vendor: "DBeaver Corp", url: "https://dbeaver.io", license: "Apache 2.0", licenseUrl: "https://dbeaver.io", date: "N/A (Open Source)", justification: "Database Tools, Unified client for stack-neutral database management" },
+
+            // Web & DevOps
+            { name: "Apache Tomcat", version: "10.x", vendor: "Apache Foundation", url: "https://apache.org", license: "Apache 2.0", licenseUrl: "https://apache.org", date: "N/A (Open Source)", justification: "Web server for Java Lab, Industry incubation" },
+            { name: "Git", version: "2.x", vendor: "SFC", url: "https://git-scm.com", license: "GPLv2", licenseUrl: "https://git-scm.com", date: "N/A (Open Source)", justification: "DevOps, Industry grooming, Version control" },
+            { name: "GitHub", version: "Cloud", vendor: "Microsoft", url: "https://github.com", license: "SaaS Free Tier", licenseUrl: "https://github.com", date: "N/A (Free Tier)", justification: "DevOps, CI/CD pipelines, Industry grooming" },
+            { name: "Bitbucket", version: "Cloud", vendor: "Atlassian", url: "https://bitbucket.org", license: "SaaS Free Tier", licenseUrl: "https://bitbucket.org", date: "N/A (Free Tier)", justification: "DevOps, Private repositories, Industry grooming" },
+            { name: "Apache Maven", version: "3.9.x", vendor: "Apache Foundation", url: "https://apache.org", license: "Apache 2.0", licenseUrl: "https://apache.org", date: "N/A (Open Source)", justification: "DevOps, Java dependency management" },
+            { name: "Apache Kafka", version: "3.x", vendor: "Apache Foundation", url: "https://apache.org", license: "Apache 2.0", licenseUrl: "https://apache.org", date: "N/A (Open Source)", justification: "Event-driven microservices, Industry grooming" },
+            { name: "Docker Desktop", version: "4.x", vendor: "Docker Inc.", url: "https://docker.com", license: "Docker Desktop (Edu)", licenseUrl: "https://docker.com", date: "N/A (Academic Free)", justification: "DevOps, Containerization, Industry grooming" },
+
+            // AI & Agentic Frameworks
+            { name: "Spring AI", version: "1.0.x", vendor: "Broadcom / Spring", url: "https://spring.io", license: "Apache 2.0", licenseUrl: "https://spring.io", date: "N/A (Open Source)", justification: "AI projects, LLM integration with Java" },
+            { name: "LangGraph4j", version: "0.x", vendor: "Community", url: "https://github.com", license: "Apache 2.0", licenseUrl: "https://github.com", date: "N/A (Open Source)", justification: "AI projects, Agentic workflows and state graphs" },
+            { name: "Embabel", version: "Latest", vendor: "Open Source", url: "https://github.com", license: "Apache 2.0", licenseUrl: "https://github.com", date: "N/A (Open Source)", justification: "AI projects, Goal-Oriented Action Planning in Java" },
+            { name: "LM Studio", version: "0.2.x", vendor: "LM Studio", url: "https://lmstudio.ai", license: "Proprietary", licenseUrl: "https://lmstudio.ai", date: "N/A (Free for Edu)", justification: "AI projects, Local model spin up" },
+            { name: "Ollama", version: "0.1.x", vendor: "Ollama", url: "https://ollama.com", license: "MIT", licenseUrl: "https://ollama.com", date: "N/A (Open Source)", justification: "AI projects, Local model spin up and inference" },
+            { name: "Gemini API", version: "Cloud", vendor: "Google", url: "https://google.com", license: "Google API ToS", licenseUrl: "https://google.com", date: "N/A (Free Tier)", justification: "AI projects, LLM text generation and reasoning" },
+            { name: "Mistral API", version: "Cloud", vendor: "Mistral AI", url: "https://mistral.ai", license: "API ToS", licenseUrl: "https://mistral.ai", date: "N/A (Free Tier)", justification: "AI projects, open-weight model cloud integration" },
+
+            // IoT & Mobile
+            { name: "Android Studio", version: "2024.x", vendor: "Google", url: "https://developer.android.com", license: "Freeware / Apache 2.0", licenseUrl: "https://developer.android.com", date: "N/A (Free)", justification: "Mobile app development, Industry incubation" },
+            { name: "Arduino IDE", version: "2.x", vendor: "Arduino", url: "https://arduino.cc", license: "GPL", licenseUrl: "https://arduino.cc", date: "N/A (Open Source)", justification: "IoT projects, microcontroller flashing" },
+            { name: "ESP32 & ESP8266 Libs", version: "Latest", vendor: "Espressif", url: "https://github.com", license: "Apache 2.0", licenseUrl: "https://github.com", date: "N/A (Open Source)", justification: "IoT projects, hardware interfacing" },
+            { name: "Eclipse Mosquitto", version: "2.x", vendor: "Eclipse Foundation", url: "https://mosquitto.org", license: "EPL / EDL", licenseUrl: "https://mosquitto.org", date: "N/A (Open Source)", justification: "Computer Network, MQTT brokering for IoT" },
+            { name: "MQTT.fx", version: "1.x", vendor: "Softblade", url: "https://mqttfx.jensd.de", license: "Apache 2.0", licenseUrl: "https://mqttfx.jensd.de", date: "N/A (Open Source)", justification: "Computer Network, IoT messaging client testing" }
+        ];
+
+        const tbody = document.getElementById('tableBody');
+
+        function renderTable(data) {
+            tbody.innerHTML = '';
+            data.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><strong>${item.name}</strong></td>
+                    <td>${item.version}</td>
+                    <td>${item.vendor}</td>
+                    <td><a href="${item.url}" target="_blank">Link</a></td>
+                    <td><a href="${item.licenseUrl}" target="_blank">${item.license}</a></td>
+                    <td>${item.date}</td>
+                    <td>${item.justification}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function filterTable() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const filtered = softwareData.filter(item => 
+                item.name.toLowerCase().includes(query) || 
+                item.justification.toLowerCase().includes(query) ||
+                item.vendor.toLowerCase().includes(query)
+            );
+            renderTable(filtered);
+        }
+
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            if (currentTheme === 'dark') {
+                document.documentElement.removeAttribute('data-theme');
+            } else {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            }
+        }
+
+        // Initial render
+        renderTable(softwareData);
+    </script>
+</body>
+</html>
