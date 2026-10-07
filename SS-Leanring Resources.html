@@ -1,0 +1,687 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>-SS Resource Index · Soham Sengupta</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&family=Merriweather:wght@400;700&family=JetBrains+Mono:wght@400;600&family=Nunito:wght@400;600;700&family=Playfair+Display:wght@500;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --font: "Inter", system-ui, sans-serif;
+      }
+      [data-theme="aurora"] {
+        --bg: #f5f7ff;
+        --bg2: #eaf0ff;
+        --card: #fff;
+        --text: #1c2340;
+        --muted: #667096;
+        --a: #4f46e5;
+        --b: #06b6d4;
+        --line: #dfe4f7;
+        --shadow: 0 10px 30px rgba(79, 70, 229, 0.14);
+      }
+      [data-theme="midnight"] {
+        --bg: #0b1020;
+        --bg2: #141b34;
+        --card: #161e3a;
+        --text: #e8ecff;
+        --muted: #9aa5d1;
+        --a: #8b5cf6;
+        --b: #22d3ee;
+        --line: #26305a;
+        --shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+      }
+      [data-theme="sunset"] {
+        --bg: #fff6f0;
+        --bg2: #ffe9dc;
+        --card: #fff;
+        --text: #3b1f1a;
+        --muted: #8a6459;
+        --a: #f97316;
+        --b: #ec4899;
+        --line: #f6d9c8;
+        --shadow: 0 10px 30px rgba(249, 115, 22, 0.18);
+      }
+      [data-theme="forest"] {
+        --bg: #f0f8f3;
+        --bg2: #dff1e6;
+        --card: #fff;
+        --text: #13322350;
+        --text: #133223;
+        --muted: #58796a;
+        --a: #059669;
+        --b: #84cc16;
+        --line: #cfe6d9;
+        --shadow: 0 10px 30px rgba(5, 150, 105, 0.16);
+      }
+      [data-theme="slate"] {
+        --bg: #1e293b;
+        --bg2: #0f172a;
+        --card: #273449;
+        --text: #f1f5f9;
+        --muted: #a3b1c6;
+        --a: #f59e0b;
+        --b: #f43f5e;
+        --line: #37465d;
+        --shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+      }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        font-family: var(--font);
+        color: var(--text);
+        min-height: 100vh;
+        background:
+          radial-gradient(1200px 600px at 10% -10%, var(--bg2), transparent),
+          radial-gradient(
+            900px 500px at 100% 0,
+            color-mix(in srgb, var(--b) 14%, transparent),
+            transparent
+          ),
+          var(--bg);
+        background-attachment: fixed;
+        transition:
+          background 0.3s,
+          color 0.3s;
+      }
+      .bar {
+        position: sticky;
+        top: 0;
+        z-index: 20;
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: flex-end;
+        padding: 10px 20px;
+        padding-top: max(10px, env(safe-area-inset-top));
+        backdrop-filter: blur(14px);
+        background: color-mix(in srgb, var(--bg) 70%, transparent);
+        border-bottom: 1px solid var(--line);
+      }
+      .bar .brand {
+        margin-right: auto;
+        font-weight: 700;
+        display: flex;
+        gap: 8px;
+        align-items: center;
+      }
+      .dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--a), var(--b));
+      }
+      .ctl {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 0.78rem;
+        color: var(--muted);
+      }
+      select,
+      button.fs {
+        font: inherit;
+        font-size: 0.85rem;
+        color: var(--text);
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        padding: 7px 10px;
+        cursor: pointer;
+      }
+      button.fs:hover,
+      select:hover {
+        border-color: var(--a);
+      }
+      header.hero {
+        text-align: center;
+        padding: 56px 20px 26px;
+        max-width: 900px;
+        margin: auto;
+      }
+      .hero h1 {
+        font-size: clamp(2rem, 5vw, 3.3rem);
+        line-height: 1.1;
+        font-weight: 700;
+        background: linear-gradient(120deg, var(--a), var(--b));
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+      }
+      .hero p {
+        color: var(--muted);
+        margin-top: 12px;
+        font-size: 1.05rem;
+      }
+      .inst {
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        margin-top: 22px;
+        padding: 10px 18px 10px 10px;
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        box-shadow: var(--shadow);
+        text-align: left;
+      }
+      .av {
+        width: 42px;
+        height: 42px;
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        color: #fff;
+        font-weight: 700;
+        background: linear-gradient(135deg, var(--a), var(--b));
+      }
+      .inst b {
+        display: block;
+        font-size: 0.98rem;
+      }
+      .inst span {
+        font-size: 0.8rem;
+        color: var(--muted);
+      }
+      .tools {
+        max-width: 1180px;
+        margin: 18px auto 6px;
+        padding: 0 20px;
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: center;
+      }
+      .tools input {
+        flex: 1 1 240px;
+        max-width: 340px;
+        font: inherit;
+        padding: 10px 14px;
+        border-radius: 12px;
+        border: 1px solid var(--line);
+        background: var(--card);
+        color: var(--text);
+      }
+      .tools input:focus {
+        outline: 2px solid var(--a);
+      }
+      .chips {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+      .chip {
+        font: inherit;
+        font-size: 0.82rem;
+        padding: 7px 14px;
+        border-radius: 999px;
+        border: 1px solid var(--line);
+        background: var(--card);
+        color: var(--muted);
+        cursor: pointer;
+        transition: 0.2s;
+      }
+      .chip.on,
+      .chip:hover {
+        color: #fff;
+        background: linear-gradient(120deg, var(--a), var(--b));
+        border-color: transparent;
+      }
+      main {
+        max-width: 1180px;
+        margin: auto;
+        padding: 20px 20px 60px;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+        gap: 22px;
+      }
+      .card {
+        perspective: 1100px;
+        height: 290px;
+        cursor: pointer;
+        outline: none;
+      }
+      .inner {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        transition: transform 0.7s cubic-bezier(0.2, 0.8, 0.2, 1);
+        transform-style: preserve-3d;
+      }
+      .card.flip .inner {
+        transform: rotateY(180deg);
+      }
+      @media (hover: hover) {
+        .card:hover .inner {
+          transform: rotateY(180deg);
+        }
+        .card.flip:hover .inner {
+          transform: rotateY(0);
+        }
+      }
+      .face {
+        position: absolute;
+        inset: 0;
+        backface-visibility: hidden;
+        -webkit-backface-visibility: hidden;
+        border-radius: 20px;
+        padding: 24px;
+        display: flex;
+        flex-direction: column;
+        border: 1px solid var(--line);
+        box-shadow: var(--shadow);
+      }
+      .front {
+        background: var(--card);
+        align-items: flex-start;
+        justify-content: space-between;
+        overflow: hidden;
+      }
+      .front::before {
+        content: "";
+        position: absolute;
+        right: -50px;
+        top: -50px;
+        width: 160px;
+        height: 160px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--a), var(--b));
+        opacity: 0.16;
+      }
+      .ico {
+        font-size: 2.3rem;
+        width: 62px;
+        height: 62px;
+        display: grid;
+        place-items: center;
+        border-radius: 18px;
+        background: color-mix(in srgb, var(--a) 12%, var(--card));
+        border: 1px solid var(--line);
+      }
+      .front h3 {
+        font-size: 1.15rem;
+        line-height: 1.3;
+        margin-top: 14px;
+      }
+      .tag {
+        font-size: 0.72rem;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--a);
+        font-weight: 600;
+      }
+      .hint {
+        font-size: 0.75rem;
+        color: var(--muted);
+      }
+      .back {
+        transform: rotateY(180deg);
+        background: linear-gradient(150deg, var(--a), var(--b));
+        color: #fff;
+        justify-content: space-between;
+        border: none;
+      }
+      .back p {
+        font-size: 0.92rem;
+        line-height: 1.55;
+        opacity: 0.97;
+      }
+      .back h4 {
+        font-size: 1rem;
+        margin-bottom: 8px;
+      }
+      .meta {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+      }
+      .fmt {
+        font-size: 0.72rem;
+        padding: 3px 9px;
+        border-radius: 6px;
+        background: rgba(255, 255, 255, 0.22);
+        font-weight: 600;
+      }
+      .open {
+        color: var(--a);
+        background: #fff;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.88rem;
+        padding: 9px 16px;
+        border-radius: 10px;
+        transition: 0.2s;
+      }
+      .open:hover {
+        transform: translateY(-2px);
+      }
+      .open.off {
+        opacity: 0.65;
+        pointer-events: none;
+      }
+      .empty {
+        grid-column: 1/-1;
+        text-align: center;
+        color: var(--muted);
+        padding: 40px;
+      }
+      footer {
+        text-align: center;
+        color: var(--muted);
+        font-size: 0.85rem;
+        padding: 24px 20px 40px;
+        border-top: 1px solid var(--line);
+      }
+      :fullscreen body,
+      body:fullscreen {
+        overflow: auto;
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .inner {
+          transition: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="bar">
+      <div class="brand"><span class="dot"></span>-SS Index</div>
+      <label class="ctl"
+        >Theme
+        <select id="theme">
+          <option value="aurora">✨ Aurora (default)</option>
+          <option value="midnight">🌙 Midnight</option>
+          <option value="sunset">🌅 Sunset</option>
+          <option value="forest">🌿 Forest</option>
+          <option value="slate">🪨 Slate &amp; Amber</option>
+        </select>
+      </label>
+      <label class="ctl"
+        >Font
+        <select id="font">
+          <option value="'Inter',system-ui,sans-serif">Inter</option>
+          <option value="'Poppins',sans-serif">Poppins</option>
+          <option value="'Nunito',sans-serif">Nunito</option>
+          <option value="'Merriweather',Georgia,serif">Merriweather</option>
+          <option value="'Playfair Display',Georgia,serif">
+            Playfair Display
+          </option>
+          <option value="'JetBrains Mono',monospace">JetBrains Mono</option>
+          <option value="system-ui,sans-serif">System UI</option>
+        </select>
+      </label>
+      <button class="fs" id="fs" title="Toggle full screen">
+        ⛶ Full screen
+      </button>
+    </div>
+
+    <header class="hero">
+      <h1>-SS Learning Resources</h1>
+      <p>
+        Assignments, lab reports and training materials — Git, DevOps, Java
+        &amp; more
+      </p>
+      <div class="inst">
+        <div class="av">SS</div>
+        <div><b>Soham Sengupta</b><span>Engineer &amp; Educator</span></div>
+      </div>
+    </header>
+
+    <div class="tools">
+      <input
+        id="q"
+        type="search"
+        placeholder="Search topics…"
+        aria-label="Search"
+      />
+      <div class="chips" id="chips"></div>
+    </div>
+    <main id="grid"></main>
+    <footer>
+      -SS Resource Index · Instructor: Soham Sengupta, Engineer &amp; Educator ·
+      Tap or hover a card to flip it
+    </footer>
+
+    <script>
+      /* ============ 1) PUT YOUR FILE LINKS HERE (one constant per file) ============ */
+      const LINK_GIT_PAGE_BASE = "https://trainerpb.github.io/public-htmls/";
+      const LINK_GIT_ASSIGNMENTS_SEP20_2025 = `${LINK_GIT_PAGE_BASE}Git Assignments-Sep 20 2025.pdf`;
+      const LINK_PROJECTS_PRESENTATION = `${LINK_GIT_PAGE_BASE}PROJECTS-Presnetation.pdf`;
+      const LINK_TRAINING_MATERIALS = `${LINK_GIT_PAGE_BASE}Training materials.pdf`;
+      const LINK_JAVA_RESPONSIVE_WEB_UC = `${LINK_GIT_PAGE_BASE}Add-on-Java-Responsive-Web-Use-Case.pdf`;
+      const LINK_STREAMLIT = `${LINK_GIT_PAGE_BASE}Streamlit.pdf`;
+      const LINK_DEVOPS_FOR_ALL = `${LINK_GIT_PAGE_BASE}DevOps For All.docx`;
+      const LINK_ASSIGNMENT_DOCKER = `${LINK_GIT_PAGE_BASE}AssignmentDocker.pdf`;
+      const LINK_JAVA_LAB_AUG20_2026 = `${LINK_GIT_PAGE_BASE}Java Lab Assignment Aug 20, 2026 (1).docx`;
+      const LINK_SOFTWARE_LAB_REPORT = `${LINK_GIT_PAGE_BASE}/Software Lab Report.pdf`;
+      const LINK_JAVA_WEB_USE_CASE_2 = `${LINK_GIT_PAGE_BASE}/Add-on-Java-Web-Use-Case-2.docx`; // Add-on-Java-Web-Use-Case-2.docx
+      const LINK_GITTING_ON_WEEKEND = `${LINK_GIT_PAGE_BASE}Gitting on Weekend.docx`;
+      const LINK_GIT_ASSIGNMENTS_SEP06_2025 = `${LINK_GIT_PAGE_BASE}Git Assignments-Sep 06 2025.pdf`;
+      /* =============================================================================== */
+
+      const RESOURCES = [
+        {
+          cat: "Git & Version Control",
+          icon: "🌿",
+          title: "Git Assignments — Sep 06, 2025",
+          fmt: "PDF",
+          url: LINK_GIT_ASSIGNMENTS_SEP06_2025,
+          desc: "First set of hands-on Git assignments: repositories, commits, branching and basic collaboration workflows.",
+        },
+        {
+          cat: "Git & Version Control",
+          icon: "🔀",
+          title: "Git Assignments — Sep 20, 2025",
+          fmt: "PDF",
+          url: LINK_GIT_ASSIGNMENTS_SEP20_2025,
+          desc: "Follow-up Git practice covering merging, conflict resolution, remotes and pull-based team workflows.",
+        },
+        {
+          cat: "Git & Version Control",
+          icon: "🏖️",
+          title: "Gitting on Weekend",
+          fmt: "DOCX",
+          url: LINK_GITTING_ON_WEEKEND,
+          desc: "Weekend practice sheet to reinforce Git skills through self-paced exercises and mini scenarios.",
+        },
+        {
+          cat: "DevOps & Containers",
+          icon: "♾️",
+          title: "DevOps For All",
+          fmt: "DOCX",
+          url: LINK_DEVOPS_FOR_ALL,
+          desc: "Beginner-friendly introduction to DevOps culture, CI/CD pipelines, automation and the modern delivery lifecycle.",
+        },
+        {
+          cat: "DevOps & Containers",
+          icon: "🐳",
+          title: "Docker Assignment",
+          fmt: "PDF",
+          url: LINK_ASSIGNMENT_DOCKER,
+          desc: "Practical Docker tasks: images, containers, Dockerfiles, volumes and running applications in containers.",
+        },
+        {
+          cat: "Java & Web",
+          icon: "📱",
+          title: "Add-on: Java Responsive Web Use Case",
+          fmt: "PDF",
+          url: LINK_JAVA_RESPONSIVE_WEB_UC,
+          desc: "Use case for building a responsive Java-backed web application that adapts across devices and screen sizes.",
+        },
+        {
+          cat: "Java & Web",
+          icon: "🌐",
+          title: "Add-on: Java Web Use Case 2",
+          fmt: "DOCX",
+          url: LINK_JAVA_WEB_USE_CASE_2,
+          desc: "Second Java web application use case with requirements, features and implementation guidance.",
+        },
+        {
+          cat: "Java & Web",
+          icon: "☕",
+          title: "Java Lab Assignment — Aug 20, 2026",
+          fmt: "DOCX",
+          url: LINK_JAVA_LAB_AUG20_2026,
+          desc: "Java lab problem set for hands-on programming practice with object-oriented concepts and problem solving.",
+        },
+        {
+          cat: "Data & AI Apps",
+          icon: "📊",
+          title: "Streamlit",
+          fmt: "PDF",
+          url: LINK_STREAMLIT,
+          desc: "Build interactive data and AI web apps in pure Python using Streamlit — widgets, layouts and deployment.",
+        },
+        {
+          cat: "Projects & Training",
+          icon: "🚀",
+          title: "Projects Presentation",
+          fmt: "PDF",
+          url: LINK_PROJECTS_PRESENTATION,
+          desc: "Presentation of project ideas, scope, architecture and expected outcomes for project-driven learning.",
+        },
+        {
+          cat: "Projects & Training",
+          icon: "🎓",
+          title: "Training Materials",
+          fmt: "PDF",
+          url: LINK_TRAINING_MATERIALS,
+          desc: "Consolidated training material covering course topics, learning path and reference content for learners.",
+        },
+        {
+          cat: "Projects & Training",
+          icon: "🧪",
+          title: "Software Lab Report",
+          fmt: "PDF",
+          url: LINK_SOFTWARE_LAB_REPORT,
+          desc: "Software lab report format and sample documenting objectives, procedure, observations and results.",
+        },
+      ];
+
+      const $ = (s) => document.querySelector(s),
+        grid = $("#grid"),
+        chips = $("#chips");
+      const cats = ["All", ...new Set(RESOURCES.map((r) => r.cat))];
+      let active = "All";
+      const store = {
+        get(k, d) {
+          try {
+            return localStorage.getItem(k) || d;
+          } catch (e) {
+            return d;
+          }
+        },
+        set(k, v) {
+          try {
+            localStorage.setItem(k, v);
+          } catch (e) {}
+        },
+      };
+      const esc = (s) =>
+        s.replace(
+          /[&<>"]/g,
+          (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c],
+        );
+
+      function render() {
+        const q = $("#q").value.trim().toLowerCase();
+        const list = RESOURCES.filter(
+          (r) =>
+            (active === "All" || r.cat === active) &&
+            (r.title + r.desc + r.cat).toLowerCase().includes(q),
+        );
+        grid.innerHTML = list.length
+          ? list
+              .map(
+                (r) => `
+   <div class="card" tabindex="0" role="button" aria-label="${esc(r.title)}">
+    <div class="inner">
+     <div class="face front"><div><div class="ico">${r.icon}</div><h3>${esc(r.title)}</h3></div>
+       <div style="width:100%;display:flex;justify-content:space-between;align-items:center"><span class="tag">${esc(r.cat)}</span><span class="hint">flip ↻</span></div></div>
+     <div class="face back"><div><h4>${esc(r.title)}</h4><p>${esc(r.desc)}</p></div>
+       <div class="meta"><span class="fmt">${r.fmt}</span>
+       <a class="open ${r.url ? "" : "off"}" ${r.url ? `href="${esc(r.url)}" target="_blank" rel="noopener"` : ""} onclick="event.stopPropagation()">${r.url ? "Open ↗" : "Link pending"}</a></div></div>
+    </div></div>`,
+              )
+              .join("")
+          : `<div class="empty">No matching resources.</div>`;
+      }
+      chips.innerHTML = cats
+        .map(
+          (c) =>
+            `<button class="chip ${c === active ? "on" : ""}" data-c="${esc(c)}">${esc(c)}</button>`,
+        )
+        .join("");
+      chips.onclick = (e) => {
+        const b = e.target.closest(".chip");
+        if (!b) return;
+        active = b.dataset.c;
+        [...chips.children].forEach((x) => x.classList.toggle("on", x === b));
+        render();
+      };
+      grid.onclick = (e) => {
+        const c = e.target.closest(".card");
+        if (c && !e.target.closest("a")) c.classList.toggle("flip");
+      };
+      grid.onkeydown = (e) => {
+        if (
+          (e.key === "Enter" || e.key === " ") &&
+          e.target.classList.contains("card")
+        ) {
+          e.preventDefault();
+          e.target.classList.toggle("flip");
+        }
+      };
+      $("#q").oninput = render;
+
+      const themeSel = $("#theme"),
+        fontSel = $("#font");
+      function applyTheme(v) {
+        document.documentElement.setAttribute("data-theme", v);
+        store.set("-theme", v);
+      }
+      function applyFont(v) {
+        document.documentElement.style.setProperty("--font", v);
+        store.set("-font", v);
+      }
+      themeSel.value = store.get("-theme", "aurora");
+      if (![...themeSel.options].some((o) => o.value === themeSel.value))
+        themeSel.value = "aurora";
+      fontSel.value = store.get("-font", fontSel.options[0].value);
+      if (fontSel.selectedIndex < 0) fontSel.selectedIndex = 0;
+      applyTheme(themeSel.value);
+      applyFont(fontSel.value);
+      themeSel.onchange = () => applyTheme(themeSel.value);
+      fontSel.onchange = () => applyFont(fontSel.value);
+
+      const fsBtn = $("#fs");
+      fsBtn.onclick = () => {
+        if (!document.fullscreenElement) {
+          document.documentElement.requestFullscreen &&
+            document.documentElement.requestFullscreen().catch(() => {});
+        } else document.exitFullscreen();
+      };
+      document.addEventListener(
+        "fullscreenchange",
+        () =>
+          (fsBtn.textContent = document.fullscreenElement
+            ? "🗗 Exit full screen"
+            : "⛶ Full screen"),
+      );
+      render();
+    </script>
+  </body>
+</html>
