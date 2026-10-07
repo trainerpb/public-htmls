@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>IIE Odd Semester 2026 · Soham Sengupta</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Fraunces:wght@600;700&display=swap" rel="stylesheet">
+<style>
+[data-theme=morning]{--bg:#f4fbf7;--bg2:#e3f5ff;--bg3:#fff1e3;--card:#ffffffcc;--text:#1f3b3a;--muted:#5f7f7b;--a:#2bb08a;--b:#4aa8e8;--line:#d6ebe4;--c1:#ffd9e4;--c2:#cdf3dd;--c3:#ffe0b8}
+[data-theme=sunset]{--bg:#fff5ef;--bg2:#ffe4e0;--bg3:#fff0c9;--card:#ffffffcc;--text:#43241f;--muted:#8d6258;--a:#f26a4b;--b:#e8478c;--line:#f6d8cc;--c1:#ffd1dc;--c2:#ffe8a8;--c3:#ffc9a3}
+[data-theme=lavender]{--bg:#f7f4ff;--bg2:#e9e2ff;--bg3:#e1f1ff;--card:#ffffffcc;--text:#2a2450;--muted:#6f69a0;--a:#7c5cf0;--b:#c05cf0;--line:#e0dafa;--c1:#f5d2ff;--c2:#d2e4ff;--c3:#ffdff0}
+[data-theme=ocean]{--bg:#eef8fb;--bg2:#d4eefa;--bg3:#d9f7ee;--card:#ffffffcc;--text:#0f3347;--muted:#53808f;--a:#0a8fb3;--b:#1fd1b4;--line:#cae5ee;--c1:#d3ecff;--c2:#c8f5e6;--c3:#fff0c6}
+[data-theme=midnight]{--bg:#0d1224;--bg2:#171e3b;--bg3:#1b1537;--card:#1a2142cc;--text:#e9edff;--muted:#a0abd6;--a:#7d8cff;--b:#35d6c4;--line:#2a345f;--c1:#4a2a55;--c2:#1f4a46;--c3:#5a3d22}
+*{box-sizing:border-box;margin:0}
+body{font-family:'Nunito',system-ui,sans-serif;color:var(--text);background:linear-gradient(135deg,var(--bg2),var(--bg) 45%,var(--bg3)) fixed;min-height:100vh;transition:.3s}
+h1,h2,.serif{font-family:'Fraunces',Georgia,serif}
+nav{position:sticky;top:0;z-index:30;display:flex;gap:6px;flex-wrap:wrap;align-items:center;padding:10px 18px;padding-top:max(10px,env(safe-area-inset-top));background:var(--card);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+.logo{font-weight:800;margin-right:auto;display:flex;align-items:center;gap:8px}
+.logo i{width:14px;height:14px;border-radius:50%;background:linear-gradient(135deg,var(--a),var(--b))}
+nav a{color:var(--muted);text-decoration:none;font-weight:700;font-size:.9rem;padding:8px 14px;border-radius:999px;transition:.2s}
+nav a.on,nav a:hover{color:#fff;background:linear-gradient(120deg,var(--a),var(--b))}
+select,.btn{font:inherit;font-size:.88rem;font-weight:600;color:var(--text);background:var(--card);border:1px solid var(--line);border-radius:12px;padding:8px 12px;cursor:pointer}
+.hero{text-align:center;padding:48px 20px 20px}
+.hero small{letter-spacing:.14em;text-transform:uppercase;color:var(--a);font-weight:800}
+.hero h1{font-size:clamp(2rem,5.5vw,3.6rem);margin:8px 0;line-height:1.1}
+.hero h1 span{background:linear-gradient(120deg,var(--a),var(--b));-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p{color:var(--muted)}
+section{display:none;max-width:1180px;margin:auto;padding:14px 18px 60px}
+section.on{display:block;animation:fade .5s}
+@keyframes fade{from{opacity:0;transform:translateY(10px)}}
+.glass{background:var(--card);backdrop-filter:blur(10px);border:1px solid var(--line);border-radius:22px;padding:20px;box-shadow:0 12px 34px #0000000d}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin:10px 0 18px}
+.stat{text-align:center;padding:14px}.stat b{display:block;font-size:1.9rem;font-family:Fraunces,serif;color:var(--a)}.stat span{font-size:.8rem;color:var(--muted);font-weight:700}
+.filters{display:flex;gap:14px;flex-wrap:wrap;align-items:end;margin-bottom:14px}
+.filters label{font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:800;display:flex;flex-direction:column;gap:5px}
+.days{display:flex;gap:6px;flex-wrap:wrap}
+.pill{font:inherit;font-size:.82rem;font-weight:700;border:1px solid var(--line);background:var(--card);color:var(--muted);padding:7px 13px;border-radius:999px;cursor:pointer}
+.pill.on{color:#fff;background:linear-gradient(120deg,var(--a),var(--b));border-color:transparent}
+.wrap{overflow-x:auto;border-radius:18px;border:1px solid var(--line)}
+table{border-collapse:separate;border-spacing:4px;width:100%;min-width:900px}
+th{font-size:.75rem;color:var(--muted);padding:8px 4px;font-weight:800}th small{display:block;font-weight:600}
+td{height:74px;text-align:center;border-radius:12px;font-size:.84rem;padding:6px;transition:.25s;background:color-mix(in srgb,var(--line) 35%,transparent)}
+td.day{font-weight:800;background:linear-gradient(135deg,var(--a),var(--b));color:#fff;width:70px}
+td.today{outline:3px solid var(--a);outline-offset:1px}
+td.brk{writing-mode:vertical-rl;transform:rotate(180deg);letter-spacing:.3em;color:var(--muted);font-weight:800;background:transparent;width:34px}
+td.s{font-weight:700;cursor:default;color:#26323a}
+[data-theme=midnight] td.s{color:#f3f5ff}
+td.s em{display:block;font-weight:600;font-size:.76rem;opacity:.8;font-style:normal;margin-top:3px}
+td.s:hover{transform:scale(1.03);box-shadow:0 8px 20px #0002}
+td.dim{opacity:.16;filter:grayscale(.8)}
+.k-oop{background:var(--c1)}.k-cc{background:var(--c2)}.k-py{background:var(--c3)}
+.legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:12px;font-size:.82rem;color:var(--muted);font-weight:700}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:4px;margin-right:6px;vertical-align:-1px}
+.res{margin-top:14px}
+.frame{width:100%;height:min(78vh,820px);border:0;border-radius:16px;background:#fff}
+.bar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between;margin-bottom:12px}
+.inst{display:grid;grid-template-columns:320px 1fr;gap:20px}
+@media(max-width:820px){.inst{grid-template-columns:1fr}}
+.prof{text-align:center}
+.av{width:104px;height:104px;border-radius:50%;margin:0 auto 12px;display:grid;place-items:center;font:700 2.2rem Fraunces,serif;color:#fff;background:linear-gradient(135deg,var(--a),var(--b));box-shadow:0 10px 26px #0003}
+.prof h2{font-size:1.5rem}.prof p{color:var(--muted);font-size:.92rem;margin:4px 0 14px}
+.cta{display:inline-flex;gap:8px;align-items:center;text-decoration:none;color:#fff;font-weight:800;padding:12px 22px;border-radius:999px;background:#0a66c2;box-shadow:0 8px 20px #0a66c24d;transition:.2s}
+.cta:hover{transform:translateY(-2px)}
+.tags{display:flex;gap:7px;flex-wrap:wrap;margin-top:8px}
+.tags span{font-size:.78rem;font-weight:700;padding:5px 11px;border-radius:999px;background:color-mix(in srgb,var(--a) 14%,transparent);color:var(--a)}
+h3{margin:18px 0 8px;font-size:1.05rem}h3:first-child{margin-top:0}
+.exp{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px}.exp div{padding:12px 14px;border-radius:14px;border:1px solid var(--line);background:color-mix(in srgb,var(--a) 6%,transparent)}.exp b{display:block;margin-bottom:3px}.exp span{font-size:.82rem;color:var(--muted);line-height:1.4}
+.tl{border-left:3px solid var(--line);padding-left:16px}
+.tl div{margin-bottom:12px;position:relative}.tl div::before{content:"";position:absolute;left:-23px;top:5px;width:10px;height:10px;border-radius:50%;background:var(--a)}
+.tl b{display:block}.tl span{font-size:.83rem;color:var(--muted)}
+footer{text-align:center;color:var(--muted);font-size:.84rem;padding:22px}
+</style>
+</head>
+<body>
+<nav>
+  <div class="logo"><i></i>Soham Sengupta</div>
+  <a href="#routine" data-v="routine">My Routine</a>
+  <a href="#resources" data-v="resources">Learning Resources</a>
+  <a href="#instructor" data-v="instructor">Know Your Instructor</a>
+  <select id="theme" aria-label="Theme">
+    <option value="morning">🌤️ Fresh Morning</option><option value="sunset">🌅 Sunset</option>
+    <option value="lavender">💜 Lavender</option><option value="ocean">🌊 Ocean</option><option value="midnight">🌙 Midnight</option>
+  </select>
+</nav>
+
+<header class="hero">
+  <small>Ideal Institute of Engineering, Kalyani</small>
+  <h1>Odd Semester <span>2026</span></h1>
+  <p>Personal teaching routine · learning resources · instructor profile</p>
+</header>
+
+<section id="routine">
+  <div class="stats" id="stats"></div>
+  <div class="glass">
+    <div class="filters">
+      <label>Filter by subject<select id="fSub"></select></label>
+      <label>Filter by class<select id="fCls"></select></label>
+      <label>Day<div class="days" id="fDay"></div></label>
+    </div>
+    <div class="wrap"><table id="tt"></table></div>
+    <div class="legend"><span><i class="k-oop"></i>OOP Lab</span><span><i class="k-cc"></i>Cloud Computing</span><span><i class="k-py"></i>IT Workshop (Python I)</span><span id="count" style="margin-left:auto"></span></div>
+  </div>
+  <div class="glass res"><h3 class="serif">Load summary</h3>
+    <div class="wrap"><table style="min-width:0;font-size:.88rem" id="load"></table></div></div>
+</section>
+
+<section id="resources">
+  <div class="glass">
+    <div class="bar"><h2 class="serif">Learning Resources</h2>
+      <div style="display:flex;gap:8px"><a class="btn" id="open" target="_blank" rel="noopener" style="text-decoration:none">Open in new tab ↗</a><button class="btn" id="ffs">⛶ Full screen</button></div></div>
+    <iframe id="frame" class="frame" title="SS Learning Resources" loading="lazy"></iframe>
+  </div>
+</section>
+
+<section id="instructor">
+  <div class="inst">
+    <div class="glass prof">
+      <div class="av">SS</div>
+      <h2>Soham Sengupta</h2>
+      <p>Engineer &amp; Educator · Solution Architect<br>Ideal Institute of Engineering, Kalyani</p>
+      <a class="cta" id="connect" target="_blank" rel="noopener">in&nbsp; Connect on LinkedIn</a>
+      <p style="margin-top:14px">linkedin.com/in/soham-sengupta-37279825</p>
+    </div>
+    <div class="glass">
+      <h3 class="serif">About</h3>
+      <div class="stats" style="margin:0 0 6px"><div class="glass stat"><b>22+</b><span>Years of experience</span></div><div class="glass stat"><b>50 : 50</b><span>Industry &amp; Academia</span></div></div>
+      <p style="line-height:1.7">A seasoned software engineer, solution architect and educator with 22+ years of experience spread evenly across industry and academia. From architecting enterprise web and mobile platforms to teaching B.Tech CSE at IIE (MAKAUT) and running TechVision Academy, he brings real-world engineering depth into the classroom and academic rigour into industry training.</p>
+      <h3 class="serif">Expertise</h3>
+      <div class="exp">
+        <div><b>☕ Enterprise Java</b><span>Java stack-neutral engineering, Spring Boot, microservices, JWT security</span></div>
+        <div><b>🏗️ Solution Architecture</b><span>Web and mobile platforms, scalable distributed systems</span></div>
+        <div><b>🤖 AI Applications</b><span>Spring AI, RAG pipelines, MCP servers, agentic workflows (LangGraph4j)</span></div>
+        <div><b>🗄️ Data &amp; Streaming</b><span>SQL / NoSQL, DBMS, Apache Flink &amp; Kafka</span></div>
+        <div><b>☁️ Cloud &amp; DevOps</b><span>Cloud computing, Docker, CI/CD, Git workflows</span></div>
+        <div><b>🎓 Teaching &amp; Training</b><span>Algorithms (DAA), OOP, Python, corporate and project-driven training</span></div>
+      </div>
+      <h3 class="serif">Journey</h3>
+      <div class="tl">
+        <div><b>Educator, IIE Kalyani &amp; Founder, TechVision Academy</b><span>Dec 2025 – present · Academia &amp; independent practice</span></div>
+        <div><b>Senior Specialist, Software Engineering — LTIMindtree</b><span>Feb 2022 – Dec 2025</span></div>
+        <div><b>Principal Architect, Web &amp; Mobile Platforms — PAYBACK India</b><span>Mar 2018 – Feb 2022</span></div>
+        <div><b>M.Tech, Mobile Computing &amp; Network Technology · B.Tech IT (Hons.)</b><span>WBUT · University of Kalyani</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+<footer>© 2026 Soham Sengupta · Engineer &amp; Educator · IIE Kalyani</footer>
+
+<script>
+/* ===== EDIT ME ===== */
+const LINKEDIN = "https://in.linkedin.com/in/soham-sengupta-37279825";
+const RESOURCES_URL = "https://trainerpb.github.io/public-htmls/SS-Leanring%20Resources.html";
+/* Routine: periods 1-4 = 9:40–1:20, break, 5-8 = 2:00–5:20. p = first period, n = periods covered */
+const PERIODS=["9:40–10:35","10:35–11:30","11:30–12:25","12:25–1:20","2:00–2:50","2:50–3:40","3:40–4:30","4:30–5:20"];
+const DAYS=["MON","TUE","WED","THU","FRI"];
+const SLOTS=[
+ {d:0,p:4,n:1,sub:"Cloud Computing",cls:"3Y AIML",k:"cc"},
+ {d:0,p:6,n:3,sub:"IT Workshop (Python I)",cls:"2Y AIML + B",k:"py"},
+ {d:1,p:2,n:3,sub:"OOP Lab",cls:"3Y CSE B",note:"with AS maam",k:"oop"},
+ {d:1,p:5,n:2,sub:"Cloud Computing",cls:"3Y AIML",k:"cc"},
+ {d:1,p:7,n:2,sub:"OOP Lab",cls:"3Y CSE A",k:"oop"},
+ {d:3,p:2,n:3,sub:"OOP Lab",cls:"3Y CSE A",note:"with AS maam",k:"oop"},
+ {d:3,p:7,n:2,sub:"OOP Lab",cls:"3Y CSE B (Gr-B)",k:"oop"}
+];
+const LOAD=[["OOP","CSE A, B","5","0","10"],["Cloud Computing","AIML","5","3","0"],["IT Workshop (Python I)","AIML","3","0","3"],["<b>Total</b>","","","<b>3</b>","<b>13</b>"],["<b>Total load</b>","","","","<b>16 periods / week</b>"]];
+/* ==================== */
+
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+let fs="All",fc="All",fd="All";
+const subs=[...new Set(SLOTS.map(s=>s.sub))],clss=[...new Set(SLOTS.map(s=>s.cls))];
+$("#fSub").innerHTML=["All subjects",...subs].map((x,i)=>`<option value="${i?x:"All"}">${x}</option>`).join("");
+$("#fCls").innerHTML=["All classes",...clss].map((x,i)=>`<option value="${i?x:"All"}">${x}</option>`).join("");
+$("#fDay").innerHTML=["All",...DAYS].map(d=>`<button class="pill ${d==="All"?"on":""}" data-d="${d}">${d}</button>`).join("");
+$("#stats").innerHTML=[["3","Subjects"],["3","Theory periods"],["13","Lab periods"],["16","Total load"]].map(([a,b])=>`<div class="glass stat"><b>${a}</b><span>${b}</span></div>`).join("");
+$("#load").innerHTML="<tr><th align=left>Subject</th><th>Dept</th><th>Sem</th><th>Theory</th><th>Practical</th></tr>"+LOAD.map(r=>`<tr>${r.map((c,i)=>`<td style="height:auto;padding:8px;text-align:${i?"center":"left"}">${c}</td>`).join("")}</tr>`).join("");
+
+function match(s){return (fs==="All"||s.sub===fs)&&(fc==="All"||s.cls===fc)&&(fd==="All"||DAYS[s.d]===fd)}
+function draw(){
+  const today=(new Date().getDay()+6)%7;
+  let h="<tr><th>DAY \\ Period</th>"+PERIODS.map((p,i)=>`<th>${i+1}<small>${p}</small></th>${i==3?"<th></th>":""}`).join("")+"</tr>";
+  DAYS.forEach((day,d)=>{
+    h+=`<tr><td class="day ${d===today?"today":""}">${day}</td>`;
+    for(let p=1;p<=8;){
+      const s=SLOTS.find(x=>x.d===d&&x.p===p);
+      if(s){h+=`<td class="s k-${s.k} ${match(s)?"":"dim"}" colspan="${s.n}">${s.sub}<em>${s.cls}${s.note?" · "+s.note:""}</em></td>`;p+=s.n}
+      else{h+=`<td class="${fd!=="All"&&fd!==day||fs!=="All"||fc!=="All"?"dim":""}"></td>`;p++}
+      if(p===5&&d===0)h+=`<td class="brk" rowspan="5">BREAK</td>`;
+    }
+    h+="</tr>";
+  });
+  $("#tt").innerHTML=h;
+  const n=SLOTS.filter(match).reduce((a,s)=>a+s.n,0);
+  $("#count").textContent=n+" period"+(n===1?"":"s")+" match";
+}
+$("#fSub").onchange=e=>{fs=e.target.value;draw()};
+$("#fCls").onchange=e=>{fc=e.target.value;draw()};
+$("#fDay").onclick=e=>{const b=e.target.closest(".pill");if(!b)return;fd=b.dataset.d;$$("#fDay .pill").forEach(x=>x.classList.toggle("on",x===b));draw()};
+
+$("#connect").href=LINKEDIN;
+$("#open").href=RESOURCES_URL;
+let loaded=false;
+function view(v){
+  if(!["routine","resources","instructor"].includes(v))v="routine";
+  $$("section").forEach(s=>s.classList.toggle("on",s.id===v));
+  $$("nav a").forEach(a=>a.classList.toggle("on",a.dataset.v===v));
+  if(v==="resources"&&!loaded){$("#frame").src=RESOURCES_URL;loaded=true}
+  scrollTo({top:0})
+}
+addEventListener("hashchange",()=>view(location.hash.slice(1)));
+$("#ffs").onclick=()=>{const f=$("#frame");document.fullscreenElement?document.exitFullscreen():f.requestFullscreen&&f.requestFullscreen().catch(()=>{})};
+const T=$("#theme");
+try{T.value=localStorage.getItem("iie-theme")||"morning"}catch(e){}
+if(T.selectedIndex<0)T.value="morning";
+const setT=()=>{document.documentElement.dataset.theme=T.value;try{localStorage.setItem("iie-theme",T.value)}catch(e){}};
+T.onchange=setT;setT();draw();view(location.hash.slice(1));
+</script>
+</body>
+</html>
